@@ -1,0 +1,1475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>RV.layout API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>RV.layout</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from jupyter_dash import JupyterDash
+
+from dash import dcc, html
+import dash_bootstrap_components as dbc
+
+from plotly.graph_objs import Figure
+
+from callbacks.modal_callbacks import register_modal_callbacks
+from callbacks.loading_callbacks import register_loading_callbacks
+from callbacks.saving_callbacks import register_saving_callbacks
+from callbacks.annotation_callbacks import register_annotation_callbacks
+from callbacks.bad_channel_callbacks import register_bad_channel_callbacks
+from callbacks.model_callbacks import register_model_callbacks
+from callbacks.visualization_callbacks import register_visualization_callbacks
+
+def setup_app(disable_file_selection=False, disable_preprocessing=False):
+    &#34;&#34;&#34;Sets up HTML of RV application.
+
+    Args:
+        disable_file_selection (bool, optional): Whether or not to disable file selection.. Defaults to False.
+        disable_preprocessing (bool, optional): Whether or not to disable a preprocessing option.. Defaults to False.
+    &#34;&#34;&#34;
+    app = JupyterDash(__name__, assets_folder=&#39;assets&#39;)
+    app.layout = html.Div([
+        # Top-bar buttons
+        html.Div([
+            html.Div([
+                dbc.Button(
+                    &#34;Preprocessing&#34;,
+                    id=&#34;open-file&#34;,
+                    className=&#39;button&#39;,
+                ),
+                dbc.Button(
+                    &#34;Save to&#34;,
+                    id=&#34;open-save&#34;,
+                    className=&#39;button&#39;,
+                    style={&#39;display&#39;:&#39;none&#39;,&#39;weight&#39;:&#39;0px&#39;,&#39;height&#39;:&#39;0px&#39;} if disable_file_selection else {}
+                ),
+            ], className=&#39;aligned first&#39;),
+            html.Div([
+                html.Div([
+                    dcc.Dropdown(
+                        id=&#39;bad-channels-dropdown&#39;,
+                        multi=True,
+                        placeholder=&#39;Click here to select bad channels...&#39;,
+                    )
+                ], className=&#39;aligned&#39;),
+                html.Div([
+                    dbc.Button(
+                        &#34;Redraw&#34;,
+                        id=&#34;redraw-button&#34;,
+                        className=&#39;button&#39;
+                    ),
+                ], className=&#39;aligned&#39;)
+            ], className=&#39;aligned second&#39;),
+            html.Div([
+                dbc.Button(
+                    &#34;Stats&#34;,
+                    id=&#34;open-stats&#34;,
+                    className=&#39;button&#39;
+                ),
+                dbc.Button(
+                    &#34;Power spectrum&#34;,
+                    id=&#34;open-power-spectrum&#34;,
+                    className=&#39;button&#39;
+                ),
+            ], className=&#39;aligned third&#39;, id=&#39;stats-buttons&#39;),
+            html.Div([
+                dbc.Button(
+                    &#34;Help&#34;,
+                    id=&#34;open-help&#34;,
+                    className=&#39;button&#39;
+                ),
+                dbc.Button(
+                    &#34;Quit&#34;,
+                    id=&#34;quit-button&#34;,
+                    className=&#39;button&#39;
+                ),
+            ], className=&#39;aligned&#39;, id=&#39;right-buttons&#39;),
+        ], className=&#39;top-bar&#39;),
+        html.Div([
+            dbc.Button(
+                &#34;&lt;-&#34;,
+                id=&#34;left-button&#34;,
+                className=&#39;button&#39;
+            ),
+            dbc.Button(
+                &#34;-&gt;&#34;,
+                id=&#34;right-button&#34;,
+                className=&#39;button&#39;
+            ),
+        ], className=&#39;aligned&#39;, id=&#39;arrow-buttons&#39;),
+
+        # Open-file modal
+        dbc.Modal([
+            dbc.ModalHeader(&#34;Welcome to Robin&#39;s Viewer!&#34;),
+            dbc.ModalBody([
+                # EEG-file upload
+                html.Div([
+                    html.Div([
+                        html.H2(&#39;EEG-file selection&#39;),
+                        dcc.Upload(
+                            id=&#39;upload-file&#39;,
+                            children=html.Div([
+                                &#39;Drag-and-drop or &#39;,
+                                html.A(&#39;click here to select EEG file&#39;)
+                            ]),
+                            style={
+                                &#39;width&#39;: &#39;97%&#39;,
+                                &#39;height&#39;: &#39;60px&#39;,
+                                &#39;lineHeight&#39;: &#39;60px&#39;,
+                                &#39;borderWidth&#39;: &#39;1px&#39;,
+                                &#39;borderStyle&#39;: &#39;dashed&#39;,
+                                &#39;borderRadius&#39;: &#39;5px&#39;,
+                                &#39;textAlign&#39;: &#39;center&#39;,
+                                &#39;margin&#39;: &#39;10px&#39;
+                            } if not disable_file_selection else {&#39;width&#39;: &#39;0px&#39;, &#39;height&#39;: &#39;0px&#39;, &#39;display&#39;: &#39;none&#39;},
+                            multiple=False
+                        ),
+                        html.Label([
+                            &#39;Selected file:&#39;,
+                            html.Div(id=&#39;data-file&#39;)
+                        ]),
+                    ]),
+                    html.Div([
+                        dbc.Button(
+                            &#34;Stats&#34;,
+                            id=&#34;open-stats-2&#34;,
+                            className=&#39;button&#39;
+                        ),
+                    ])
+                ]),
+                html.Hr(),
+
+                # Pre-processing options
+                html.Div([
+                    html.H2(&#39;Pre-processing&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;High-pass:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;high-pass&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                html.Font(&#39;Low-pass:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;low-pass&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;)
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Reference:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Dropdown(
+                                    id=&#39;reference-dropdown&#39;,
+                                    options=[{&#39;label&#39;: &#39;Average&#39;, &#39;value&#39;: &#39;average&#39;}, {&#39;label&#39;: &#39;Cz&#39;, &#39;value&#39;: &#39;Cz&#39;}, {&#39;label&#39;: &#39;None&#39;, &#39;value&#39;: &#39;None&#39;}],
+                                    # placeholder=&#39;Click here to select the reference...&#39;,
+                                    value=&#39;None&#39;,
+                                    clearable=False,
+                                    className=&#39;small-dropdown&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Div([
+                                    html.Font(&#39;Bad-channel detection: &#39;, className=&#39;header&#39;),
+                                ], className=&#39;aligned&#39;),
+                                html.Div([
+                                    dcc.Dropdown(
+                                        id=&#39;bad-channel-detection-dropdown&#39;,
+                                        options=[{&#39;label&#39;: &#39;Autoreject&#39;, &#39;value&#39;: &#39;Autoreject&#39;}, {&#39;label&#39;: &#39;None&#39;, &#39;value&#39;: &#39;None&#39;}],
+                                        value=&#39;None&#39;,
+                                        clearable=False,
+                                        className=&#39;small-dropdown&#39;
+                                    )
+                                ], className=&#39;aligned&#39;),
+                            ]),
+                            html.Div([
+                                dbc.Checklist(
+                                    id=&#39;bad-channel-interpolation&#39;,
+                                    switch=True,  # no effect in Safari
+                                    options=[
+                                        {&#39;label&#39;: &#39;Interpolate bad channels&#39;, &#39;value&#39;: 1},
+                                    ],
+                                )
+                            ]),
+                        ]),
+                    ], className=&#39;aligned right-pre&#39;),
+                ]),
+                html.Hr(),
+
+                # Visualization options
+                html.Div([
+                    html.H2(&#39;Visualization&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Resampling rate:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;resample-rate&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Scale:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;scale&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: 1e-6&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Channel-offset:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;channel-offset&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: 40 (μV)&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Segments (in sec):&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;segment-size&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: None&#34;,
+                                    min=1,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;,
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            dbc.Checklist(
+                                id=&#39;use-slider&#39;,
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {&#39;label&#39;: &#39;Activate view-slider&#39;, &#39;value&#39;: 1},
+                                ],
+                                value=[1]
+                            )
+                        ]),
+                        html.Div([
+                            dbc.Button(
+                                &#34;Select channels&#34;,
+                                id=&#34;open-channel-select&#34;,
+                                className=&#39;button&#39;
+                            ),
+                        ]),
+                    ], className=&#39;aligned right-pre&#39;),
+                ]),
+                html.Hr(),
+                
+                # Deep-learning model
+                html.Div([
+                    html.Div([
+                        html.H2(&#39;Deep-learning model&#39;),
+                        dcc.Upload(
+                            id=&#39;upload-model-output&#39;,
+                            children=html.Div([
+                                &#39;Drag-and-drop or &#39;,
+                                html.A(&#39;click here to select model output&#39;)
+                            ]),
+                            style={
+                                &#39;width&#39;: &#39;97%&#39;,
+                                &#39;height&#39;: &#39;60px&#39;,
+                                &#39;lineHeight&#39;: &#39;60px&#39;,
+                                &#39;borderWidth&#39;: &#39;1px&#39;,
+                                &#39;borderStyle&#39;: &#39;dashed&#39;,
+                                &#39;borderRadius&#39;: &#39;5px&#39;,
+                                &#39;textAlign&#39;: &#39;center&#39;,
+                                &#39;margin&#39;: &#39;10px&#39;
+                            },
+                            multiple=True
+                        ),
+                        html.Label([
+                            &#39;Selected model output:&#39;,
+                            html.Div(id=&#39;model-output-files&#39;)
+                        ]),
+                    ]),
+                    html.Div([
+                        dbc.Button(&#34;Remove model predictions&#34;, id=&#34;reset-models&#34;, className=&#34;button&#34;)
+                    ]),
+                    html.Div([
+                        dbc.Checklist(
+                            id=&#39;run-model&#39;,
+                            switch=True,  # no effect in Safari
+                            options=[
+                                {&#39;label&#39;: &#39;Run model from run_model.py&#39;, &#39;value&#39;: 0},
+                            ],
+                        )
+                    ]),
+                    html.Div([
+                        html.Div([
+                            dbc.Checklist(
+                                id=&#39;annotate-model&#39;,
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {&#39;label&#39;: &#39;Annotate according to model with threshold&#39;, &#39;value&#39;: 0}
+                                ],
+                            )
+                        ], className=&#39;aligned checklist&#39;),
+                        html.Div([
+                            dcc.Input(
+                                id=&#34;model-threshold&#34;,
+                                type=&#39;number&#39;,
+                                placeholder=&#34;default: 0.5&#34;,
+                                min=0,
+                                max=1,
+                                debounce=True,
+                                className=&#39;medium-input&#39;
+                            ),
+                        ], className=&#39;aligned&#39;),
+                    ]),
+                ]),
+                html.Hr(),
+
+                dbc.Button(&#34;Plot&#34;, id=&#34;plot-button&#34;, className=[&#39;button&#39;])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-file&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-file&#34;,
+            is_open=True,
+            size=&#39;lg&#39;,
+            centered=True,
+        ),
+
+        # Stats modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Statistics&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2(&#39;File name:&#39;),
+                    html.Font(id=&#39;file-name&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Recording length (in sec):&#39;),
+                    html.Font(id=&#39;recording-length&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of annotated data (in sec):&#39;),
+                    html.Font(id=&#39;#noisy-data&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of clean data left (in sec):&#39;),
+                    html.Font(id=&#39;#clean-data&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of clean intervals longer than 2 seconds:&#39;),
+                    html.Font(id=&#39;#clean-intervals&#39;)
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id=&#39;clean-intervals-graph&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: False,
+                        },
+                    ),
+                ]),
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-stats&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-stats&#34;,
+            scrollable=True,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Save modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Save to&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Save-file name:&#39;, className=&#39;header&#39;),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        dcc.Input(
+                            id=&#34;save-file-name&#34;,
+                            type=&#39;text&#39;,
+                            placeholder=&#34;Enter file-name here&#34;,
+                            debounce=True
+                        ),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        dcc.Dropdown(
+                            id=&#39;extension-selection-dropdown&#39;,
+                            options=[{&#39;label&#39;: &#39;.fif&#39;, &#39;value&#39;: &#39;.fif&#39;}],#, {&#39;label&#39;: &#39;.edf&#39;, &#39;value&#39;: &#39;.edf&#39;}, {&#39;label&#39;: &#39;.set (EEGLAB)&#39;, &#39;value&#39;: &#39;.set&#39;}],
+                            # placeholder=&#39;Select file extension (default .fif)&#39;,
+                            value=&#39;.fif&#39;,
+                        ),
+                    ], className=&#39;aligned&#39;),
+                ], id=&#39;save-to-input&#39;),
+                html.Div([
+                    dbc.ButtonGroup([
+                        dbc.Button(&#34;Save with entered name&#34;, id=&#34;save-button&#34;, className=[&#39;button&#39;]),
+                        dbc.Button(&#34;Overwrite current file&#34;, id=&#34;open-overwrite-button&#34;, className=[&#39;button&#39;])
+                    ])
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-save&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-save&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Overwrite modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Caution!&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Are you sure you want to overwrite the current save-file?&#39;)
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button(&#34;Yes&#34;, id=&#34;overwrite-button&#34;, className=[&#39;button&#39;]),
+                            dbc.Button(&#34;No&#34;, id=&#34;cancel-overwrite-button&#34;, className=[&#39;button&#39;]),
+                        ])
+                    ]),
+                ])
+            ])],
+            id=&#34;modal-overwrite&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Help modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Help&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Introduction-video:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://drive.google.com/file/d/1R2lVvxA7y1eujTJwSr7iUT5QuHEKvvJN/view?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Tutorial-slides:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://docs.google.com/presentation/d/1kmPZ7uWQ9w3520vlD68yWS1okdKrZ6gT0g3bJpQocq0/edit?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Bulletpoint-manual:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://docs.google.com/document/d/1b4SI8fo5kqLpPFPG750h8qYea6fyjx1_m7A-ZhVw8kg/edit?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    html.Div([
+                        html.Label([
+                            &#39;Full manual:&#39;,
+                            html.A(
+                                &#39; Click here&#39;,
+                                href=&#39;https://docs.google.com/document/d/12AQq7weN4934GbkHRQZ4Jp3SGfHRDwaCfo2EPCJXjIE/edit?usp=sharing&#39;,
+                                target=&#39;_blank&#39;
+                            )
+                        ])
+                    ]),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-help&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            ),
+            ],
+            id=&#34;modal-help&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Quit modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Caution!&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Are you sure you want to quit? Data will be saved to save_file_path if given.&#39;)
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button(&#34;Yes&#34;, id=&#34;final-quit-button&#34;, className=[&#39;button&#39;]),
+                            dbc.Button(&#34;No&#34;, id=&#34;cancel-quit-button&#34;, className=[&#39;button&#39;]),
+                        ])
+                    ]),
+                ])
+            ])],
+            id=&#34;modal-quit&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Channel modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Channel selection&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    dcc.Dropdown(
+                        id=&#39;selected-channels-dropdown&#39;,
+                        multi=True,
+                        placeholder=&#39;Click here to select channels to plot or select them in the plot below...&#39;,
+                    )
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id=&#39;channel-topography&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: True,
+                            &#39;displaylogo&#39;: False,
+                            &#39;modeBarButtonsToRemove&#39;: [
+                                # &#39;lasso2d&#39;,
+                                &#39;autoScale2d&#39;,
+                                &#39;toImage&#39;,
+                                &#39;hoverClosestCartesian&#39;,
+                                &#39;hoverCompareCartesian&#39;,
+                                &#39;toggleSpikelines&#39;
+                            ],
+                            &#39;scrollZoom&#39;: True,
+                        },
+                        style={
+                            &#39;height&#39;: &#39;70vh&#39;,
+                        }
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-channel-select&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-channel-select&#34;,
+            scrollable=False,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Power-spectrum modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Power spectrum of selected interval&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2(&#39;Most prominent frequency:&#39;),
+                    html.Font(id=&#39;selected-data&#39;),
+                ]),
+                html.Div([
+                    html.H2(&#39;Welch power spectrum:&#39;),
+                    dcc.Graph(
+                        id=&#39;power-spectrum&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: True,
+                            &#39;scrollZoom&#39;: True
+                        },
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-power-spectrum&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-power-spectrum&#34;,
+            scrollable=True,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # EEG graph
+        dcc.Loading(
+            id=&#34;loading-icon&#34;,
+            children=[
+                dcc.Graph(
+                    id=&#39;EEG-graph&#39;,
+                    figure=Figure(),
+                    config={
+                        &#39;modeBarButtonsToAdd&#39;:[
+                            &#39;drawrect&#39;,
+                            &#39;eraseshape&#39;
+                        ],
+                        &#39;modeBarButtonsToRemove&#39;:[
+                            &#39;lasso2d&#39;,
+                            &#39;autoScale2d&#39;,
+                            &#39;hoverClosestCartesian&#39;,
+                            &#39;hoverCompareCartesian&#39;,
+                        ],
+                        &#39;displayModeBar&#39;: True,
+                        # &#39;doubleClick&#39;: &#39;reset&#39;
+                        &#39;doubleClickDelay&#39;: 300,
+                        &#39;displaylogo&#39;: False,
+                        &#39;toImageButtonOptions&#39;: {
+                            &#39;format&#39;: &#39;png&#39;, # one of png, svg, jpeg, webp
+                            &#39;filename&#39;: &#39;EEG_RV&#39;,
+                        },
+                        &#39;scrollZoom&#39;: True
+                    },
+                    style={
+                        &#39;height&#39;: &#39;90vh&#39;,
+                    },
+                ),
+            ],
+            type=&#34;graph&#34;,
+            # fullscreen=True
+        ),
+
+        # Hidden output variables
+        html.Pre(id=&#39;relayout-data&#39;),
+        html.Pre(id=&#39;click-data&#39;),
+        html.Pre(id=&#39;preload-data&#39;),
+        html.Pre(id=&#39;chosen-bad-channels&#39;),
+        html.Pre(id=&#39;chosen-bad-channel-detection&#39;),
+        html.Pre(id=&#39;chosen-bad-channel-interpolation&#39;),
+        html.Pre(id=&#39;chosen-channels&#39;),
+        html.Pre(id=&#39;chosen-model&#39;),
+        html.Pre(id=&#39;chosen-model-threshold&#39;),
+        html.Pre(id=&#39;chosen-save-file-name&#39;),
+        html.Pre(id=&#39;chosen-extension&#39;),
+        html.Pre(id=&#39;chosen-overwrite&#39;),
+        html.Pre(id=&#39;save-file&#39;),
+        html.Pre(id=&#39;overwrite-file&#39;),
+        html.Pre(id=&#39;quit-viewer&#39;),
+        html.Pre(id=&#39;quit-viewer-close&#39;)
+    ])
+
+    # Register callbacks
+    register_modal_callbacks(app)
+    register_loading_callbacks(app)
+    register_saving_callbacks(app)
+    register_annotation_callbacks(app)
+    register_bad_channel_callbacks(app)
+    register_model_callbacks(app)
+    register_visualization_callbacks(app)
+    
+    return app</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="RV.layout.setup_app"><code class="name flex">
+<span>def <span class="ident">setup_app</span></span>(<span>disable_file_selection=False, disable_preprocessing=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets up HTML of RV application.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>disable_file_selection</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether or not to disable file selection.. Defaults to False.</dd>
+<dt><strong><code>disable_preprocessing</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether or not to disable a preprocessing option.. Defaults to False.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_app(disable_file_selection=False, disable_preprocessing=False):
+    &#34;&#34;&#34;Sets up HTML of RV application.
+
+    Args:
+        disable_file_selection (bool, optional): Whether or not to disable file selection.. Defaults to False.
+        disable_preprocessing (bool, optional): Whether or not to disable a preprocessing option.. Defaults to False.
+    &#34;&#34;&#34;
+    app = JupyterDash(__name__, assets_folder=&#39;assets&#39;)
+    app.layout = html.Div([
+        # Top-bar buttons
+        html.Div([
+            html.Div([
+                dbc.Button(
+                    &#34;Preprocessing&#34;,
+                    id=&#34;open-file&#34;,
+                    className=&#39;button&#39;,
+                ),
+                dbc.Button(
+                    &#34;Save to&#34;,
+                    id=&#34;open-save&#34;,
+                    className=&#39;button&#39;,
+                    style={&#39;display&#39;:&#39;none&#39;,&#39;weight&#39;:&#39;0px&#39;,&#39;height&#39;:&#39;0px&#39;} if disable_file_selection else {}
+                ),
+            ], className=&#39;aligned first&#39;),
+            html.Div([
+                html.Div([
+                    dcc.Dropdown(
+                        id=&#39;bad-channels-dropdown&#39;,
+                        multi=True,
+                        placeholder=&#39;Click here to select bad channels...&#39;,
+                    )
+                ], className=&#39;aligned&#39;),
+                html.Div([
+                    dbc.Button(
+                        &#34;Redraw&#34;,
+                        id=&#34;redraw-button&#34;,
+                        className=&#39;button&#39;
+                    ),
+                ], className=&#39;aligned&#39;)
+            ], className=&#39;aligned second&#39;),
+            html.Div([
+                dbc.Button(
+                    &#34;Stats&#34;,
+                    id=&#34;open-stats&#34;,
+                    className=&#39;button&#39;
+                ),
+                dbc.Button(
+                    &#34;Power spectrum&#34;,
+                    id=&#34;open-power-spectrum&#34;,
+                    className=&#39;button&#39;
+                ),
+            ], className=&#39;aligned third&#39;, id=&#39;stats-buttons&#39;),
+            html.Div([
+                dbc.Button(
+                    &#34;Help&#34;,
+                    id=&#34;open-help&#34;,
+                    className=&#39;button&#39;
+                ),
+                dbc.Button(
+                    &#34;Quit&#34;,
+                    id=&#34;quit-button&#34;,
+                    className=&#39;button&#39;
+                ),
+            ], className=&#39;aligned&#39;, id=&#39;right-buttons&#39;),
+        ], className=&#39;top-bar&#39;),
+        html.Div([
+            dbc.Button(
+                &#34;&lt;-&#34;,
+                id=&#34;left-button&#34;,
+                className=&#39;button&#39;
+            ),
+            dbc.Button(
+                &#34;-&gt;&#34;,
+                id=&#34;right-button&#34;,
+                className=&#39;button&#39;
+            ),
+        ], className=&#39;aligned&#39;, id=&#39;arrow-buttons&#39;),
+
+        # Open-file modal
+        dbc.Modal([
+            dbc.ModalHeader(&#34;Welcome to Robin&#39;s Viewer!&#34;),
+            dbc.ModalBody([
+                # EEG-file upload
+                html.Div([
+                    html.Div([
+                        html.H2(&#39;EEG-file selection&#39;),
+                        dcc.Upload(
+                            id=&#39;upload-file&#39;,
+                            children=html.Div([
+                                &#39;Drag-and-drop or &#39;,
+                                html.A(&#39;click here to select EEG file&#39;)
+                            ]),
+                            style={
+                                &#39;width&#39;: &#39;97%&#39;,
+                                &#39;height&#39;: &#39;60px&#39;,
+                                &#39;lineHeight&#39;: &#39;60px&#39;,
+                                &#39;borderWidth&#39;: &#39;1px&#39;,
+                                &#39;borderStyle&#39;: &#39;dashed&#39;,
+                                &#39;borderRadius&#39;: &#39;5px&#39;,
+                                &#39;textAlign&#39;: &#39;center&#39;,
+                                &#39;margin&#39;: &#39;10px&#39;
+                            } if not disable_file_selection else {&#39;width&#39;: &#39;0px&#39;, &#39;height&#39;: &#39;0px&#39;, &#39;display&#39;: &#39;none&#39;},
+                            multiple=False
+                        ),
+                        html.Label([
+                            &#39;Selected file:&#39;,
+                            html.Div(id=&#39;data-file&#39;)
+                        ]),
+                    ]),
+                    html.Div([
+                        dbc.Button(
+                            &#34;Stats&#34;,
+                            id=&#34;open-stats-2&#34;,
+                            className=&#39;button&#39;
+                        ),
+                    ])
+                ]),
+                html.Hr(),
+
+                # Pre-processing options
+                html.Div([
+                    html.H2(&#39;Pre-processing&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;High-pass:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;high-pass&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                html.Font(&#39;Low-pass:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;low-pass&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;)
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Reference:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Dropdown(
+                                    id=&#39;reference-dropdown&#39;,
+                                    options=[{&#39;label&#39;: &#39;Average&#39;, &#39;value&#39;: &#39;average&#39;}, {&#39;label&#39;: &#39;Cz&#39;, &#39;value&#39;: &#39;Cz&#39;}, {&#39;label&#39;: &#39;None&#39;, &#39;value&#39;: &#39;None&#39;}],
+                                    # placeholder=&#39;Click here to select the reference...&#39;,
+                                    value=&#39;None&#39;,
+                                    clearable=False,
+                                    className=&#39;small-dropdown&#39;,
+                                    disabled=disable_preprocessing
+                                )
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Div([
+                                    html.Font(&#39;Bad-channel detection: &#39;, className=&#39;header&#39;),
+                                ], className=&#39;aligned&#39;),
+                                html.Div([
+                                    dcc.Dropdown(
+                                        id=&#39;bad-channel-detection-dropdown&#39;,
+                                        options=[{&#39;label&#39;: &#39;Autoreject&#39;, &#39;value&#39;: &#39;Autoreject&#39;}, {&#39;label&#39;: &#39;None&#39;, &#39;value&#39;: &#39;None&#39;}],
+                                        value=&#39;None&#39;,
+                                        clearable=False,
+                                        className=&#39;small-dropdown&#39;
+                                    )
+                                ], className=&#39;aligned&#39;),
+                            ]),
+                            html.Div([
+                                dbc.Checklist(
+                                    id=&#39;bad-channel-interpolation&#39;,
+                                    switch=True,  # no effect in Safari
+                                    options=[
+                                        {&#39;label&#39;: &#39;Interpolate bad channels&#39;, &#39;value&#39;: 1},
+                                    ],
+                                )
+                            ]),
+                        ]),
+                    ], className=&#39;aligned right-pre&#39;),
+                ]),
+                html.Hr(),
+
+                # Visualization options
+                html.Div([
+                    html.H2(&#39;Visualization&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Resampling rate:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;resample-rate&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;in Hz&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;small-input&#39;,
+                                    disabled=disable_preprocessing
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Scale:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;scale&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: 1e-6&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Channel-offset:&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;channel-offset&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: 40 (μV)&#34;,
+                                    min=0,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Font(&#39;Segments (in sec):&#39;, className=&#39;header&#39;)
+                            ], className=&#39;aligned&#39;),
+                            html.Div([
+                                dcc.Input(
+                                    id=&#34;segment-size&#34;,
+                                    type=&#39;number&#39;,
+                                    placeholder=&#34;default: None&#34;,
+                                    min=1,
+                                    debounce=True,
+                                    className=&#39;medium-input&#39;,
+                                ),
+                            ], className=&#39;aligned&#39;),
+                        ]),
+                        html.Div([
+                            dbc.Checklist(
+                                id=&#39;use-slider&#39;,
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {&#39;label&#39;: &#39;Activate view-slider&#39;, &#39;value&#39;: 1},
+                                ],
+                                value=[1]
+                            )
+                        ]),
+                        html.Div([
+                            dbc.Button(
+                                &#34;Select channels&#34;,
+                                id=&#34;open-channel-select&#34;,
+                                className=&#39;button&#39;
+                            ),
+                        ]),
+                    ], className=&#39;aligned right-pre&#39;),
+                ]),
+                html.Hr(),
+                
+                # Deep-learning model
+                html.Div([
+                    html.Div([
+                        html.H2(&#39;Deep-learning model&#39;),
+                        dcc.Upload(
+                            id=&#39;upload-model-output&#39;,
+                            children=html.Div([
+                                &#39;Drag-and-drop or &#39;,
+                                html.A(&#39;click here to select model output&#39;)
+                            ]),
+                            style={
+                                &#39;width&#39;: &#39;97%&#39;,
+                                &#39;height&#39;: &#39;60px&#39;,
+                                &#39;lineHeight&#39;: &#39;60px&#39;,
+                                &#39;borderWidth&#39;: &#39;1px&#39;,
+                                &#39;borderStyle&#39;: &#39;dashed&#39;,
+                                &#39;borderRadius&#39;: &#39;5px&#39;,
+                                &#39;textAlign&#39;: &#39;center&#39;,
+                                &#39;margin&#39;: &#39;10px&#39;
+                            },
+                            multiple=True
+                        ),
+                        html.Label([
+                            &#39;Selected model output:&#39;,
+                            html.Div(id=&#39;model-output-files&#39;)
+                        ]),
+                    ]),
+                    html.Div([
+                        dbc.Button(&#34;Remove model predictions&#34;, id=&#34;reset-models&#34;, className=&#34;button&#34;)
+                    ]),
+                    html.Div([
+                        dbc.Checklist(
+                            id=&#39;run-model&#39;,
+                            switch=True,  # no effect in Safari
+                            options=[
+                                {&#39;label&#39;: &#39;Run model from run_model.py&#39;, &#39;value&#39;: 0},
+                            ],
+                        )
+                    ]),
+                    html.Div([
+                        html.Div([
+                            dbc.Checklist(
+                                id=&#39;annotate-model&#39;,
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {&#39;label&#39;: &#39;Annotate according to model with threshold&#39;, &#39;value&#39;: 0}
+                                ],
+                            )
+                        ], className=&#39;aligned checklist&#39;),
+                        html.Div([
+                            dcc.Input(
+                                id=&#34;model-threshold&#34;,
+                                type=&#39;number&#39;,
+                                placeholder=&#34;default: 0.5&#34;,
+                                min=0,
+                                max=1,
+                                debounce=True,
+                                className=&#39;medium-input&#39;
+                            ),
+                        ], className=&#39;aligned&#39;),
+                    ]),
+                ]),
+                html.Hr(),
+
+                dbc.Button(&#34;Plot&#34;, id=&#34;plot-button&#34;, className=[&#39;button&#39;])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-file&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-file&#34;,
+            is_open=True,
+            size=&#39;lg&#39;,
+            centered=True,
+        ),
+
+        # Stats modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Statistics&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2(&#39;File name:&#39;),
+                    html.Font(id=&#39;file-name&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Recording length (in sec):&#39;),
+                    html.Font(id=&#39;recording-length&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of annotated data (in sec):&#39;),
+                    html.Font(id=&#39;#noisy-data&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of clean data left (in sec):&#39;),
+                    html.Font(id=&#39;#clean-data&#39;)
+                ]),
+                html.Div([
+                    html.H2(&#39;Amount of clean intervals longer than 2 seconds:&#39;),
+                    html.Font(id=&#39;#clean-intervals&#39;)
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id=&#39;clean-intervals-graph&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: False,
+                        },
+                    ),
+                ]),
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-stats&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-stats&#34;,
+            scrollable=True,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Save modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Save to&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Save-file name:&#39;, className=&#39;header&#39;),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        dcc.Input(
+                            id=&#34;save-file-name&#34;,
+                            type=&#39;text&#39;,
+                            placeholder=&#34;Enter file-name here&#34;,
+                            debounce=True
+                        ),
+                    ], className=&#39;aligned&#39;),
+                    html.Div([
+                        dcc.Dropdown(
+                            id=&#39;extension-selection-dropdown&#39;,
+                            options=[{&#39;label&#39;: &#39;.fif&#39;, &#39;value&#39;: &#39;.fif&#39;}],#, {&#39;label&#39;: &#39;.edf&#39;, &#39;value&#39;: &#39;.edf&#39;}, {&#39;label&#39;: &#39;.set (EEGLAB)&#39;, &#39;value&#39;: &#39;.set&#39;}],
+                            # placeholder=&#39;Select file extension (default .fif)&#39;,
+                            value=&#39;.fif&#39;,
+                        ),
+                    ], className=&#39;aligned&#39;),
+                ], id=&#39;save-to-input&#39;),
+                html.Div([
+                    dbc.ButtonGroup([
+                        dbc.Button(&#34;Save with entered name&#34;, id=&#34;save-button&#34;, className=[&#39;button&#39;]),
+                        dbc.Button(&#34;Overwrite current file&#34;, id=&#34;open-overwrite-button&#34;, className=[&#39;button&#39;])
+                    ])
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-save&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-save&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Overwrite modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Caution!&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Are you sure you want to overwrite the current save-file?&#39;)
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button(&#34;Yes&#34;, id=&#34;overwrite-button&#34;, className=[&#39;button&#39;]),
+                            dbc.Button(&#34;No&#34;, id=&#34;cancel-overwrite-button&#34;, className=[&#39;button&#39;]),
+                        ])
+                    ]),
+                ])
+            ])],
+            id=&#34;modal-overwrite&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Help modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Help&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Introduction-video:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://drive.google.com/file/d/1R2lVvxA7y1eujTJwSr7iUT5QuHEKvvJN/view?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Tutorial-slides:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://docs.google.com/presentation/d/1kmPZ7uWQ9w3520vlD68yWS1okdKrZ6gT0g3bJpQocq0/edit?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    # html.Div([
+                    #     html.Label([
+                    #         &#39;Bulletpoint-manual:&#39;,
+                    #         html.A(
+                    #             &#39; Click here&#39;,
+                    #             href=&#39;https://docs.google.com/document/d/1b4SI8fo5kqLpPFPG750h8qYea6fyjx1_m7A-ZhVw8kg/edit?usp=sharing&#39;,
+                    #             target=&#39;_blank&#39;
+                    #         )
+                    #     ]),
+                    # ]),
+                    html.Div([
+                        html.Label([
+                            &#39;Full manual:&#39;,
+                            html.A(
+                                &#39; Click here&#39;,
+                                href=&#39;https://docs.google.com/document/d/12AQq7weN4934GbkHRQZ4Jp3SGfHRDwaCfo2EPCJXjIE/edit?usp=sharing&#39;,
+                                target=&#39;_blank&#39;
+                            )
+                        ])
+                    ]),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-help&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            ),
+            ],
+            id=&#34;modal-help&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Quit modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Caution!&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font(&#39;Are you sure you want to quit? Data will be saved to save_file_path if given.&#39;)
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button(&#34;Yes&#34;, id=&#34;final-quit-button&#34;, className=[&#39;button&#39;]),
+                            dbc.Button(&#34;No&#34;, id=&#34;cancel-quit-button&#34;, className=[&#39;button&#39;]),
+                        ])
+                    ]),
+                ])
+            ])],
+            id=&#34;modal-quit&#34;,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Channel modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Channel selection&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    dcc.Dropdown(
+                        id=&#39;selected-channels-dropdown&#39;,
+                        multi=True,
+                        placeholder=&#39;Click here to select channels to plot or select them in the plot below...&#39;,
+                    )
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id=&#39;channel-topography&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: True,
+                            &#39;displaylogo&#39;: False,
+                            &#39;modeBarButtonsToRemove&#39;: [
+                                # &#39;lasso2d&#39;,
+                                &#39;autoScale2d&#39;,
+                                &#39;toImage&#39;,
+                                &#39;hoverClosestCartesian&#39;,
+                                &#39;hoverCompareCartesian&#39;,
+                                &#39;toggleSpikelines&#39;
+                            ],
+                            &#39;scrollZoom&#39;: True,
+                        },
+                        style={
+                            &#39;height&#39;: &#39;70vh&#39;,
+                        }
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-channel-select&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-channel-select&#34;,
+            scrollable=False,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # Power-spectrum modal
+        dbc.Modal([
+            dbc.ModalHeader(&#39;Power spectrum of selected interval&#39;),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2(&#39;Most prominent frequency:&#39;),
+                    html.Font(id=&#39;selected-data&#39;),
+                ]),
+                html.Div([
+                    html.H2(&#39;Welch power spectrum:&#39;),
+                    dcc.Graph(
+                        id=&#39;power-spectrum&#39;,
+                        figure=Figure(),
+                        config={
+                            &#39;displayModeBar&#39;: True,
+                            &#39;scrollZoom&#39;: True
+                        },
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(&#34;Close&#34;, id=&#34;close-power-spectrum&#34;, className=[&#34;close-button&#34;, &#39;button&#39;])
+            )],
+            id=&#34;modal-power-spectrum&#34;,
+            scrollable=True,
+            is_open=False,
+            size=&#39;lg&#39;,
+            centered=True
+        ),
+
+        # EEG graph
+        dcc.Loading(
+            id=&#34;loading-icon&#34;,
+            children=[
+                dcc.Graph(
+                    id=&#39;EEG-graph&#39;,
+                    figure=Figure(),
+                    config={
+                        &#39;modeBarButtonsToAdd&#39;:[
+                            &#39;drawrect&#39;,
+                            &#39;eraseshape&#39;
+                        ],
+                        &#39;modeBarButtonsToRemove&#39;:[
+                            &#39;lasso2d&#39;,
+                            &#39;autoScale2d&#39;,
+                            &#39;hoverClosestCartesian&#39;,
+                            &#39;hoverCompareCartesian&#39;,
+                        ],
+                        &#39;displayModeBar&#39;: True,
+                        # &#39;doubleClick&#39;: &#39;reset&#39;
+                        &#39;doubleClickDelay&#39;: 300,
+                        &#39;displaylogo&#39;: False,
+                        &#39;toImageButtonOptions&#39;: {
+                            &#39;format&#39;: &#39;png&#39;, # one of png, svg, jpeg, webp
+                            &#39;filename&#39;: &#39;EEG_RV&#39;,
+                        },
+                        &#39;scrollZoom&#39;: True
+                    },
+                    style={
+                        &#39;height&#39;: &#39;90vh&#39;,
+                    },
+                ),
+            ],
+            type=&#34;graph&#34;,
+            # fullscreen=True
+        ),
+
+        # Hidden output variables
+        html.Pre(id=&#39;relayout-data&#39;),
+        html.Pre(id=&#39;click-data&#39;),
+        html.Pre(id=&#39;preload-data&#39;),
+        html.Pre(id=&#39;chosen-bad-channels&#39;),
+        html.Pre(id=&#39;chosen-bad-channel-detection&#39;),
+        html.Pre(id=&#39;chosen-bad-channel-interpolation&#39;),
+        html.Pre(id=&#39;chosen-channels&#39;),
+        html.Pre(id=&#39;chosen-model&#39;),
+        html.Pre(id=&#39;chosen-model-threshold&#39;),
+        html.Pre(id=&#39;chosen-save-file-name&#39;),
+        html.Pre(id=&#39;chosen-extension&#39;),
+        html.Pre(id=&#39;chosen-overwrite&#39;),
+        html.Pre(id=&#39;save-file&#39;),
+        html.Pre(id=&#39;overwrite-file&#39;),
+        html.Pre(id=&#39;quit-viewer&#39;),
+        html.Pre(id=&#39;quit-viewer-close&#39;)
+    ])
+
+    # Register callbacks
+    register_modal_callbacks(app)
+    register_loading_callbacks(app)
+    register_saving_callbacks(app)
+    register_annotation_callbacks(app)
+    register_bad_channel_callbacks(app)
+    register_model_callbacks(app)
+    register_visualization_callbacks(app)
+    
+    return app</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="RV" href="index.html">RV</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="RV.layout.setup_app" href="#RV.layout.setup_app">setup_app</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

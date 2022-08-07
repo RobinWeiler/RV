@@ -1,0 +1,1 @@
+This is where your EEG files have to be located in order to load them in RV.
