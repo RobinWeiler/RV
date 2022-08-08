@@ -1,3 +1,5 @@
+![alt text](https://github.com/RobinWeiler/RV/blob/94b6a21afcb8dabcde44ec4866e75c12335d1601/assets/RV_logo.png)
+
 # Welcome to Robin's Viewer (RV)
 
 Robin's Viewer (RV) is an interactive web-application including a user-friendly EEG viewer with the main purpose of annotating time-series EEG data using deep-learning models as a decision-support-system.
