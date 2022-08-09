@@ -45,7 +45,7 @@ def save_to(save_file_name, extension, raw):
     return new_file_name
 
 def overwrite_save(loaded_file_name, raw, save_file_path=None):
-    """Overwrites currently loaded file with given raw object. Only possible if currently loaded file is in "save-files" directory or at given save-file-path.
+    """Overwrites currently loaded file with given raw object. Only possible if currently loaded file is in "save-files" directory or at given save-file-path. If custom save_file_path is given, additionally saves a flag-file with same file-name and .done extension. This can be used by external scripts to detect when user is done annotating and has saved data.
 
     Args:
         loaded_file_name (string): File-name of currently loaded data.
