@@ -1,4 +1,4 @@
-![alt text](https://github.com/RobinWeiler/RV/blob/94b6a21afcb8dabcde44ec4866e75c12335d1601/assets/RV_logo.png)
+![alt text](https://github.com/RobinWeiler/RV/blob/55ca35355978ad2bdbc9223a43fd470ecfc05ba2/assets/RV_logo.png)
 
 # Welcome to Robin's Viewer (RV)
 
@@ -10,7 +10,7 @@ To view RV's documentation, simply open the "index.html" file in the "documentat
 
 ## Getting started
 
-To use RV, clone this repository. Then, install the libraries listed in the "requirements.txt" file. 
+To use RV, clone this repository. Then, install the libraries listed in the "requirements.txt" file. RV was developed using Python 3.9.12.
 
 You can either run RV directly or call it from within your own Python script.
 
