@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import SubsetRandomSampler
 
-# Configuration for he final CNN
+# Configuration for the final CNN
 cfg = {
     'model': {
         'network': 'CNN'

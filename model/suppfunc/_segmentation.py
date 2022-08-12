@@ -1,11 +1,19 @@
-
 import mne
 import pandas as pd
 import numpy as np
 
 
 def _segment_metadata(Raw, events, windowSize):
+    """Returns dataframe containing metadata for segmentation.
 
+    Args:
+        Raw (mne.io.Raw): EEG recording to be segmented as mne.io.Raw object.
+        events (numpy.array): Events to be used for segmentation.
+        windowSize (float): Size of the window in seconds.
+
+    Returns:
+        df (pandas.DataFrame): Dataframe containing metadata of the EEG segments.
+    """
     event_idx = range(len(events))
     ids = events[:, 2]
     labels = np.where(np.array(ids) == 0, 'artifact', (np.where(np.array(ids) == 2, 'ignored', 'nonartifact')))
@@ -21,19 +29,17 @@ def _segment_metadata(Raw, events, windowSize):
 
 
 def segmentRaw(Raw, windowSize, windowOverlap=0.5):
+    """Returns segments of an EEG recording as mne.Epochs
 
+    Args:
+        Raw (mne.io.Raw): EEG recording to be segmented as mne.io.Raw object.
+        windowSize (float): Size of the segmenting window in seconds.
+        windowOverlap (float): Overlap between consecutive windows. Defaults to 0.5.
+
+    Returns:
+        segments (mne.Epochs): Obtained EEG segments.
     """
-    Parameters
-    ----------
-    Raw :
 
-    windowSize :
-
-    windowOverlap :
-
-    Returns
-    -------
-    """
     sfreq = Raw.info["sfreq"]
     # Epoch length in timepoints
     epoch_length_timepoints = sfreq*windowSize

@@ -34,15 +34,48 @@ EGI128_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class ReshapeTransform:
+    """Class to transform a PIL image with torch.reshape.
+
+    Attributes
+    ----------
+    new_size : Tuple(n channels, image height, image width)
+
+    Methods
+    -------
+    __call__(img): Resizes PIL image.
+    """
     def __init__(self, new_size):
+        """Constructs new size attribute to which a PIL image will be transformed
+
+        Parameters
+        ----------
+        new_size : Tuple(n channels, image height, image width)
+        """
         self.new_size = new_size
 
     def __call__(self, img):
+        """Resizes a PIL image.
+
+        Parameters
+        ----------
+        img : PIL image
+
+        Returns
+        -------
+        Resized PIL image
+        """
         return torch.reshape(img, self.new_size)
 
 
 def _transform(imagesTF):
-    # Convert to torch tensor
+    """Returns converted to torch.Tensor resized PIL images.
+
+    Args:
+        imagesTF (list): List of PIL images.
+
+    Returns:
+        (torch.Tensor): Output tensor of a concatenated sequence of tensors.
+    """
     trans1 = transforms.ToTensor()
     trans2 = ReshapeTransform((19, 45, 100))
 
@@ -51,6 +84,11 @@ def _transform(imagesTF):
 
 
 def load_model():
+    """Loads the trained CNN model.
+
+    Returns:
+        net (Network.ConvNet): Trained CNN with loaded weights.
+    """
     path_to_model = os.path.join(c.MODEL_DIRECTORY, 'trained_model.pth.tar')
     # Define network
     cfg = _config.cfg
@@ -63,14 +101,14 @@ def load_model():
 
 
 def _run_model(model, tf_tensor):
-    """_summary_
+    """Runs the CNN model on new data and returns predicted class probabilities.
 
     Args:
         model (Network.ConvNet): Weights of the CNN model trained on time-frequency-transformed EEG segments.
-        tf_tensor (torch.tensor): Time-frequency-transformed EEG segments of normalized power obtained from an EEG recording.
+        tf_tensor (torch.Tensor): Time-frequency-transformed EEG segments of normalized power obtained from an EEG recording and converted to torch.Tensor.
 
     Returns:
-        _type_: _description_
+        probabilities (numpy.array): Predicted class probabilities.
     """
     # Reshape TF tensor (n_segments, n_channels, n_freq, n_times) to (n_segments, 1, n_channels, n_freq, n_times)
     tf_tensor = torch.reshape(tf_tensor, (tf_tensor.shape[0], 1, tf_tensor.shape[1],
@@ -92,14 +130,14 @@ def _run_model(model, tf_tensor):
 
 
 def preprocess_data(raw, viewing_raw=None):
-    """_summary_
+    """Preprocesses an EEG recording.
 
     Args:
-        raw (mne.io.Raw): Un-preprocessed raw object to get data from.
+        raw (mne.io.Raw): EEG recording as mne.Raw object.
         viewing_raw (mne.io.Raw, optional): Preprocessed raw object for plotting. Defaults to None.
 
     Returns:
-        _type_: _description_
+        Tuple(torch.Tensor, mne.Epochs, list, float): Transformed to TF images EEG segments, EEG segments, a list of selected channels used by the model, sampling frequency of model output.
     """
     # Segmentation parameters
     windowSize = 1.0  # in seconds
@@ -152,15 +190,15 @@ def preprocess_data(raw, viewing_raw=None):
 
 
 def feed_data_to_model(TF_data, segmentsRaw, model):
-    """_summary_
+    """Feeds data to the CNN model.
 
     Args:
-        TF_data (_type_): _description_
-        segmentsRaw (_type_): _description_
-        model (_type_): _description_
+        TF_data (torch.Tensor): Transformed to TF images EEG segments.
+        segmentsRaw (mne.Epochs): EEG segments as mne.Epochs.
+        model (Network.ConvNet): Trained CNN with loaded weights.
 
     Returns:
-        _type_: _description_
+        predictions (numpy.array): CNN predictions as artifact probability for each data point of EEG recording.
     """
     # Predict
     probabilities = _run_model(model, TF_data)
@@ -179,18 +217,17 @@ def feed_data_to_model(TF_data, segmentsRaw, model):
 
 
 def run_model(raw, viewing_raw=None):
-    """Run CNN model on the time-frequency-transformed EEG data.
+    """Runs the CNN model on the time-frequency-transformed EEG data.
 
     Args:
-        raw (mne.io.Raw): Un-preprocessed raw object to get data from.
+        raw (mne.io.Raw): Unpreprocessed raw object to get data from.
         viewing_raw (mne.io.Raw, optional): Preprocessed raw object for plotting. Defaults to None.
 
     Returns:
-        Tuple(array, list, float): Array of model-output, list of strings of channel names used by model, sample frequency of model-output.
+        Tuple(array, list, float): Array of model output, list of strings of channel names used by the model, sampling frequency of model output.
     """
     TF_data, segmentsRaw, selected_channel_names, sample_rate = preprocess_data(raw, viewing_raw)
     model = load_model()
     model_output = feed_data_to_model(TF_data, segmentsRaw, model)
 
     return model_output, selected_channel_names, sample_rate
-

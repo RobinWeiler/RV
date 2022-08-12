@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import pandas as pd
 import math
@@ -7,6 +5,17 @@ from scipy import interpolate
 
 
 def _interpolate(segment_probabilities, segment_times, sfreq, influence=0.5):
+    """Returns CNN predictions interpolated for each sample of the EEG signal
+
+    Args:
+        segment_probabilities (numpy.array): Predicted class probabilities.
+        segment_times (list): Time intervals of EEG segments.
+        sfreq (float): Sampling frequency in Hz.
+        influence (float): Parameter of influence of past and future predictions (how many segments from past and future to take into account when interpolating CNN predictions in the current segment).
+
+    Returns:
+        Tuple (list, list): CNN predictions per EEG sample, sample points of predictions.
+    """
     probabilities_per_sample = []
     times = []
     windowSize = int(segment_times[0][-1]-segment_times[0][0]+1/sfreq)
@@ -68,6 +77,16 @@ def _interpolate(segment_probabilities, segment_times, sfreq, influence=0.5):
 
 
 def _smooth(sample_probabilities, sfreq, smoothing_window=0.25):
+    """Returns smoothed CNN predictions.
+
+    Args:
+        sample_probabilities (list): Probabilities per EEG sample.
+        sfreq (float): Sampling frequency in Hz.
+        smoothing_window (float): Smoothing window in seconds.
+
+    Returns:
+        sample_probabilities (list): Smoothed CNN predictions.
+    """
 
     smoothing_samples = int(sfreq * smoothing_window)
 
@@ -88,14 +107,20 @@ def _smooth(sample_probabilities, sfreq, smoothing_window=0.25):
 
 
 def smooth(segment_probabilities, segment_times):
+    """Returns CNN predictions as artifact probability per EEG sample.
 
+    Args:
+        segment_probabilities (numpy.array): Predicted class probabilities.
+        segment_times (list): Time intervals of EEG segments.
+
+    Returns:
+        df (pandas.DataFrame): Dataframe of CNN predictions per EEG sample.
+    """
     # Sampling frequency in Hz
     sfreq = int(1/(segment_times[0][1]-segment_times[0][0]))
     probabilities_per_sample, times = _interpolate(segment_probabilities, segment_times, sfreq)
     smoothed_probabilities = _smooth(probabilities_per_sample, sfreq)
 
-    # df = pd.DataFrame(list(zip(times, smoothed_probabilities)), index=range(len(smoothed_probabilities)),
-    #                   columns=['time', 'probability'])
     df = pd.DataFrame(list(smoothed_probabilities), index=range(len(smoothed_probabilities)),
                       columns=['probability'])
     return df

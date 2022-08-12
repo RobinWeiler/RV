@@ -1,29 +1,26 @@
+import math
+import multiprocessing
+
+from joblib import Parallel, delayed
 
 import numpy as np
-import math
-from pathlib import Path
 import scipy
 import scipy.stats
 from scipy.spatial import KDTree
-from joblib import Parallel, delayed
-import multiprocessing
-import matplotlib
 
 
 def _wavelet_fft(frequencies, fwhm, nConv, wavtime):
+    """Returns FFTs of complex Morlet wavelet.
 
+    Args:
+        frequencies (numpy.array): Frequency bins.
+        fwhm (numpy.array): Full-width at half maximum parameter values which define time resolution.
+        nConv (int): Length of the output. If n is smaller than the length of the input, the input is cropped. If it is larger, the input is padded with zeros.
+        wavtime (numpy.array): Wavelet time-series.
+
+    Returns:
+        waveletFFT (numpy.array): FFTs of complex Morlet wavelet.
     """
-        Returns FFTs of complex Morlet wavelet
-
-        Parameters
-        ----------
-        frequencies (numpy array): frequency bins
-        fwhm (numpy array): Full-width at half maximum parameter values which defines time resolution
-        nConv (int): Length of the output. If n is smaller than the length of the input, the input is cropped.
-                If it is larger, the input is padded with zeros.
-        wavtime (numpy array): Wavelet time-series
-    """
-
     waveletFFT = np.zeros([len(frequencies), nConv], dtype=np.complex_)
     for i, freq, width in zip(range(len(frequencies)), frequencies, fwhm):
         # Define gaussian
@@ -40,23 +37,17 @@ def _wavelet_fft(frequencies, fwhm, nConv, wavtime):
 
 
 def _wavelet_convolution(waveletFFT, segmentsRaw, halfwav, nFreq, donwsampling=100):
+    """Returns Wavelet convolution results
+
+    Args:
+        waveletFFT (numpy.array): FFT of a complex Morlet wavelet.
+        segmentsRaw (mne.Epochs): Segments of the EEG recording.
+        halfwav (int): Index of the center point of the wavelet time-series.
+        nFreq (int): Number of frequency bins.
+
+    Returns:
+        TFs (list): Z-score-normalized time-frequency power values flattened across channels for each EEG segment.
     """
-        Returns Wavelet convolution results (Z-score-normalized time-frequency power values of EEG segments)
-
-        Parameters
-        ----------
-        waveletFFT (numpy 2D array): FFT of a complex Morlet wavelet
-        segmentsRaw (MNE Epochs): Segments/epochs of an EEG recording as MNE Epochs object
-        halfwav (int): Index of the center point of the wavelet time-series
-        nFreq (int): Number of frequency bins
-        donwsampling: in Hz
-
-        Returns
-        -------
-        out (2D list): Z-score-normalized time-frequency power values flattened across all channels
-            for each EEG segment/epoch
-    """
-
     # Window size in seconds
     windowSize = segmentsRaw.times[-1] + 1/segmentsRaw.info['sfreq']
 
@@ -101,29 +92,40 @@ def _wavelet_convolution(waveletFFT, segmentsRaw, halfwav, nFreq, donwsampling=1
 
 
 def _to_intensity(segmentTFs):
+    """Returns intensity values of time-frequency-converted EEG segments.
+
+    Args:
+        segmentTFs (list): Z-score-normalized time-frequency power values flattened across channels for each EEG segment.
+
+    Returns:
+        (list): Intensity values of time-frequency-converted EEG segments.
+    """
     # Normalize each segment across all channels
     return [(tf - np.min(tf)) / (np.max(tf) - np.min(tf)) for tf in segmentTFs]
 
 
 def _to_uint8(intensityTFs):
+    """Returns 8-bit unsigned integer values of intensity images of time-frequency-converted EEG segments.
+
+    Args:
+        intensityTFs (list): Intensity values of time-frequency-converted EEG segments.
+
+    Returns:
+        (list): 8-bit unsigned integer values of intensity images of time-frequency-converted EEG segments.
+    """
     return [(ints / np.max(ints))*255 for ints in intensityTFs]
 
 
 def segmentTF(segmentsRaw):
+    """Returns 8-bit unsigned integer values of intensity images of time-frequency-converted EEG segments.
+
+    Args:
+        segmentsRaw (mne.Epochs): Segments of the EEG recording.
+
+    Returns:
+        intensityTFs (list): 8-bit unsigned integer values of intensity images of time-frequency-converted EEG segments.
     """
-        Returns values of normalized power in time and frequency for each segment/epoch of and EEG recording
-
-        Parameters
-        ----------
-        segmentsRaw (mne.Epochs): Epochs/segments of the EEG recording
-
-        Returns
-        -------
-        out (uint8): Time-frequency images for eqch segment/epoch of the EEG recording
-    """
-
     # Checks (segmentsRaw type, number of channels = 19, segmentsRaw contain segments)
-
     # Parameters for Wavelet convolution
     minFreq = 0.5  # Hz
     maxFreq = 45  # Hz

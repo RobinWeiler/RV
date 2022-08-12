@@ -9,6 +9,5 @@ class PaddingChannelsTransform:
         self.pad = pad
 
     def __call__(self, img):
-        print(11, len(img[0]), len(img[0][0]))
         padding = Variable(torch.zeros(self.pad, len(img[0]), len(img[0][0])))
         return torch.cat((img, padding), 0)
