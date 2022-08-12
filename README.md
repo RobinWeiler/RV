@@ -28,3 +28,7 @@ sys.path.insert(0, './RV')
 from RV import run_viewer
 
 run_viewer(your_raw_object)
+
+## Demo
+
+The "RV_demo.ipynb" Jupyter Notebook contains a demo of how RV can be used with external preprocessing. Some example data is provided at https://www.dropbox.com/sh/6llqont8px1s86b/AADmEONSZqmhFXfl5e7NcB8Ga?dl=0 . The "RV_demo_signal_preprocessed.fif" file was preprocessed using the same steps as outlined in the "RV_demo.ipynb" Jupyter Notebook (1-45Hz bandpass filter; 50Hz notch filter) and already has several marked bad channels.
