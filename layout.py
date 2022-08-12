@@ -272,7 +272,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 dcc.Input(
                                     id="segment-size",
                                     type='number',
-                                    placeholder="default: None",
+                                    placeholder="No segments",
                                     min=1,
                                     debounce=True,
                                     className='medium-input',

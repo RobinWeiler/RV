@@ -283,7 +283,7 @@ def register_visualization_callbacks(app):
             # Resampling
             globals.viewing_raw = globals.raw.copy()
 
-            if resample_rate and float(resample_rate) != globals.raw.info['sfreq']:
+            if resample_rate and float(resample_rate) < globals.raw.info['sfreq']:
                 print('Resample-rate: {}'.format(resample_rate))
                 print('Performing resampling')
                 globals.viewing_raw.resample(resample_rate)

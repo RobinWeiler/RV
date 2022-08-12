@@ -3,6 +3,7 @@ from dash.dependencies import Input, Output
 from helperfunctions.loading_helperfunctions import parse_data_file
 
 import globals
+import constants as c
 
 
 def register_loading_callbacks(app):
@@ -45,7 +46,7 @@ def register_loading_callbacks(app):
             loaded_reference = 'None'
             loaded_scale = None
             loaded_offset = None
-            loaded_segment_size = None
+            loaded_segment_size = c.DEFAULT_SEGMENT_SIZE
             
             # overwrite with loaded parameter
             if 'high_pass' in globals.parameters.keys():
