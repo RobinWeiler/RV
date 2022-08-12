@@ -492,7 +492,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             'GitHub: ',
                             html.A(
                                 'Click here',
-                                # href='https://docs.google.com/document/d/12AQq7weN4934GbkHRQZ4Jp3SGfHRDwaCfo2EPCJXjIE/edit?usp=sharing',
+                                href='https://github.com/RobinWeiler/RV',
                                 target='_blank'
                             )
                         ])
