@@ -63,6 +63,6 @@ def register_loading_callbacks(app):
             if 'segment_size' in globals.parameters.keys():
                 loaded_segment_size = globals.parameters['segment_size']
 
-            return external_file_name, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
+            return selected_file_name, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
         else:
             return None, None, None, None, None, None, None, None, False
