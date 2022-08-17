@@ -18,13 +18,13 @@ def register_loading_callbacks(app):
         Input('upload-file', 'filename'),
     )
     def _load_file(selected_file_name):
-        """Sets file-name, high-pass filter, low-pass filter, and sampling frequency based on loaded data. If external Raw with specified parameters is given they are used instead. Using external Raw disables file selection. Triggers when file is selected.
+        """Sets file-name, highpass filter, lowpass filter, and sampling frequency (3 times lowpass-filter parameter) based on loaded data. If external Raw with specified parameters is given they are used instead. Using external Raw disables file selection. Triggers when file is selected.
 
         Args:
             selected_file_name (string): File-name of selected recording.
 
         Returns:
-            (string, float, float, float, bool): File-name, high-pass filter, low-pass filter, sampling frequency, and whether or not to disable file selection.
+            (string, float, float, float, bool): File-name, highpass filter, lowpass filter, sampling frequency, and whether or not to disable file selection.
         """
         if globals.external_raw or selected_file_name:
             if globals.external_raw:
@@ -42,7 +42,7 @@ def register_loading_callbacks(app):
 
             loaded_highpass = globals.raw.info['highpass']
             loaded_lowpass = globals.raw.info['lowpass']
-            loaded_sfreq = globals.raw.info['sfreq']
+            loaded_sfreq = 3 * globals.raw.info['lowpass']
             loaded_reference = 'None'
             loaded_scale = None
             loaded_offset = None
@@ -67,3 +67,22 @@ def register_loading_callbacks(app):
             return selected_file_name, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
         else:
             return None, None, None, None, None, None, None, None, False
+
+    # Default resample-rate callback
+    # @app.callback(
+    #     Output('resample-rate', 'value'),
+    #     Input('low-pass', 'value'),
+    # )
+    # def _set_resample_rate(lowpass):
+    #     """Sets the resampling frequency to three times the lowpass-filter value.
+
+    #     Args:
+    #         lowpass (float): Low-pass filter parameter.
+
+    #     Returns:
+    #         float: Resampling frequency.
+    #     """
+    #     if lowpass:
+    #         default_resample_rate = 3 * lowpass
+            
+    #         return default_resample_rate
