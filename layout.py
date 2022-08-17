@@ -266,7 +266,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.Div([
                         html.Div([
                             html.Div([
-                                html.Font('Segments (in sec):', className='header')
+                                html.Font('Segments (in seconds):', className='header')
                             ], className='aligned'),
                             html.Div([
                                 dcc.Input(
@@ -384,15 +384,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.Font(id='file-name')
                 ]),
                 html.Div([
-                    html.H2('Recording length (in sec):'),
+                    html.H2('Recording length (in seconds):'),
                     html.Font(id='recording-length')
                 ]),
                 html.Div([
-                    html.H2('Amount of annotated data (in sec):'),
+                    html.H2('Amount of annotated data (in seconds):'),
                     html.Font(id='#noisy-data')
                 ]),
                 html.Div([
-                    html.H2('Amount of clean data left (in sec):'),
+                    html.H2('Amount of clean data left (in seconds):'),
                     html.Font(id='#clean-data')
                 ]),
                 html.Div([

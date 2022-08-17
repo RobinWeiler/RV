@@ -6,10 +6,10 @@ def calc_stats(annotations, recording_length):
 
     Args:
         annotations (list): List of tuples(x0, x1) of annotations.
-        recording_length (float): Length of recording (in sec).
+        recording_length (float): Length of recording (in seconds).
 
     Returns:
-        tuple(float, float, int, list): Amount of annotated data (in sec), amount of un-annotated data (in sec), num un-annotated intervals longer than 2 seconds, list of all lengths of un-annotated intervals (in sec).
+        tuple(float, float, int, list): Amount of annotated data (in seconds), amount of un-annotated data (in seconds), num un-annotated intervals longer than 2 seconds, list of all lengths of un-annotated intervals (in seconds).
     """
     if annotations:
         annotations.sort()
@@ -61,7 +61,7 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
     """Generates histogram of given un-annotated interval lengths.
 
     Args:
-        clean_interval_lengths (list): List of all lengths of un-annotated intervals (in sec)
+        clean_interval_lengths (list): List of all lengths of un-annotated intervals (in seconds)
         recording_length (float): Length of recording.
 
     Returns:
@@ -77,7 +77,7 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
                 end=recording_length,
                 size=2
             ),
-            hovertemplate='Length-range (in sec)=%{x}, Amount of intervals=%{y}' + '<extra></extra>',
+            hovertemplate='Length-range (in seconds)=%{x}, Amount of intervals=%{y}' + '<extra></extra>',
             marker_color='#4796c5'
         )
     )
@@ -92,7 +92,7 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
             yanchor='top'
         ),
         xaxis=dict(
-            title_text='Length (in sec)',
+            title_text='Length (in seconds)',
         ),
         yaxis=dict(
             title_text='Amount of intervals'

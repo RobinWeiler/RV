@@ -90,7 +90,7 @@ def get_channel_locations_plot(raw):
     )
 
     # topography_plot.update_xaxes(
-    #     # title_text='Time (in sec)'
+    #     # title_text='Time (in seconds)'
     #     # showgrid=True,
     #     # zeroline=False,
     #     # constrain='domain',
@@ -362,8 +362,8 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
 
     Args:
         plotting_data (dict): Dict holding all relevant data from raw object and model outputs for plotting.
-        x0 (float): X-coordinate (in sec) to start plot.
-        x1 (float): X-coordinate (in sec) to end plot.
+        x0 (float): X-coordinate (in seconds) to start plot.
+        x1 (float): X-coordinate (in seconds) to end plot.
         use_slider (bool, optional): Whether or not to activate view-slider. Defaults to False.
 
     Returns:
@@ -392,7 +392,7 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
                 marker=dict(color=plotting_data['EEG']['default_channel_colors'][channel_index], size=0.1),
                 name=plotting_data['EEG']['channel_names'][channel_index],
                 customdata=plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'],  # y-data without offset
-                hovertemplate='<b>%{fullData.name}</b> | Time (in sec)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if not plotting_data['EEG']['scaling_factor'] else '<b>%{fullData.name}</b> | Time (in sec)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
+                hovertemplate='<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if not plotting_data['EEG']['scaling_factor'] else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
                 mode='lines+markers'
             )
         )
@@ -449,7 +449,7 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
             yanchor='top'
         ),
         xaxis=dict(
-            # title_text='Time (in sec)',
+            # title_text='Time (in seconds)',
             rangeslider=dict(
                 visible=True if use_slider else False,
                 thickness=0.04
@@ -496,7 +496,7 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
         range=((-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)), ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET)))  # Start y-axis range to cut off peaks
     )
     fig.update_xaxes(
-        # title_text='Time (in sec)'
+        # title_text='Time (in seconds)'
         showgrid=True,
         zeroline=False,
         constrain='domain',
