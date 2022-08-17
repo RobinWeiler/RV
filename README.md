@@ -14,6 +14,12 @@ To use RV, clone this repository. Then, install the libraries listed in the "req
 
 You can either run RV directly or call it from within your own Python script.
 
+### Performance
+
+We highly recommend downsampling data before plotting, as this will have a big impact on the overall performance and usability of RV. This can be done using the parameter in the "Resampling rate" field of the "Preprocessing" window (e.g. to three times the lowpass-filter parameter, which is the default). Note that resampling will only be used for plotting and does not affect the sampling frequency of the data saved in the end. 
+
+To further speed up the performance, we recommend segmenting the recording (e.g., into 60-second segments, which is the default). This can be changed through the "Segments (in seconds)" field of the same window. If this field is left empty, the entire signal will be plotted.
+
 ### Running RV directly
 
 If you want to run RV as a stand-alone application, simply run the "RV.py" file, or the "run_RV_NB.ipynb" Jupyter Notebook, in the RV directory, and make sure your EEG files are located in the "data" directory.
