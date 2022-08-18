@@ -31,6 +31,7 @@ def register_loading_callbacks(app):
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')
                 external_file_name = globals.raw._filenames[0][file_name_index + 1:]  # external_save_file_path[file_name_index + 1:]
                 globals.file_name = external_file_name
+                selected_file_name = external_file_name
                 
                 file_selection_disabled = True
             else:
