@@ -208,10 +208,10 @@ def register_visualization_callbacks(app):
 
             print('Loading data...')
 
-            if globals.external_raw and plot_button == 1:
+            if globals.external_raw and 'plot-button' in button_pressed:
                 globals.raw = globals.external_raw.copy()
             elif not globals.external_raw:
-                globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing is changed
+                globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
             if 'redraw-button' in button_pressed:
                 print('Redrawing...')

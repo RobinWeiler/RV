@@ -1,4 +1,5 @@
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+import dash
 
 from helperfunctions.loading_helperfunctions import parse_data_file
 
@@ -15,18 +16,42 @@ def register_loading_callbacks(app):
             Output("resample-rate", "value"), Output('scale', 'value'), Output('channel-offset', 'value'), Output('segment-size', 'value'),
             Output('upload-file', 'disabled')
         ],
-        Input('upload-file', 'filename'),
+        [
+            Input('upload-file', 'filename'),
+            Input("low-pass", "value")
+        ],
+        [
+            State('data-file', 'children'), State("high-pass", "value"), State('reference-dropdown', 'value'),
+            State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'),
+            State('upload-file', 'disabled')
+        ]
     )
-    def _load_file(selected_file_name):
+    def _load_file(selected_file_name, low_pass, current_file_name, high_pass, reference,
+                        scale, channel_offset, segment_size,
+                        disable_upload):
         """Sets file-name, highpass filter, lowpass filter, and sampling frequency (3 times lowpass-filter parameter) based on loaded data. If external Raw with specified parameters is given they are used instead. Using external Raw disables file selection. Triggers when file is selected.
 
         Args:
             selected_file_name (string): File-name of selected recording.
+            low_pass (float): Input desired low-pass filter value.
+            current_file_name (string): File-name of currently loaded EEG recording.
+            high_pass (float): Input desired high-pass filter value.
+            reference (string): Chosen reference.
+            scale (float): Input desired scaling for data.
+            channel_offset (float): Input desired channel offset.
+            segment_size (int): Input desired segment size for plots.
+            disable_upload (bool): Whether or not file selection is disabled.
 
         Returns:
             (string, float, float, float, bool): File-name, highpass filter, lowpass filter, sampling frequency, and whether or not to disable file selection.
         """
-        if globals.external_raw or selected_file_name:
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+        if 'low-pass.value' in trigger:
+            # Adjust resampling frequency if lowpass-filter has changed
+            new_sampling_frequency = 3 * low_pass
+            return current_file_name, high_pass, low_pass, reference, new_sampling_frequency, scale, channel_offset, segment_size, disable_upload
+        elif globals.external_raw or selected_file_name:
             if globals.external_raw:
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')
                 external_file_name = globals.raw._filenames[0][file_name_index + 1:]  # external_save_file_path[file_name_index + 1:]
