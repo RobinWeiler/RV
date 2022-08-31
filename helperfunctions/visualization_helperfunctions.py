@@ -392,7 +392,7 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
                 marker=dict(color=plotting_data['EEG']['default_channel_colors'][channel_index], size=0.1),
                 name=plotting_data['EEG']['channel_names'][channel_index],
                 customdata=plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'],  # y-data without offset
-                hovertemplate='<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if not plotting_data['EEG']['scaling_factor'] else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
+                hovertemplate='<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
                 mode='lines+markers'
             )
         )
