@@ -495,6 +495,16 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 href='https://github.com/RobinWeiler/RV',
                                 target='_blank'
                             )
+                        ]),
+                    ]),
+                    html.Div([
+                        html.Label([
+                            'Documentation: ',
+                            html.A(
+                                'Click here',
+                                href='https://robinweiler.github.io/RV/RV.html',
+                                target='_blank'
+                            )
                         ])
                     ]),
                 ])
