@@ -6,7 +6,7 @@ Robin's Viewer (RV) is an interactive web-application including a user-friendly 
 
 ## Documentation
 
-To view RV's documentation, simply open the "index.html" file in the "documentation" directory using the webbrowser of your choice.
+To view RV's documentation, click [here](https://robinweiler.github.io/RV/) or open the "index.html" file in the "docs" directory using the webbrowser of your choice.
 
 ## Getting started
 
