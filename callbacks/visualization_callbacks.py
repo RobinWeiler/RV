@@ -190,9 +190,10 @@ def register_visualization_callbacks(app):
         if plot_button or redraw_button:
             print('Loading plot...')
             
+            globals.preloaded_plots = {}
+            
             if 'plot-button' in button_pressed:
                 globals.current_plot_index = 0
-                globals.preloaded_plots = {}
                 
                 globals.x0 = -0.5
                 if segment_size:
@@ -414,12 +415,19 @@ def register_visualization_callbacks(app):
     @app.callback(
         Output('click-data', 'children'),
         Input('EEG-graph', 'clickData'),
+        State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _get_click_data(clickData):
+    def _get_click_data(clickData, fig):
         """Prints point that was clicked on to terminal for testing.
 
         Args:
             clickData (dict): Data from latest click event.
         """
         print('Clicked point: {}'.format(clickData))
+        
+        # print(fig['data'][0]['marker']['color'])
+
+        # fig['data'][0]['marker']['color'] = 'red'
+        
+        # print(fig['data'][0]['marker']['color'])
