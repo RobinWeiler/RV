@@ -331,7 +331,7 @@ def register_visualization_callbacks(app):
                         model_timestep = 1 / raw_model.info['sfreq']
                     # print(model_timestep)
                     if not model_threshold:
-                        model_threshold = 0.5
+                        model_threshold = 0.7
                     output_intervals = confidence_intervals(model, model_threshold, 1, model_timestep)
                     all_model_annotations = all_model_annotations + output_intervals
 

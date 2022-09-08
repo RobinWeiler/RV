@@ -353,7 +353,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             dcc.Input(
                                 id="model-threshold",
                                 type='number',
-                                placeholder="default: 0.5",
+                                placeholder="default: 0.7",
                                 min=0,
                                 max=1,
                                 debounce=True,
