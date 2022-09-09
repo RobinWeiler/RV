@@ -109,10 +109,10 @@ def register_visualization_callbacks(app):
     # plot-, redraw-, left-arrow-, and right-arrow-button callback
     @app.callback(
         Output('EEG-graph', 'figure'),
-        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
+        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks'), Input('bad-channels-dropdown', 'value')],
         [
             State('data-file', 'children'),
-            State('bad-channels-dropdown', 'value'), State('selected-channels-dropdown', 'value'),
+            State('selected-channels-dropdown', 'value'),
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
@@ -121,7 +121,7 @@ def register_visualization_callbacks(app):
             State('EEG-graph', 'figure')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, current_file_name, current_selected_bad_channels, selected_channels,
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, current_selected_bad_channels, current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
                             model_output_files, model_run, model_annotate, model_threshold, 
@@ -133,8 +133,8 @@ def register_visualization_callbacks(app):
             redraw_button (int): Num clicks on redraw button.
             left_button (int): Num clicks on left-arrow button.
             right_button (int): Num clicks on right-arrow button.
-            current_file_name (string): File-name of loaded EEG recording.
             current_selected_bad_channels (list): List of strings of bad-channel names.
+            current_file_name (string): File-name of loaded EEG recording.
             selected_channels (list): List of strings of channels selected for plotting.
             high_pass (float): Input desired high-pass filter value.
             low_pass (float): Input desired low-pass filter value.
@@ -155,9 +155,10 @@ def register_visualization_callbacks(app):
         Returns:
             plotly.graph_objs.Figure: EEG plot.
         """
-        button_pressed = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        # print(trigger)
 
-        if 'right-button' in button_pressed:
+        if 'right-button' in trigger:
             if segment_size:
                 globals.current_plot_index += 1
 
@@ -173,7 +174,7 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
         
-        elif 'left-button' in button_pressed:
+        elif 'left-button' in trigger:
             if segment_size:
                 globals.current_plot_index -= 1
                 
@@ -189,51 +190,68 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
 
-        if plot_button or redraw_button:
-            print('Loading plot...')
-            
+        # If re-drawing, keep current annotations and bad channels
+        if 'bad-channels-dropdown' in trigger:
+            if globals.raw:
+                globals.raw.info['bads'] = current_selected_bad_channels
+
+                if globals.plotting_data:
+                    print(current_fig['layout']['updatemenus'][0]['buttons'])
+
+                    for channel_index in range(len(current_fig['data'][0])):
+                        channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                        
+                        if channel_name in current_selected_bad_channels:
+                            globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+                            globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
+                        else:
+                            globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
+                            globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
+
+                        current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
+
+                    current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
+                    current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
+                    
+                    if len(current_fig['layout']['updatemenus'][0]['buttons']) > 3:
+                        for model_index in range(len(globals.plotting_data['model'])):
+                            if globals.plotting_data['model'][model_index]['model_channels']:
+                                for channel_index in range(len(current_fig['data'][0])):
+                                    channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                                    if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
+                                        globals.plotting_data['EEG']['highlighted_channel_colors'] = 'blue'
+                                    elif channel_name in current_selected_bad_channels:
+                                        globals.plotting_data['EEG']['highlighted_channel_colors'] = c.BAD_CHANNEL_COLOR
+                                    else:
+                                        globals.plotting_data['EEG']['highlighted_channel_colors'] = 'black'
+                                        
+                        current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
+                        current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+
+                return current_fig
+
+        if 'redraw-button' in trigger:
             globals.preloaded_plots = {}
+            return current_fig
+
+        elif 'plot-button' in trigger:
+            globals.preloaded_plots = {}
+            globals.current_plot_index = 0
             
-            if 'plot-button' in button_pressed:
-                globals.current_plot_index = 0
-                
-                globals.x0 = -0.5
-                if segment_size:
-                    globals.x1 = segment_size + 0.5
-                else:
-                    globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
-
-            # If re-drawing, keep current annotations and bad channels
-            if 'redraw-button' in button_pressed:
-                globals.marked_annotations = get_annotations(globals.raw)
-
-                selected_bad_channels = current_selected_bad_channels
-                
-                # print(current_fig['data'][0]['marker']['color'])
-
-                # current_fig['data'][0]['marker']['color'] = 'red'
-                
-                # print(current_fig['data'][0]['marker']['color'])
-                
-                # return current_fig
+            globals.x0 = -0.5
+            if segment_size:
+                globals.x1 = segment_size + 0.5
+            else:
+                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
             print('Loading data...')
 
-            if globals.external_raw and 'plot-button' in button_pressed:
+            if globals.external_raw and 'plot-button' in trigger:
                 globals.raw = globals.external_raw.copy()
             elif not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
-            if 'redraw-button' in button_pressed:
-                print('Redrawing...')
-
-                # Use previously selected + loaded bad-channels
-                globals.raw.info['bads'] = selected_bad_channels
-
-                # Keep drawn annotations
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-            else:
-                globals.marked_annotations = get_annotations(globals.raw)
+            globals.marked_annotations = get_annotations(globals.raw)
 
             if model_run:
                 raw_model = globals.raw.copy()
@@ -257,7 +275,7 @@ def register_visualization_callbacks(app):
             elif bad_channel_detection == 'Autoreject':
                 print('Automatic bad-channel detection using AutoReject')
 
-            if bad_channel_detection and (not ('redraw-button' in button_pressed)):
+            if bad_channel_detection and (not ('redraw-button' in trigger)):
                 print('Performing automatic bad channel detection')
                 detected_bad_channels = get_bad_channels(globals.raw)
                 # print(detected_bad_channels)
