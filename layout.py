@@ -655,7 +655,6 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
 
         # Hidden output variables
         html.Pre(id='relayout-data'),
-        html.Pre(id='click-data'),
         html.Pre(id='preload-data'),
         html.Pre(id='chosen-bad-channels'),
         html.Pre(id='chosen-bad-channel-detection'),

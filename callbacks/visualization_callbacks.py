@@ -117,14 +117,15 @@ def register_visualization_callbacks(app):
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'), State('use-slider', 'value'),
-            State('model-output-files', 'children'),
-            State("run-model", "value"), State("annotate-model", "value"), State("model-threshold", "value"),
+            State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State("model-threshold", "value"),
+            State('EEG-graph', 'figure')
         ]
     )
     def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, current_file_name, current_selected_bad_channels, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
-                            model_output_files, model_run, model_annotate, model_threshold):
+                            model_output_files, model_run, model_annotate, model_threshold, 
+                            current_fig):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
         Args:
@@ -149,6 +150,7 @@ def register_visualization_callbacks(app):
             model_run (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
             plotly.graph_objs.Figure: EEG plot.
@@ -206,6 +208,14 @@ def register_visualization_callbacks(app):
                 globals.marked_annotations = get_annotations(globals.raw)
 
                 selected_bad_channels = current_selected_bad_channels
+                
+                # print(current_fig['data'][0]['marker']['color'])
+
+                # current_fig['data'][0]['marker']['color'] = 'red'
+                
+                # print(current_fig['data'][0]['marker']['color'])
+                
+                # return current_fig
 
             print('Loading data...')
 
@@ -410,24 +420,3 @@ def register_visualization_callbacks(app):
             fig = get_power_spectrum_plot(f, mean_Pxx_den)
 
         return (str(most_prominent_freq) + ' Hz'), fig
-
-    # Clicking on data callback
-    @app.callback(
-        Output('click-data', 'children'),
-        Input('EEG-graph', 'clickData'),
-        State('EEG-graph', 'figure'),
-        prevent_initial_call=True
-    )
-    def _get_click_data(clickData, fig):
-        """Prints point that was clicked on to terminal for testing.
-
-        Args:
-            clickData (dict): Data from latest click event.
-        """
-        print('Clicked point: {}'.format(clickData))
-        
-        # print(fig['data'][0]['marker']['color'])
-
-        # fig['data'][0]['marker']['color'] = 'red'
-        
-        # print(fig['data'][0]['marker']['color'])
