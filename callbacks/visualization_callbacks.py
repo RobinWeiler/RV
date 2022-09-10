@@ -233,7 +233,7 @@ def register_visualization_callbacks(app):
             # globals.model_raw.info['bads'] = current_selected_bad_channels
 
             # print('Running model...')
-            # run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw, globals.viewing_raw)
+            # run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
 
             # # Model annotations
             # if model_annotate:
@@ -261,7 +261,7 @@ def register_visualization_callbacks(app):
             # globals.plotting_data['model'][-1]['model_data'] = run_model_output
             # globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
             # globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
-            # globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + model_index) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
+            # globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model'])) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
 
             # globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
             # globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
@@ -376,7 +376,7 @@ def register_visualization_callbacks(app):
 
             if model_run:
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw, globals.viewing_raw)
+                run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
