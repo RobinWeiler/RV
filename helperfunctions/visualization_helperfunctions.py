@@ -358,7 +358,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, EEG_scale=None, chann
 
     return fig
 
-def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
+def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
     """Generates EEG plots.
 
     Args:
@@ -372,6 +372,8 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
     """
     fig = Figure()
     
+    plotting_data = data_to_plot.copy()
+
     index_0 = None
     index_1 = None
     
@@ -398,6 +400,9 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
             )
         )
 
+    default_channel_colors = plotting_data['EEG']['default_channel_colors'].copy()
+    highlighted_channel_colors = plotting_data['EEG']['highlighted_channel_colors'].copy()
+
     model_index_0 = None
     model_index_1 = None
 
@@ -412,6 +417,11 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
             if timepoint > x1:
                 model_index_1 = index
                 break
+
+        trace_number = plotting_data['EEG']['offset_EEG_data'].shape[1] + model_index
+
+        default_channel_colors[trace_number] = plotting_data['EEG']['default_channel_colors'][trace_number][model_index_0:model_index_1]
+        highlighted_channel_colors[trace_number] = plotting_data['EEG']['highlighted_channel_colors'][trace_number][model_index_0:model_index_1]
 
         fig.add_trace(
             Scattergl(
@@ -506,7 +516,6 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
 
     # Add annotations
     marked_annotations = get_annotations(globals.raw)
-
     print(marked_annotations)
     
     for annotation in marked_annotations:
@@ -520,11 +529,7 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
             layer='below',
             line_width=0
         )
-    
-    if plotting_data['model']:
-        plotting_data['EEG']['default_channel_colors'][-1] = plotting_data['EEG']['default_channel_colors'][-1][index_0:index_1]
-        plotting_data['EEG']['highlighted_channel_colors'][-1] = plotting_data['EEG']['highlighted_channel_colors'][-1][index_0:index_1]
-    
+   
     fig.update_layout(
         updatemenus=list([
             dict(
@@ -550,8 +555,8 @@ def get_EEG_plot(plotting_data, x0, x1, use_slider=False):
                     ),
                     dict(label='Highlight model-channels',
                         method='restyle',
-                        args2=[{'marker.color': plotting_data['EEG']['default_channel_colors']}],
-                        args=[{'marker.color': plotting_data['EEG']['highlighted_channel_colors']}],
+                        args2=[{'marker.color': default_channel_colors}],
+                        args=[{'marker.color': highlighted_channel_colors}],
                         visible=True if plotting_data['model'] else False
                     ),
                 ]),
