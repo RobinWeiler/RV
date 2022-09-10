@@ -303,6 +303,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     for model_index, model_array in enumerate(model_output):
         default_channel_colors.append(model_array)
         highlighted_channel_colors.append(model_array)
+        channel_visibility.append(True)
         
         plotting_data['model'].append({})
         plotting_data['model'][model_index]['model_data'] = model_array
