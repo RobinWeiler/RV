@@ -236,7 +236,7 @@ def register_visualization_callbacks(app):
                 globals.marked_annotations = get_annotations(globals.raw)
 
             if model_run:
-                raw_model = globals.raw.copy()
+                globals.model_raw = globals.raw.copy()
 
             # MNE preprocessing
             print('Pre-processing data...')
@@ -270,7 +270,7 @@ def register_visualization_callbacks(app):
                 globals.raw.info['bads'] = total_bad_channels
 
                 if model_run:
-                    raw_model.info['bads'] = total_bad_channels
+                    globals.model_raw.info['bads'] = total_bad_channels
 
             # Re-referencing
             if reference:
@@ -326,7 +326,7 @@ def register_visualization_callbacks(app):
 
             if model_run:
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate = run_model(raw_model, globals.viewing_raw)
+                run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
@@ -338,7 +338,7 @@ def register_visualization_callbacks(app):
                     if model_sample_rate[i]:
                         model_timestep = 1 / model_sample_rate[i]
                     else:
-                        model_timestep = 1 / raw_model.info['sfreq']
+                        model_timestep = 1 / globals.model_raw.info['sfreq']
                     # print(model_timestep)
                     if not model_threshold:
                         model_threshold = 0.7

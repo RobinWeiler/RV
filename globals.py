@@ -3,8 +3,9 @@ external_save_file_path = None
 parameters = {}
 
 raw = None
-external_raw = None
 viewing_raw = None
+model_raw = None
+external_raw = None
 
 marked_annotations = []
 
