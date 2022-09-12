@@ -38,20 +38,11 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ),
             ], className='aligned first'),
             html.Div([
-                html.Div([
-                    dcc.Dropdown(
-                        id='bad-channels-dropdown',
-                        multi=True,
-                        placeholder='Click here to select bad channels...',
-                    )
-                ], className='aligned'),
-                html.Div([
-                    dbc.Button(
-                        "Redraw",
-                        id="redraw-button",
-                        className='button'
-                    ),
-                ], className='aligned')
+                dbc.Button(
+                    "Redraw",
+                    id="redraw-button",
+                    className='button'
+                ),
             ], className='aligned second'),
             html.Div([
                 dbc.Button(
@@ -181,34 +172,50 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 )
                             ], className='aligned'),
                         ]),
-                    ], className='aligned'),
+                    ]),
+                ]),
+                html.Hr(),
+                
+                # Bad-channel options
+                html.Div([
+                    html.H2('Bad-channel handling'),
                     html.Div([
                         html.Div([
                             html.Div([
-                                html.Div([
-                                    html.Font('Bad-channel detection: ', className='header'),
-                                ], className='aligned'),
-                                html.Div([
-                                    dcc.Dropdown(
-                                        id='bad-channel-detection-dropdown',
-                                        options=[{'label': 'Autoreject', 'value': 'Autoreject'}, {'label': 'None', 'value': 'None'}],
-                                        value='None',
-                                        clearable=False,
-                                        className='small-dropdown'
-                                    )
-                                ], className='aligned'),
-                            ]),
+                                html.Font('Automatic bad-channel detection: ', className='header'),
+                            ], className='aligned'),
                             html.Div([
-                                dbc.Checklist(
-                                    id='bad-channel-interpolation',
-                                    switch=True,  # no effect in Safari
-                                    options=[
-                                        {'label': 'Interpolate bad channels', 'value': 1},
-                                    ],
+                                dcc.Dropdown(
+                                    id='bad-channel-detection-dropdown',
+                                    options=[{'label': 'Autoreject', 'value': 'Autoreject'}, {'label': 'None', 'value': 'None'}],
+                                    value='None',
+                                    clearable=False,
+                                    className='small-dropdown'
                                 )
-                            ]),
+                            ], className='aligned'),
                         ]),
-                    ], className='aligned right-pre'),
+                        html.Div([
+                            html.Div([
+                                html.Font('Bad channels: ', className='header'),
+                            ], className='aligned'),
+                            html.Div([
+                                dcc.Dropdown(
+                                    id='bad-channels-dropdown',
+                                    multi=True,
+                                    placeholder='Click here to select bad channels...',
+                                )
+                            ])
+                        ]),
+                        html.Div([
+                            dbc.Checklist(
+                                id='bad-channel-interpolation',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Interpolate bad channels', 'value': 1},
+                                ],
+                            )
+                        ]),
+                    ])
                 ]),
                 html.Hr(),
 
