@@ -11,9 +11,8 @@ import plotly.express as px
 from skimage import io
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
-from helperfunctions.bad_channel_helperfunctions import get_bad_channels
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG
 from model.run_model import run_model
 
 import constants as c
@@ -156,7 +155,7 @@ def register_visualization_callbacks(app):
             plotly.graph_objs.Figure: EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        # print(trigger)
+        print(trigger)
 
         if 'right-button' in trigger:
             if segment_size:
@@ -295,55 +294,10 @@ def register_visualization_callbacks(app):
             # MNE preprocessing
             print('Pre-processing data...')
 
-            # Bandpass-filter
-            if (high_pass or low_pass) and not (float(high_pass) == globals.raw.info['highpass'] and float(low_pass) == globals.raw.info['lowpass']):
-                # print(high_pass)
-                # print(low_pass)
-                print('Applying bandpass-filter')
-                globals.raw.filter(high_pass, low_pass, method='fir', fir_window='blackman')
-
-            print(globals.raw.info['bads'])
-
-            # Bad-channel detection
-            if bad_channel_detection == 'None':
-                print('No automatic bad-channel detection')
-                bad_channel_detection = None
-            elif bad_channel_detection == 'Autoreject':
-                print('Automatic bad-channel detection using AutoReject')
-
-            if bad_channel_detection and (not ('redraw-button' in trigger)):
-                print('Performing automatic bad channel detection')
-                detected_bad_channels = get_bad_channels(globals.raw)
-                # print(detected_bad_channels)
-
-                total_bad_channels = globals.raw.info['bads']
-                for bad_channel in detected_bad_channels:
-                    if bad_channel not in total_bad_channels:
-                        total_bad_channels.append(bad_channel)
-
-                globals.raw.info['bads'] = total_bad_channels
-
-                if model_run:
-                    globals.model_raw.info['bads'] = total_bad_channels
-
-            # Re-referencing
-            if reference:
-                # print('Reference: {}'.format(reference))
-                if reference == 'None':
-                    print('No re-referencing')
-                    reference = None
-                elif reference != 'average':
-                    reference = [reference]
-
-                if reference:
-                    print('Applying custom reference {}'.format(reference))
-                    globals.raw.set_eeg_reference(reference)
-
-            # Bad-channel interpolation
-            if bad_channel_interpolation:
-                # print(globals.raw.info['bads'])
-                print('Performing bad-channel interpolation')
-                globals.raw = globals.raw.interpolate_bads(reset_bads=False)
+            globals.raw = preprocess_EEG(globals.raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation)
+            
+            if model_run:
+                globals.model_raw.info['bads'] = globals.raw.info['bads']
 
             # Resampling
             globals.viewing_raw = globals.raw.copy()
