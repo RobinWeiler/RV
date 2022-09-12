@@ -117,14 +117,14 @@ def register_visualization_callbacks(app):
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'), State('use-slider', 'value'),
             State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State("model-threshold", "value"),
-            State('EEG-graph', 'figure')
+            State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
     def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
                             model_output_files, model_run, model_annotate, model_threshold, 
-                            current_fig):
+                            current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
         Args:
@@ -191,12 +191,9 @@ def register_visualization_callbacks(app):
 
         globals.preloaded_plots = {}
 
-        # If re-drawing, keep current annotations and bad channels
         if 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']
             channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-            
-            current_selected_bad_channels = globals.raw.info['bads']
 
             if channel_name not in current_selected_bad_channels:
                 current_selected_bad_channels.append(channel_name)
@@ -236,6 +233,7 @@ def register_visualization_callbacks(app):
 
             return current_fig
 
+        # If re-drawing, keep current annotations and bad channels
         if 'redraw-button' in trigger:
             # globals.model_raw.info['bads'] = current_selected_bad_channels
 
@@ -295,6 +293,8 @@ def register_visualization_callbacks(app):
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
             globals.marked_annotations = get_annotations(globals.raw)
+            
+            globals.raw.info['bads'] = current_selected_bad_channels
 
             if model_run:
                 globals.model_raw = globals.raw.copy()

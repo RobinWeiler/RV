@@ -27,7 +27,7 @@ def register_bad_channel_callbacks(app):
         """
         
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        # print(trigger)
 
         if ('data-file' in trigger or 'figure' in trigger) and globals.raw:
             print('Loading bad channel dropdown menu...')
