@@ -105,7 +105,7 @@ def register_visualization_callbacks(app):
                         globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                         # print(segment_index)
 
-    # plot-, redraw-, left-arrow-, and right-arrow-button callback
+    # plot callback
     @app.callback(
         Output('EEG-graph', 'figure'),
         [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks'), Input('EEG-graph', 'clickData')],
@@ -193,6 +193,9 @@ def register_visualization_callbacks(app):
 
         if 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']
+            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
+                return current_fig
+
             channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
 
             if channel_name not in current_selected_bad_channels:
@@ -203,7 +206,7 @@ def register_visualization_callbacks(app):
             globals.raw.info['bads'] = current_selected_bad_channels
             print(current_selected_bad_channels)
 
-            for channel_index in range(len(globals.plotting_data['EEG']['channel_names']) - len(globals.plotting_data['model'])):
+            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
                 
                 if channel_name in current_selected_bad_channels:
@@ -223,7 +226,7 @@ def register_visualization_callbacks(app):
             if len(current_fig['layout']['updatemenus'][0]['buttons']) > 3:
                 for model_index in range(len(globals.plotting_data['model'])):
                     if globals.plotting_data['model'][model_index]['model_channels']:
-                        for channel_index in range(len(globals.plotting_data['EEG']['channel_names']) - len(globals.plotting_data['model'])):
+                        for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
                             channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
                             if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
                                 globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'

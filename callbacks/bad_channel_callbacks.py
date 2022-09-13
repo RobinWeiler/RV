@@ -45,6 +45,9 @@ def register_bad_channel_callbacks(app):
             # print('Clicked point: {}'.format(clickData))
         
             channel_index = clickData['points'][0]['curveNumber']
+            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
+                return current_selected_bad_channels, current_available_channels, current_available_channels
+
             channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
             
             if channel_name not in current_selected_bad_channels:
