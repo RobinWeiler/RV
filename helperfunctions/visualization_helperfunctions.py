@@ -84,12 +84,18 @@ def get_channel_locations_plot(raw):
     topography_plot.update_layout(
         dragmode='select',
         showlegend=False,
-        clickmode='event+select'
+        clickmode='event+select',
+        # plot_bgcolor='#dfdfdf',
     )
     
     topography_plot.update_yaxes(
         scaleanchor = "x",
         scaleratio = 1,
+        showgrid=False,
+    )
+    
+    topography_plot.update_xaxes(
+        showgrid=False,
     )
 
     # topography_plot.update_xaxes(
