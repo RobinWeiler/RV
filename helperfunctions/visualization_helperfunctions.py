@@ -45,6 +45,8 @@ def get_channel_locations_plot(raw):
     for index, channel in enumerate(chs):
         # channel_coordinates[index] = channel['loc'][:2]  # manual
         channel_names.append(channel['ch_name'])
+        
+    bad_channels = raw.info['bads']
 
     # Optional to scale channel locations
     # channel_coordinates = channel_coordinates * 1000
@@ -52,18 +54,18 @@ def get_channel_locations_plot(raw):
     topography_plot = Figure()
 
     if channel_coordinates.size > 0:
-        for channel in range(len(channel_names)):
+        for channel_index, channel in enumerate(channel_names):
             topography_plot.add_trace(
                 Scattergl(
-                    x=[channel_coordinates[channel, 0]],
-                    y=[channel_coordinates[channel, 1]],
-                    customdata=[channel_names[channel]],
+                    x=[channel_coordinates[channel_index, 0]],
+                    y=[channel_coordinates[channel_index, 1]],
+                    customdata=[channel],
                     mode="markers+text",
-                    name=channel_names[channel],
-                    text=channel_names[channel],
-                    textposition="bottom center" if channel_coordinates[channel, 1] <= 0 else 'top center',
-                    hovertemplate='<b>%{fullData.name}</b>' + '<extra></extra>',
-                    # marker=dict(color='#4796c5')
+                    name=channel,
+                    text=channel,
+                    textposition="bottom center" if channel_coordinates[channel_index, 1] <= 0 else 'top center',
+                    hovertemplate='<b>%{fullData.name}</b>' + '<extra></extra>' if channel not in bad_channels else '<b> Bad channel | %{fullData.name}</b>' + '<extra></extra>',
+                    marker=dict(color='black') if channel not in bad_channels else dict(color='red')
                 )
             )
         
@@ -169,9 +171,9 @@ def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, b
         # print(high_pass)
         # print(low_pass)
         print('Applying bandpass-filter')
-        globals.raw.filter(high_pass, low_pass, method='fir', fir_window='blackman')
+        raw.filter(high_pass, low_pass, method='fir', fir_window='blackman')
 
-    print(globals.raw.info['bads'])
+    print(raw.info['bads'])
 
     # Bad-channel detection
     if bad_channel_detection == 'None':
@@ -190,7 +192,7 @@ def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, b
             if bad_channel not in total_bad_channels:
                 total_bad_channels.append(bad_channel)
 
-        globals.raw.info['bads'] = total_bad_channels
+        raw.info['bads'] = total_bad_channels
 
     # Re-referencing
     if reference:
@@ -203,13 +205,13 @@ def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, b
 
         if reference:
             print('Applying custom reference {}'.format(reference))
-            globals.raw.set_eeg_reference(reference)
+            raw.set_eeg_reference(reference)
 
     # Bad-channel interpolation
     if bad_channel_interpolation:
         # print(globals.raw.info['bads'])
         print('Performing bad-channel interpolation')
-        globals.raw = globals.raw.interpolate_bads(reset_bads=False)
+        raw = raw.interpolate_bads(reset_bads=False)
         
     return raw
 
