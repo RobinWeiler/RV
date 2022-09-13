@@ -656,8 +656,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     },
                 ),
             ],
-            type="graph",
-            # fullscreen=True
+            type='default',
+            # color='red',
+            parent_className='loading_wrapper',
         ),
 
         # Hidden output variables

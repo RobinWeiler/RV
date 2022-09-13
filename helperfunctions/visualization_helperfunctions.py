@@ -30,13 +30,13 @@ def get_channel_locations_plot(raw):
         head_markers.append(max(head_coordinates[0]))
         head_markers.append(min(head_coordinates[1]))
         head_markers.append(max(head_coordinates[1]))
-        print(head_markers)
+        # print(head_markers)
     else:
         pos = np.array([])
         outlines = []
         head_markers = []
     # print(pos)
-    print(outlines)
+    # print(outlines)
     
     chs = raw.info['chs']
     channel_coordinates = pos  # np.empty((len(chs), 2))  # manual

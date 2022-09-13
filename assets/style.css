@@ -29,6 +29,15 @@ h2 {
     margin-right: 1rem;
 }
 
+/* dcc.Loading component with transparent background */
+.loading_wrapper > div {
+    visibility: visible !important;
+}
+
+.dash-spinner.dash-default-spinner {
+    height: 20vh;
+}
+
 .button {
     background-color: var(--main-bg-button-color);
     color: var(--main-text-color);
