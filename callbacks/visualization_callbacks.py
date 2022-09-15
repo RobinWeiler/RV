@@ -238,44 +238,46 @@ def register_visualization_callbacks(app):
 
         # If re-drawing, keep current annotations and bad channels
         if 'redraw-button' in trigger:
-            # globals.model_raw.info['bads'] = current_selected_bad_channels
+            globals.model_raw.info['bads'] = current_selected_bad_channels
 
-            # print('Running model...')
-            # run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+            print('Running model...')
+            run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
 
-            # # Model annotations
-            # if model_annotate:
-            #     all_model_annotations = []
+            # Model annotations
+            if model_annotate:
+                all_model_annotations = []
 
-            #     if run_model_sample_rate:
-            #         model_timestep = 1 / run_model_sample_rate
-            #     else:
-            #         model_timestep = 1 / globals.model_raw.info['sfreq']
-            #     # print(model_timestep)
+                if run_model_sample_rate:
+                    model_timestep = 1 / run_model_sample_rate
+                else:
+                    model_timestep = 1 / globals.model_raw.info['sfreq']
+                # print(model_timestep)
 
-            #     if not model_threshold:
-            #         model_threshold = 0.7
+                if not model_threshold:
+                    model_threshold = 0.7
 
-            #     model_annotations = confidence_intervals(model, model_threshold, 1, model_timestep)
+                model_annotations = confidence_intervals(model, model_threshold, 1, model_timestep)
 
-            #     all_annotations = globals.marked_annotations + model_annotations
-            #     all_annotations = merge_intervals(all_annotations)
+                all_annotations = globals.marked_annotations + model_annotations
+                all_annotations = merge_intervals(all_annotations)
 
-            #     globals.marked_annotations = all_annotations
+                globals.marked_annotations = all_annotations
 
-            #     annotations_to_raw(globals.raw, globals.marked_annotations)
-            #     annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                annotations_to_raw(globals.raw, globals.marked_annotations)
+                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
             
-            # globals.plotting_data['model'][-1]['model_data'] = run_model_output
-            # globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
-            # globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
-            # globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model'])) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
+            globals.plotting_data['model'][-1]['model_data'] = run_model_output
+            globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
+            globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
+            globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model'])) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
 
-            # globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
-            # globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
+            globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
+            globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
             
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+            current_fig['data'][-1]['marker']['color'] = run_model_output
+            
+            current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
+            current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
             return current_fig
 
