@@ -1,10 +1,11 @@
 import os
 
 import numpy as np
-import torch
-import torch.nn.functional as F
+import mne
 from PIL import Image
 
+import torch
+import torch.nn.functional as F
 from torchvision.transforms import transforms
 
 import model.suppfunc.Network as Network
@@ -143,40 +144,46 @@ def preprocess_data(raw, viewing_raw=None):
     windowSize = 1.0  # in seconds
     windowOverlap = 0.5   # ratio overlap between consecutive windows
 
-    # Preprocess Raw
+    preprocessedRaw = raw.copy()
+
+    # Remove annotations (but not the annotation intervals!)
+    data = preprocessedRaw.get_data()
+    new_preprocessedRaw = mne.io.RawArray(data, preprocessedRaw.info)
+
+    # Preprocess
     # Band-pass filter
-    preprocessedRaw = _preprocessing.filter_fir(raw, hp=0.5, lp=45)
+    new_preprocessedRaw = _preprocessing.filter_fir(new_preprocessedRaw, hp=0.5, lp=45)
     # Interpolate bad channels
-    preprocessedRaw = _preprocessing.interpolate_bads(preprocessedRaw)
-    # Re-reference to common average
-    preprocessedRaw = _preprocessing.reref(preprocessedRaw, reference='average')
+    new_preprocessedRaw = _preprocessing.interpolate_bads(new_preprocessedRaw)
+    # Re-reference to average electrode
+    new_preprocessedRaw = _preprocessing.reref(new_preprocessedRaw, reference='average')
     
     # Re-sample if necessary
     if viewing_raw:
         resample_frequency = viewing_raw.info['sfreq']
-        preprocessedRaw = _preprocessing.resample(preprocessedRaw, resample_frequency)
+        new_preprocessedRaw = _preprocessing.resample(new_preprocessedRaw, resample_frequency)
     
-    sample_rate = preprocessedRaw.info['sfreq']
+    sample_rate = new_preprocessedRaw.info['sfreq']
 
     # Pick 19 channels
     selected_channels = []
-    if all(channel in raw.ch_names for channel in STANDARD_10_20):
+    if all(channel in new_preprocessedRaw.ch_names for channel in STANDARD_10_20):
         selected_channels = STANDARD_10_20
-    elif all(channel in raw.ch_names for channel in BIOSEMI64_10_20):
+    elif all(channel in new_preprocessedRaw.ch_names for channel in BIOSEMI64_10_20):
         selected_channels = BIOSEMI64_10_20
-    elif all(channel in raw.ch_names for channel in TUAR_CHANNELS):
+    elif all(channel in new_preprocessedRaw.ch_names for channel in TUAR_CHANNELS):
         selected_channels = TUAR_CHANNELS
-    elif all(channel in raw.ch_names for channel in EGI128_10_20):
+    elif all(channel in new_preprocessedRaw.ch_names for channel in EGI128_10_20):
         selected_channels = EGI128_10_20
     else:
-        selected_channels = raw.ch_names
+        selected_channels = new_preprocessedRaw.ch_names
 
-    raw.pick_channels(selected_channels, ordered=True)
+    new_preprocessedRaw.pick_channels(selected_channels, ordered=True)
     print("Selected_channels", selected_channels)
     # Segment into epochs of 1 second with chosen ratio overlap
     print("Segmenting EEG ...")
     print("Window size = {a}, window overlap = {b}".format(a=windowSize, b=windowOverlap))
-    segmentsRaw = _segmentation.segmentRaw(preprocessedRaw, windowSize=windowSize, windowOverlap=windowOverlap)
+    segmentsRaw = _segmentation.segmentRaw(new_preprocessedRaw, windowSize=windowSize, windowOverlap=windowOverlap)
     print("Number of segments = {}".format(len(segmentsRaw.events)))
     # Get time-frequency values of normalized power for each segment
     print("Converting voltage EEG segments to TF images ...")
