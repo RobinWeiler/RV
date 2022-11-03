@@ -26,6 +26,6 @@ TITLE_IMAGE_FILE = os.path.join(ASSETS_DIRECTORY, 'title_image.png')
 WINDOW_SIZE = 1.0
 WINDOW_OVERLAP = 0.5
 # Autoreject parameters (n_interpolate - number of channels to interpolate; consensus - proportion of bad sensors to call epoch as bad)
-N_INTERPOLATE = np.array([1, 4, 10, 19])
+N_INTERPOLATE = np.array([1, 4, 32])
 CONSENSUS = np.linspace(0, 1, 11)
 THRESHOLD = 0.8  # ratio of segments (when >= THRESHOLD, mark as bad channel)

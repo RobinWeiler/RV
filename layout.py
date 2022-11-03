@@ -187,7 +187,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             html.Div([
                                 dcc.Dropdown(
                                     id='bad-channel-detection-dropdown',
-                                    options=[{'label': 'Autoreject', 'value': 'Autoreject'}, {'label': 'None', 'value': 'None'}],
+                                    options=[{'label': 'AutoReject', 'value': 'AutoReject'}, {'label': 'RANSAC', 'value': 'RANSAC'}, {'label': 'None', 'value': 'None'}],
                                     value='None',
                                     clearable=False,
                                     className='small-dropdown'

@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 
 import mne
-from autoreject import AutoReject
+from autoreject import AutoReject, Ransac
+
+from multiprocessing import cpu_count
 
 import constants as c
 
@@ -48,8 +50,11 @@ def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, conse
     Returns:
         list: List of bad-channel names.
     """
+    num_workers = cpu_count()
+    print('Number of workers: {}'.format(num_workers))
+    
     # Define AR
-    ar = AutoReject(n_interpolate=n_interpolate, consensus=consensus, cv=10, n_jobs=4, random_state=7, verbose=False)
+    ar = AutoReject(n_interpolate=[1], consensus=[0.6], n_jobs=num_workers, random_state=0)
     # Fit to data - do not transform
     ar.fit(segments)
     # Get rejection log
@@ -71,7 +76,28 @@ def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, conse
 
     return bad_channels
 
-def get_bad_channels(raw):
+def _find_bad_channels_ransac(segments):
+    """_summary_
+
+    Args:
+        segments (mne.Epochs): _description_
+
+    Returns:
+        list: List of bad-channel names.
+    """
+    num_workers = cpu_count()
+    print('Number of workers: {}'.format(num_workers))
+    
+    # Define AR
+    ransac = Ransac(n_jobs=num_workers, random_state=0)
+    # Fit to data - do not transform
+    ransac.fit(segments)
+
+    bad_channels = ransac.bad_chs_
+
+    return bad_channels
+
+def get_bad_channels(raw, method):
     """_summary_
 
     Args:
@@ -81,6 +107,13 @@ def get_bad_channels(raw):
         list: List of bad-channel names.
     """
     segments = _segmentation(raw)
-    bad_channels = _find_bad_channels_autoreject(segments)
+    
+    if method == 'AutoReject':
+        bad_channels = _find_bad_channels_autoreject(segments)
+    elif method == 'RANSAC':
+        bad_channels = _find_bad_channels_ransac(segments)
+    else:
+        print('This method is not supported')
+        bad_channels = []
 
     return bad_channels

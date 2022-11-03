@@ -185,12 +185,16 @@ def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, b
     if bad_channel_detection == 'None':
         print('No automatic bad-channel detection')
         bad_channel_detection = None
-    elif bad_channel_detection == 'Autoreject':
+    elif bad_channel_detection == 'AutoReject':
         print('Automatic bad-channel detection using AutoReject')
+        bad_channel_detection = 'AutoReject'
+    elif bad_channel_detection == 'RANSAC':
+        print('Automatic bad-channel detection using RANSAC')
+        bad_channel_detection = 'RANSAC'
 
     if bad_channel_detection:
         print('Performing automatic bad channel detection')
-        detected_bad_channels = get_bad_channels(globals.raw)
+        detected_bad_channels = get_bad_channels(globals.raw, bad_channel_detection)
         # print(detected_bad_channels)
 
         total_bad_channels = globals.raw.info['bads']
