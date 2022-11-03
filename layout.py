@@ -39,7 +39,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ], className='aligned first'),
             html.Div([
                 dbc.Button(
-                    "Redraw",
+                    "Re-run model",
                     id="redraw-button",
                     className='button'
                 ),

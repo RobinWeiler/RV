@@ -93,22 +93,3 @@ def register_loading_callbacks(app):
             return selected_file_name, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
         else:
             return None, None, None, None, None, None, None, None, False
-
-    # Default resample-rate callback
-    # @app.callback(
-    #     Output('resample-rate', 'value'),
-    #     Input('low-pass', 'value'),
-    # )
-    # def _set_resample_rate(lowpass):
-    #     """Sets the resampling frequency to three times the lowpass-filter value.
-
-    #     Args:
-    #         lowpass (float): Low-pass filter parameter.
-
-    #     Returns:
-    #         float: Resampling frequency.
-    #     """
-    #     if lowpass:
-    #         default_resample_rate = 3 * lowpass
-            
-    #         return default_resample_rate
