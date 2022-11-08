@@ -34,7 +34,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     "Save to",
                     id="open-save",
                     className='button',
-                    style={'display':'none','weight':'0px','height':'0px'} if disable_file_selection else {}
+                    # style={'display':'none','weight':'0px','height':'0px'} if disable_file_selection else {}
                 ),
             ], className='aligned first'),
             html.Div([
