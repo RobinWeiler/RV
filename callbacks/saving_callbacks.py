@@ -76,3 +76,22 @@ def register_saving_callbacks(app):
         print('Shutting down server')
 
         _shutdown()
+
+    app.clientside_callback(
+        '''
+            function close(n){
+                        // sleep time expects milliseconds
+                function sleep (time) {
+                  return new Promise((resolve) => setTimeout(resolve, time));
+                }
+                if(n){
+                    //leave some time for the other callback
+                    sleep(1000).then(() => {
+                        window.close()
+                    });
+                }
+            }
+        ''',
+        Output('quit-viewer-close', 'children'),
+        Input('final-quit-button', 'n_clicks')
+    )
