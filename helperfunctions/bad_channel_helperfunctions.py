@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 import mne
-from autoreject import AutoReject, Ransac
+from autoreject import AutoReject, Ransac, get_rejection_threshold
 
 from multiprocessing import cpu_count
 
@@ -73,6 +73,31 @@ def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, conse
     bad_channels = all_channels[np.where(ratio_bad_segments >= c.THRESHOLD)[0]]
 
     bad_channels = bad_channels.tolist()
+
+    return bad_channels
+
+def _find_bad_channels_autoreject_fast(segments):
+    """_summary_
+
+    Args:
+        segments (mne.Epochs): _description_
+
+    Returns:
+        list: List of bad-channel names.
+    """
+    channel_names = segments.ch_names
+
+    reject = get_rejection_threshold(segments, ch_types='eeg', random_state=0)
+
+    print('The rejection dictionary is %s' % reject)
+
+    segments.drop_bad(reject=reject)
+
+    bad_channels = []
+
+    for epoch in segments.drop_log:
+        if epoch and epoch[0] in channel_names:
+            bad_channels.append(epoch[0])
 
     return bad_channels
 
