@@ -15,6 +15,8 @@ import model.suppfunc._segmentation as _segmentation
 import model.suppfunc._tf as _tf
 import model.suppfunc._preprocessing as _preprocessing
 import constants as c
+import multiprocessing
+from joblib import Parallel, delayed
 
 # Standard 10-20 alphabetic channel names
 STANDARD_10_20 = ['Fp1', 'F7', 'T3', 'T5', 'F3', 'C3', 'P3', 'O1', 'Fp2', 'F8', 'T4', 'T6', 'F4', 'C4',
@@ -31,6 +33,14 @@ TUAR_CHANNELS = ['EEG FP1-REF', 'EEG F7-REF', 'EEG T3-REF', 'EEG T5-REF', 'EEG F
 
 EGI128_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
                 'E104', 'E92', 'E83', 'E11', 'Cz', 'E62']
+
+EGI129_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
+                'E104', 'E92', 'E83', 'E11', 'E129', 'E62']
+
+EGI128_2_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
+                'E104', 'E92', 'E83', 'E11', 'E55', 'E62']
+
+ADJACENT_10_20 = ['E18','E27','E46','E59','E27','E30','E51','E71','E15','E123','E100','E91','E4','E103','E86','E84','E16','E55','E68']
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -117,16 +127,23 @@ def _run_model(model, tf_tensor):
     # Apply model
     print("Applying tfCNN ...")
     print("Device {}".format(DEVICE))
-    model.eval()
-    with torch.no_grad():
-        probabilities = torch.empty(0, 2).double().to(DEVICE)
-        for tf in tf_tensor:
+    num_cores = multiprocessing.cpu_count()
+
+    def run(input):
+        model.eval()
+        with torch.no_grad():
+            tf = input
             tf = tf.to(DEVICE)
             # Forward pass
             outputs = model(tf)
             _, predicted = torch.max(outputs, 1)
             prob = F.softmax(outputs, dim=1)
-            probabilities = torch.cat((probabilities, prob), 0)
+        return prob
+
+    probabilities = Parallel(n_jobs=num_cores, backend='threading')(delayed(run)(tf_tensor[k])
+                                                          for k in range(len(tf_tensor)))
+    probabilities = torch.squeeze(torch.stack(probabilities))
+
     return probabilities.cpu().numpy()
 
 
@@ -175,8 +192,12 @@ def preprocess_data(raw, viewing_raw=None):
         selected_channels = TUAR_CHANNELS
     elif all(channel in new_preprocessedRaw.ch_names for channel in EGI128_10_20):
         selected_channels = EGI128_10_20
+    elif all(channel in new_preprocessedRaw.ch_names for channel in EGI128_2_10_20):
+        selected_channels = EGI128_2_10_20
+    elif all(channel in new_preprocessedRaw.ch_names for channel in EGI129_10_20):
+        selected_channels = EGI129_10_20
     else:
-        selected_channels = new_preprocessedRaw.ch_names
+        selected_channels = ADJACENT_10_20
 
     new_preprocessedRaw.pick_channels(selected_channels, ordered=True)
     print("Selected_channels", selected_channels)
