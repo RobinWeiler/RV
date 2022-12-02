@@ -17,6 +17,8 @@ import model.suppfunc._preprocessing as _preprocessing
 import constants as c
 import multiprocessing
 from joblib import Parallel, delayed
+from gpuparallel import GPUParallel
+from gpuparallel import delayed as GPUdelayed
 
 # Standard 10-20 alphabetic channel names
 STANDARD_10_20 = ['Fp1', 'F7', 'T3', 'T5', 'F3', 'C3', 'P3', 'O1', 'Fp2', 'F8', 'T4', 'T6', 'F4', 'C4',
@@ -127,7 +129,11 @@ def _run_model(model, tf_tensor):
     # Apply model
     print("Applying tfCNN ...")
     print("Device {}".format(DEVICE))
-    num_cores = multiprocessing.cpu_count()
+    
+    if DEVICE.type == 'cpu':
+        num_cores = multiprocessing.cpu_count()
+    elif DEVICE.type == 'cuda':
+        num_cores = torch.cuda.device_count()
 
     def run(input):
         model.eval()
@@ -140,8 +146,11 @@ def _run_model(model, tf_tensor):
             prob = F.softmax(outputs, dim=1)
         return prob
 
-    probabilities = Parallel(n_jobs=num_cores, backend='threading')(delayed(run)(tf_tensor[k])
-                                                          for k in range(len(tf_tensor)))
+    if DEVICE.type == 'cpu':
+        probabilities = Parallel(n_jobs=num_cores, backend='threading')(delayed(run)(tf_tensor[k]) for k in range(len(tf_tensor)))
+    elif DEVICE.type == 'cuda':
+        probabilities = GPUParallel(n_gpu=num_cores)(GPUdelayed(run)(tf_tensor[k]) for k in range(len(tf_tensor)))
+
     probabilities = torch.squeeze(torch.stack(probabilities))
 
     return probabilities.cpu().numpy()

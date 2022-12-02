@@ -7,7 +7,11 @@ import numpy as np
 import scipy
 import scipy.stats
 from scipy.spatial import KDTree
+from gpuparallel import GPUParallel
+from gpuparallel import delayed as GPUdelayed
+import torch
 
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def _wavelet_fft(frequencies, fwhm, nConv, wavtime):
     """Returns FFTs of complex Morlet wavelet.
@@ -66,7 +70,11 @@ def _wavelet_convolution(waveletFFT, segmentsRaw, halfwav, nFreq, donwsampling=1
     _, inds = kdtree.query(np.reshape(timeBins, (np.shape(timeBins)[0], 1)))
     selectedTimeBins = inds
 
-    num_cores = multiprocessing.cpu_count()
+    if DEVICE.type == 'cpu':
+        num_cores = multiprocessing.cpu_count()
+    elif DEVICE.type == 'cuda':
+        num_cores = torch.cuda.device_count()
+
     print('# cores {}'.format(num_cores))
     def processInput(input):
         data = input.get_data()[0]
@@ -84,8 +92,11 @@ def _wavelet_convolution(waveletFFT, segmentsRaw, halfwav, nFreq, donwsampling=1
 
         return scipy.stats.zscore(tf, axis=None)  # Z-score nomralize
 
-    TFs = Parallel(n_jobs=num_cores, backend='threading')(delayed(processInput)(segmentsRaw[k])
-                                                          for k in range(len(segmentsRaw)))
+    if DEVICE.type == 'cpu':
+        TFs = Parallel(n_jobs=num_cores, backend='threading')(delayed(processInput)(segmentsRaw[k]) for k in range(len(segmentsRaw)))
+    elif DEVICE.type == 'cuda':
+        TFs = GPUParallel(n_gpu=num_cores)(GPUdelayed(processInput)(segmentsRaw[k]) for k in range(len(segmentsRaw)))
+
     TFs = list(TFs)
 
     return TFs

@@ -39,7 +39,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ], className='aligned first'),
             html.Div([
                 dbc.Button(
-                    "Re-run model",
+                    "Rerun model",
                     id="redraw-button",
                     className='button'
                 ),
@@ -125,7 +125,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
 
                 # Pre-processing options
                 html.Div([
-                    html.H2('Pre-processing'),
+                    html.H2('Preprocessing'),
                     html.Div([
                         html.Div([
                             html.Div([
