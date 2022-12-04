@@ -10,15 +10,15 @@ import constants as c
 
 
 def _segmentation(raw, windowSize=c.WINDOW_SIZE, windowOverlap=c.WINDOW_OVERLAP):
-    """_summary_
+    """Creates mne.Epochs object with segmented raw data.
 
     Args:
         raw (mne.io.Raw): Raw object to segment.
-        windowSize (float, optional): _description_. Defaults to c.WINDOW_SIZE.
-        windowOverlap (float, optional): _description_. Defaults to c.WINDOW_OVERLAP.
+        windowSize (float, optional): Segment size. Defaults to c.WINDOW_SIZE.
+        windowOverlap (float, optional): Overlap between segments. Defaults to c.WINDOW_OVERLAP.
 
     Returns:
-        mne.Epochs: _description_
+        mne.Epochs: Segmented data in epochs.
     """
     sfreq = raw.info["sfreq"]
     # Epoch length in timepoints
@@ -40,10 +40,10 @@ def _segmentation(raw, windowSize=c.WINDOW_SIZE, windowOverlap=c.WINDOW_OVERLAP)
     return segments
 
 def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, consensus=c.CONSENSUS):
-    """_summary_
+    """Detect bad channels using AutoReject.
 
     Args:
-        segments (mne.Epochs): _description_
+        segments (mne.Epochs): Segmented data in epochs.
         n_interpolate (np.array, optional): _description_. Defaults to c.N_INTERPOLATE.
         consensus (np.linspace, optional): _description_. Defaults to c.CONSENSUS.
 
@@ -77,10 +77,10 @@ def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, conse
     return bad_channels
 
 def _find_bad_channels_autoreject_fast(segments):
-    """_summary_
+    """Testing different AutoReject method.
 
     Args:
-        segments (mne.Epochs): _description_
+        segments (mne.Epochs): Segmented data in epochs.
 
     Returns:
         list: List of bad-channel names.
@@ -102,10 +102,10 @@ def _find_bad_channels_autoreject_fast(segments):
     return bad_channels
 
 def _find_bad_channels_ransac(segments):
-    """_summary_
+    """Detect bad channels using the RANSAC method of the PREP pipeline implemented by AutoReject.
 
     Args:
-        segments (mne.Epochs): _description_
+        segments (mne.Epochs): Segmented data in epochs.
 
     Returns:
         list: List of bad-channel names.
@@ -123,19 +123,20 @@ def _find_bad_channels_ransac(segments):
     return bad_channels
 
 def get_bad_channels(raw, method):
-    """_summary_
+    """Find bad channels in given raw data using given method.
 
     Args:
         raw (mne.io.Raw): Raw object to get bad channels from.
+        method (string): Name of method to use for automatic bad-channel detection. Currently 'AutoReject' or 'RANSAC'. 
 
     Returns:
         list: List of bad-channel names.
     """
-    segments = _segmentation(raw)
-    
     if method == 'AutoReject':
+        segments = _segmentation(raw)
         bad_channels = _find_bad_channels_autoreject(segments)
     elif method == 'RANSAC':
+        segments = _segmentation(raw, windowSize=4, windowOverlap=0)
         bad_channels = _find_bad_channels_ransac(segments)
     else:
         print('This method is not supported')
