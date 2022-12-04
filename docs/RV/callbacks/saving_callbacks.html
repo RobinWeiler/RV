@@ -133,6 +133,25 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Shutting down server&#39;</span><span class="p">)</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>
 </span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="n">_shutdown</span><span class="p">()</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a><span class="sd">            function close(n){</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="sd">                        // sleep time expects milliseconds</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="sd">                function sleep (time) {</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="sd">                  return new Promise((resolve) =&gt; setTimeout(resolve, time));</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a><span class="sd">                }</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="sd">                if(n){</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="sd">                    //leave some time for the other callback</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="sd">                    sleep(1000).then(() =&gt; {</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a><span class="sd">                        window.close()</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a><span class="sd">                    });</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a><span class="sd">                }</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a><span class="sd">            }</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a><span class="sd">        &#39;&#39;&#39;</span><span class="p">,</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>        <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;quit-viewer-close&#39;</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">),</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>        <span class="n">Input</span><span class="p">(</span><span class="s1">&#39;final-quit-button&#39;</span><span class="p">,</span> <span class="s1">&#39;n_clicks&#39;</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a>    <span class="p">)</span>
 </span></pre></div>
 
 
@@ -209,6 +228,25 @@
 </span><span id="register_saving_callbacks-77"><a href="#register_saving_callbacks-77"><span class="linenos">77</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Shutting down server&#39;</span><span class="p">)</span>
 </span><span id="register_saving_callbacks-78"><a href="#register_saving_callbacks-78"><span class="linenos">78</span></a>
 </span><span id="register_saving_callbacks-79"><a href="#register_saving_callbacks-79"><span class="linenos">79</span></a>        <span class="n">_shutdown</span><span class="p">()</span>
+</span><span id="register_saving_callbacks-80"><a href="#register_saving_callbacks-80"><span class="linenos">80</span></a>
+</span><span id="register_saving_callbacks-81"><a href="#register_saving_callbacks-81"><span class="linenos">81</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+</span><span id="register_saving_callbacks-82"><a href="#register_saving_callbacks-82"><span class="linenos">82</span></a>        <span class="sd">&#39;&#39;&#39;</span>
+</span><span id="register_saving_callbacks-83"><a href="#register_saving_callbacks-83"><span class="linenos">83</span></a><span class="sd">            function close(n){</span>
+</span><span id="register_saving_callbacks-84"><a href="#register_saving_callbacks-84"><span class="linenos">84</span></a><span class="sd">                        // sleep time expects milliseconds</span>
+</span><span id="register_saving_callbacks-85"><a href="#register_saving_callbacks-85"><span class="linenos">85</span></a><span class="sd">                function sleep (time) {</span>
+</span><span id="register_saving_callbacks-86"><a href="#register_saving_callbacks-86"><span class="linenos">86</span></a><span class="sd">                  return new Promise((resolve) =&gt; setTimeout(resolve, time));</span>
+</span><span id="register_saving_callbacks-87"><a href="#register_saving_callbacks-87"><span class="linenos">87</span></a><span class="sd">                }</span>
+</span><span id="register_saving_callbacks-88"><a href="#register_saving_callbacks-88"><span class="linenos">88</span></a><span class="sd">                if(n){</span>
+</span><span id="register_saving_callbacks-89"><a href="#register_saving_callbacks-89"><span class="linenos">89</span></a><span class="sd">                    //leave some time for the other callback</span>
+</span><span id="register_saving_callbacks-90"><a href="#register_saving_callbacks-90"><span class="linenos">90</span></a><span class="sd">                    sleep(1000).then(() =&gt; {</span>
+</span><span id="register_saving_callbacks-91"><a href="#register_saving_callbacks-91"><span class="linenos">91</span></a><span class="sd">                        window.close()</span>
+</span><span id="register_saving_callbacks-92"><a href="#register_saving_callbacks-92"><span class="linenos">92</span></a><span class="sd">                    });</span>
+</span><span id="register_saving_callbacks-93"><a href="#register_saving_callbacks-93"><span class="linenos">93</span></a><span class="sd">                }</span>
+</span><span id="register_saving_callbacks-94"><a href="#register_saving_callbacks-94"><span class="linenos">94</span></a><span class="sd">            }</span>
+</span><span id="register_saving_callbacks-95"><a href="#register_saving_callbacks-95"><span class="linenos">95</span></a><span class="sd">        &#39;&#39;&#39;</span><span class="p">,</span>
+</span><span id="register_saving_callbacks-96"><a href="#register_saving_callbacks-96"><span class="linenos">96</span></a>        <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;quit-viewer-close&#39;</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">),</span>
+</span><span id="register_saving_callbacks-97"><a href="#register_saving_callbacks-97"><span class="linenos">97</span></a>        <span class="n">Input</span><span class="p">(</span><span class="s1">&#39;final-quit-button&#39;</span><span class="p">,</span> <span class="s1">&#39;n_clicks&#39;</span><span class="p">)</span>
+</span><span id="register_saving_callbacks-98"><a href="#register_saving_callbacks-98"><span class="linenos">98</span></a>    <span class="p">)</span>
 </span></pre></div>
 
 
