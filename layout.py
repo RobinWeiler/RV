@@ -454,7 +454,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 html.Div([
                     dbc.ButtonGroup([
                         dbc.Button("Save with entered name", id="save-button", className=['button']),
-                        dbc.Button("Overwrite current file", id="open-overwrite-button", className=['button'])
+                        dbc.Button("Overwrite current file", id="open-overwrite-button", className=['button']),
+                        dbc.Button("Save annotations with entered name (.csv)", id="save-annotations-button", className=['button']),
+                        dbc.Button("Save bad channels with entered name (.txt)", id="save-bad-channels-button", className=['button'])
                     ])
                 ])
             ]),
@@ -671,6 +673,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         html.Pre(id='chosen-extension'),
         html.Pre(id='chosen-overwrite'),
         html.Pre(id='save-file'),
+        html.Pre(id='save-annotations'),
+        html.Pre(id='save-bad-channels'),
         html.Pre(id='overwrite-file'),
         html.Pre(id='quit-viewer'),
         html.Pre(id='quit-viewer-close')

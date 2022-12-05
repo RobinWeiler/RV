@@ -2,7 +2,7 @@ from flask import request
 
 from dash.dependencies import Input, Output, State
 
-from helperfunctions.saving_helperfunctions import save_to, overwrite_save, quick_save
+from helperfunctions.saving_helperfunctions import save_to, overwrite_save, quick_save, save_annotations
 
 import globals
 
@@ -31,6 +31,9 @@ def register_saving_callbacks(app):
             save_file_name (string): Name of save-file.
             extension (string): Save-file extension.
         """
+        if not save_file_name:
+            print('No file name given!')
+            save_file_name = 'unnamed'
         if not extension:
             extension = '.fif'
         globals.file_name = save_to(save_file_name, extension, globals.raw)
@@ -53,6 +56,26 @@ def register_saving_callbacks(app):
             overwrite_save(current_file_name, globals.raw, save_file_path=globals.external_save_file_path)
         else:
             overwrite_save(current_file_name, globals.raw)
+
+    # Save-annotations button callback
+    @app.callback(
+        Output('save-annotations', 'children'),
+        Input('save-annotations-button', 'n_clicks'),
+        State("save-file-name", "value"),
+        prevent_initial_call=True
+    )
+    def _save_button_click(save_button, save_file_name):
+        """Saves annotations to save_file_name as .csv file. Triggers when save-annotations-button is clicked.
+
+        Args:
+            save_button (int): Num clicks on save-annotations-button.
+            save_file_name (string): Name of save-file.
+        """
+        if not save_file_name:
+            print('No file name given!')
+            save_file_name = 'unnamed_annotations'
+
+        save_annotations(save_file_name, globals.raw)
 
     # Quit button callback
     @app.callback(
