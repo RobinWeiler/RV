@@ -86,9 +86,6 @@ def save_annotations(save_file_name, raw):
     Args:
         save_file_name (string): Desired name of save-file.
         raw (mne.io.Raw): Raw object to save.
-
-    Returns:
-        string: Name of save-file.
     """
     new_file_name = save_file_name
     existing_file_counter = 0
@@ -109,6 +106,36 @@ def save_annotations(save_file_name, raw):
 
     print('Saving annotations to {}'.format(new_file_path))
     df.to_csv(new_file_path)
+
+def save_bad_channels(save_file_name, raw):
+    """Saves bad channels of given raw to given file-name in .txt file. If Save-file-name already exists, integer is added to the end.
+
+    Args:
+        save_file_name (string): Desired name of save-file.
+        raw (mne.io.Raw): Raw object to save.
+    """
+    new_file_name = save_file_name
+    existing_file_counter = 0
+
+    while os.path.exists(os.path.join(c.SAVE_FILES_DIRECTORY, new_file_name + '.txt')):
+        existing_file_counter += 1
+        new_file_name = save_file_name + '-' + str(existing_file_counter)
+        
+        print('File already exists, trying: {}'.format(new_file_name))
+
+    new_file_name = new_file_name + '.txt'
+    new_file_path = os.path.join(c.SAVE_FILES_DIRECTORY, new_file_name)
+
+    # print('Saving data to {}'.format(new_file_path))
+    
+    bad_channels = raw.info['bads']
+
+    print('Saving bad channels to {}'.format(new_file_path))
+    
+    textfile = open(new_file_path, "w")
+    for channel in bad_channels:
+        textfile.write(channel + ", ")
+    textfile.close()
 
 def quick_save(raw):
     """Overwrites automatic temorary save-file with given raw object.

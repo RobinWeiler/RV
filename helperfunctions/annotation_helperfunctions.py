@@ -61,8 +61,8 @@ def get_annotations_dict(raw):
         dict: Dictionary with keys ['onset', 'duration', 'description'] of annotations.
     """
     marked_annotations = {
-        'onset': raw.annotations.onset,
-        'duration': raw.annotations.duration,
+        'onset': np.round(raw.annotations.onset, 3),
+        'duration': np.round(raw.annotations.duration, 3),
         'description': raw.annotations.description
     }
 
