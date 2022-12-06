@@ -119,9 +119,10 @@ def parse_model_output_file(filename, raw=None):
     else:
         print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
 
-    if '.csv' in filename:
-        df = pd.read_csv(file)
-        if raw:
+    if raw:
+        if '.csv' in filename:
+            df = pd.read_csv(file)
+
             sampling_frequency = raw.info['sfreq']
             print(sampling_frequency)
             timestep = 1 / sampling_frequency
@@ -140,14 +141,18 @@ def parse_model_output_file(filename, raw=None):
                     model_output[timepoint] = 1
 
             return model_output, None, sampling_frequency
+        elif '.txt' in filename:
+            model_output = np.loadtxt(file)
+            assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
+
+            return model_output, None, None
+        elif '.npy' in filename:
+            model_output = np.load(file)
+            assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
+
+            return model_output, None, None
         else:
-            print('Make sure to load the accompanying EEG data first')
-            return None, None, None
-    elif '.txt' in filename:
-        model_output = np.loadtxt(file)
-        return model_output, None, None
-    elif '.npy' in filename:
-        model_output = np.load(file)
-        return model_output, None, None
+            print('Wrong file type!')
     else:
-        print('Wrong file type!')
+        print('Make sure to load the accompanying EEG data first')
+        return None, None, None
