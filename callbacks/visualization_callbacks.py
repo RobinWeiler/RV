@@ -336,7 +336,7 @@ def register_visualization_callbacks(app):
             if model_output_files:
                 for model_name in model_output_files:
                     # print(model_name)
-                    temp_model_output, temp_channel_names, temp_sample_rate = parse_model_output_file(model_name)
+                    temp_model_output, temp_channel_names, temp_sample_rate = parse_model_output_file(model_name, globals.raw)
                     model_output.append(temp_model_output)
                     model_channel_names.append(temp_channel_names)
                     model_sample_rate.append(temp_sample_rate)

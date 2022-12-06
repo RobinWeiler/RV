@@ -97,23 +97,52 @@ def parse_data_file(filename):
     else:
         print('This file type is not supported yet!')
 
-def parse_model_output_file(filename):
+def parse_model_output_file(filename, raw=None):
     """Loads model-output from given file-name. Currently supported file-formats are .csv, .txt, and .npy.
 
     Args:
         filename (string): Model-output file-name to load. Has to be located in 'data' directory.
+        raw (mne.io.Raw): Raw object to retrieve annotations from. Defaults to None.
 
     Returns:
-        tuple(np.array, list, float): One-dimensional array holding model-output, list of channel names used, and sample frequency. Changing the last value allows for custom scaling of predictions.
+        tuple(np.array, list, float): One-dimensional array holding model-output, list of channel names used, and sample frequency. The latter allows for custom scaling of predictions.
     """
-    file = os.path.join(c.DATA_DIRECTORY, filename)
-    print(filename)
+    data_file = os.path.join(c.DATA_DIRECTORY, filename)
+    save_file = os.path.join(c.SAVE_FILES_DIRECTORY, filename)
+
+    if os.path.exists(data_file):
+        print('Found data-file')
+        file = data_file
+    elif os.path.exists(save_file):
+        print('Found save-file')
+        file = save_file
+    else:
+        print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
 
     if '.csv' in filename:
-        df = pd.read_csv(file, header=None)
-        model_output = df.values
-        model_output = model_output.squeeze(1)
-        return model_output, None, None
+        df = pd.read_csv(file)
+        if raw:
+            sampling_frequency = raw.info['sfreq']
+            print(sampling_frequency)
+            timestep = 1 / sampling_frequency
+
+            annotation_onsets = df['onset'].tolist()
+            annotation_durations = df['duration'].tolist()
+            annotation_ends = [x + y for x, y in zip(annotation_onsets, annotation_durations)]
+
+            model_output = np.zeros(raw.__len__())
+
+            for index, annotation_start in enumerate(annotation_onsets):
+                annotation_start_index = int(annotation_start * sampling_frequency)
+                annotation_end_index = int(annotation_ends[index] * sampling_frequency)
+
+                for timepoint in np.arange(start=annotation_start_index, stop=annotation_end_index, step=1):
+                    model_output[timepoint] = 1
+
+            return model_output, None, sampling_frequency
+        else:
+            print('Make sure to load the accompanying EEG data first')
+            return None, None, None
     elif '.txt' in filename:
         model_output = np.loadtxt(file)
         return model_output, None, None
