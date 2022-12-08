@@ -28,11 +28,12 @@ def parse_data_file(filename):
         print('Found save-file')
         file = save_file
     # Always loads automatic temporary save-file if file-name not found
-    elif os.path.exists(c.TEMP_SAVE_PATH):
+    elif filename == 'temp_raw.fif' and os.path.exists(c.TEMP_SAVE_PATH):
         file = c.TEMP_SAVE_PATH
         print('Restored last working save-file')
     else:
         print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
+        return None
 
     # try:
     if '.csv' in filename:  # For backwards-compatibility
