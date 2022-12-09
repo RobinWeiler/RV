@@ -11,7 +11,8 @@ from gpuparallel import GPUParallel
 from gpuparallel import delayed as GPUdelayed
 import torch
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cpu')
 
 def _wavelet_fft(frequencies, fwhm, nConv, wavtime):
     """Returns FFTs of complex Morlet wavelet.

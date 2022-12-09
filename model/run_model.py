@@ -44,7 +44,8 @@ EGI128_2_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 
 
 ADJACENT_10_20 = ['E18','E27','E46','E59','E27','E30','E51','E71','E15','E123','E100','E91','E4','E103','E86','E84','E16','E55','E68']
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cpu')
 
 class ReshapeTransform:
     """Class to transform a PIL image with torch.reshape.
