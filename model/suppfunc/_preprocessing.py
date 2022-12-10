@@ -3,64 +3,64 @@ import mne
 mne.set_log_level(verbose='INFO')
 
 
-def filter_fir(Raw, hp, lp):
+def filter_fir(raw, hp, lp):
     """Returns bandpass-filtered with FIR EEG recording.
 
     Args:
-        Raw (mne.io.Raw): EEG recording to be filtered.
+        raw (mne.io.raw): EEG recording to be filtered.
         hp (float): High-pass cutoff frequency in Hz.
         lp (float): Low-pass cutoff frequency in Hz.
 
     Returns:
-        Raw (mne.io.Raw): Filtered signal.
+        raw (mne.io.raw): Filtered signal.
     """
     # Filter FIR
-    if Raw.info['highpass'] != hp and Raw.info['lowpass'] != lp:
-        Raw.filter(hp, lp, fir_design="firwin", verbose=0)
-    return Raw
+    if raw.info['highpass'] != hp and raw.info['lowpass'] != lp:
+        raw.filter(hp, lp, fir_design="firwin", verbose=0)
+    return raw
 
 
-def interpolate_bads(Raw):
+def interpolate_bads(raw):
     """Returns EEG recording with interpolated bad channels.
 
     Args:
-        Raw (mne.io.Raw): EEG recording for which bad channels will be interpolated.
+        raw (mne.io.raw): EEG recording for which bad channels will be interpolated.
 
     Returns:
-        Raw (mne.io.Raw): EEG recording with interpolated bad channels.
+        raw (mne.io.raw): EEG recording with interpolated bad channels.
     """
     # Interpolate bad channels
-    if len(Raw.info['bads']) > 0:
-        Raw.interpolate_bads(reset_bads=False)
-    return Raw
+    if len(raw.info['bads']) > 0:
+        raw.interpolate_bads(reset_bads=False)
+    return raw
 
 
-def reref(Raw, reference):
+def reref(raw, reference):
     """Returns re-referenced EEG recording.
 
     Args:
-        Raw (mne.io.Raw): EEG recording to be re-referenced.
+        raw (mne.io.raw): EEG recording to be re-referenced.
         reference (str): New reference.
 
     Returns:
-        Raw (mne.io.Raw): Re-referenced EEG recording.
+        raw (mne.io.raw): Re-referenced EEG recording.
     """
     # Re-reference
-    if not Raw.info['custom_ref_applied']:
-        Raw.set_eeg_reference(ref_channels=reference, projection=True, verbose=0)
-    return Raw
+    if not raw.info['custom_ref_applied']:
+        raw.set_eeg_reference(ref_channels=reference, projection=False, verbose=0)
+    return raw
 
-def resample(Raw, sample_frequency):
+def resample(raw, sample_frequency):
     """Returns resampled EEG recording.
 
     Args:
-        Raw (mne.io.Raw): EEG recording to be resampled.
+        raw (mne.io.raw): EEG recording to be resampled.
         sample_frequency (float): New sampling frequency.
 
     Returns:
-        Raw (mne.io.Raw): Resampled EEG recording.
+        raw (mne.io.raw): Resampled EEG recording.
     """
     # Resample
-    if Raw.info['sfreq'] != sample_frequency:
-        Raw.resample(sample_frequency)
-    return Raw
+    if raw.info['sfreq'] != sample_frequency:
+        raw.resample(sample_frequency)
+    return raw

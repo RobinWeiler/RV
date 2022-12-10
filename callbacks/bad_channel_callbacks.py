@@ -5,38 +5,19 @@ import globals
 
 
 def register_bad_channel_callbacks(app):
-    # Saving bad channels when marked callback
-    @app.callback(
-        Output('chosen-bad-channels', 'children'),
-        Input('bad-channels-dropdown', 'value'),
-        prevent_initial_call=True
-    )
-    def _update_bad_channels(list_bad_channels):
-        """Adds selected bad channels to current Raw object. Triggers when new bad channel is selected.
-
-        Args:
-            list_bad_channels (list): List of strings of selected bad channels.
-        """
-        # print(list_bad_channels)
-
-        if globals.raw:
-            globals.raw.info['bads'] = list_bad_channels
-
-            # print('Saving annotated bad channels')
-            # quick_save(raw)
-
     # Loading bad channels and all channel names into dropdown menu and clicking channel callback
     @app.callback(
         [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options')],
         [Input('data-file', 'children'), Input('EEG-graph', 'figure'), Input('EEG-graph', 'clickData')],
-        [State('bad-channels-dropdown', 'value'), State('bad-channels-dropdown', 'options')]
+        [State('bad-channels-dropdown', 'value'), State('bad-channels-dropdown', 'options')],
+        prevent_initial_call=True
     )
-    def _update_bad_channel_dropdown(file, fig, clickData, current_selected_bad_channels, current_available_channels):
+    def _update_bad_channel_dropdown(file, figure, clickData, current_selected_bad_channels, current_available_channels):
         """Loads channel names into bad-channels-dropdown and selected-channels-dropdown. Triggers when new file is loaded, after plot is drawn, and when a trace is clicked on to mark it as bad.
 
         Args:
             file (string): Current file-name.
-            fig (plotly.graph_objs.Figure): EEG plot.
+            figure (plotly.graph_objs.Figure): EEG plot.
             clickData (dict): Data from latest click event.
             current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
             current_available_channels (list): List of dicts of all available channel names.
@@ -64,6 +45,9 @@ def register_bad_channel_callbacks(app):
             # print('Clicked point: {}'.format(clickData))
         
             channel_index = clickData['points'][0]['curveNumber']
+            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
+                return current_selected_bad_channels, current_available_channels, current_available_channels
+
             channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
             
             if channel_name not in current_selected_bad_channels:

@@ -34,24 +34,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     "Save to",
                     id="open-save",
                     className='button',
-                    style={'display':'none','weight':'0px','height':'0px'} if disable_file_selection else {}
+                    # style={'display':'none','weight':'0px','height':'0px'} if disable_file_selection else {}
                 ),
             ], className='aligned first'),
             html.Div([
-                html.Div([
-                    dcc.Dropdown(
-                        id='bad-channels-dropdown',
-                        multi=True,
-                        placeholder='Click here to select bad channels...',
-                    )
-                ], className='aligned'),
-                html.Div([
-                    dbc.Button(
-                        "Redraw",
-                        id="redraw-button",
-                        className='button'
-                    ),
-                ], className='aligned')
+                dbc.Button(
+                    "Rerun model",
+                    id="redraw-button",
+                    className='button'
+                ),
             ], className='aligned second'),
             html.Div([
                 dbc.Button(
@@ -134,7 +125,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
 
                 # Pre-processing options
                 html.Div([
-                    html.H2('Pre-processing'),
+                    html.H2('Preprocessing'),
                     html.Div([
                         html.Div([
                             html.Div([
@@ -181,34 +172,50 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 )
                             ], className='aligned'),
                         ]),
-                    ], className='aligned'),
+                    ]),
+                ]),
+                html.Hr(),
+                
+                # Bad-channel options
+                html.Div([
+                    html.H2('Bad-channel handling'),
                     html.Div([
                         html.Div([
                             html.Div([
-                                html.Div([
-                                    html.Font('Bad-channel detection: ', className='header'),
-                                ], className='aligned'),
-                                html.Div([
-                                    dcc.Dropdown(
-                                        id='bad-channel-detection-dropdown',
-                                        options=[{'label': 'Autoreject', 'value': 'Autoreject'}, {'label': 'None', 'value': 'None'}],
-                                        value='None',
-                                        clearable=False,
-                                        className='small-dropdown'
-                                    )
-                                ], className='aligned'),
-                            ]),
+                                html.Font('Automatic bad-channel detection: ', className='header'),
+                            ], className='aligned'),
                             html.Div([
-                                dbc.Checklist(
-                                    id='bad-channel-interpolation',
-                                    switch=True,  # no effect in Safari
-                                    options=[
-                                        {'label': 'Interpolate bad channels', 'value': 1},
-                                    ],
+                                dcc.Dropdown(
+                                    id='bad-channel-detection-dropdown',
+                                    options=[{'label': 'RANSAC', 'value': 'RANSAC'}, {'label': 'None', 'value': 'None'}],  # {'label': 'AutoReject', 'value': 'AutoReject'}
+                                    value='None',
+                                    clearable=False,
+                                    className='small-dropdown'
                                 )
-                            ]),
+                            ], className='aligned'),
                         ]),
-                    ], className='aligned right-pre'),
+                        html.Div([
+                            html.Div([
+                                html.Font('Bad channels: ', className='header'),
+                            ], className='aligned'),
+                            html.Div([
+                                dcc.Dropdown(
+                                    id='bad-channels-dropdown',
+                                    multi=True,
+                                    placeholder='Click here to select bad channels...',
+                                )
+                            ])
+                        ]),
+                        html.Div([
+                            dbc.Checklist(
+                                id='bad-channel-interpolation',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Interpolate bad channels', 'value': 1},
+                                ],
+                            )
+                        ]),
+                    ])
                 ]),
                 html.Hr(),
 
@@ -447,7 +454,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 html.Div([
                     dbc.ButtonGroup([
                         dbc.Button("Save with entered name", id="save-button", className=['button']),
-                        dbc.Button("Overwrite current file", id="open-overwrite-button", className=['button'])
+                        dbc.Button("Overwrite current file", id="open-overwrite-button", className=['button']),
+                        dbc.Button("Save annotations with entered name (.csv)", id="save-annotations-button", className=['button']),
+                        dbc.Button("Save bad channels with entered name (.txt)", id="save-bad-channels-button", className=['button'])
                     ])
                 ])
             ]),
@@ -649,16 +658,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     },
                 ),
             ],
-            type="graph",
-            # fullscreen=True
+            type='default',
+            # color='red',
+            parent_className='loading_wrapper',
         ),
 
         # Hidden output variables
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
-        html.Pre(id='chosen-bad-channels'),
-        html.Pre(id='chosen-bad-channel-detection'),
-        html.Pre(id='chosen-bad-channel-interpolation'),
         html.Pre(id='chosen-channels'),
         html.Pre(id='chosen-model'),
         html.Pre(id='chosen-model-threshold'),
@@ -666,6 +673,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         html.Pre(id='chosen-extension'),
         html.Pre(id='chosen-overwrite'),
         html.Pre(id='save-file'),
+        html.Pre(id='save-annotations'),
+        html.Pre(id='save-bad-channels'),
         html.Pre(id='overwrite-file'),
         html.Pre(id='quit-viewer'),
         html.Pre(id='quit-viewer-close')

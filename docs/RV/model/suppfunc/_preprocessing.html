@@ -69,67 +69,67 @@
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="n">mne</span><span class="o">.</span><span class="n">set_log_level</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">def</span> <span class="nf">filter_fir</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">):</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">def</span> <span class="nf">filter_fir</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">):</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="sd">&quot;&quot;&quot;Returns bandpass-filtered with FIR EEG recording.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    Args:</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be filtered.</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be filtered.</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">        hp (float): High-pass cutoff frequency in Hz.</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">        lp (float): Low-pass cutoff frequency in Hz.</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    Returns:</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">        Raw (mne.io.Raw): Filtered signal.</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">        raw (mne.io.raw): Filtered signal.</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="c1"># Filter FIR</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">if</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;highpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hp</span> <span class="ow">and</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;lowpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lp</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">fir_design</span><span class="o">=</span><span class="s2">&quot;firwin&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;highpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hp</span> <span class="ow">and</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;lowpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lp</span><span class="p">:</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">fir_design</span><span class="o">=</span><span class="s2">&quot;firwin&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="k">def</span> <span class="nf">interpolate_bads</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="k">def</span> <span class="nf">interpolate_bads</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="sd">&quot;&quot;&quot;Returns EEG recording with interpolated bad channels.</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">    Args:</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording for which bad channels will be interpolated.</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">        raw (mne.io.raw): EEG recording for which bad channels will be interpolated.</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    Returns:</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording with interpolated bad channels.</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">        raw (mne.io.raw): EEG recording with interpolated bad channels.</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="c1"># Interpolate bad channels</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bads&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">interpolate_bads</span><span class="p">(</span><span class="n">reset_bads</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bads&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">interpolate_bads</span><span class="p">(</span><span class="n">reset_bads</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="k">def</span> <span class="nf">reref</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="k">def</span> <span class="nf">reref</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="sd">&quot;&quot;&quot;Returns re-referenced EEG recording.</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">    Args:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be re-referenced.</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be re-referenced.</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">        reference (str): New reference.</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    Returns:</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">        Raw (mne.io.Raw): Re-referenced EEG recording.</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">        raw (mne.io.raw): Re-referenced EEG recording.</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="c1"># Re-reference</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;custom_ref_applied&#39;</span><span class="p">]:</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">set_eeg_reference</span><span class="p">(</span><span class="n">ref_channels</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;custom_ref_applied&#39;</span><span class="p">]:</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">set_eeg_reference</span><span class="p">(</span><span class="n">ref_channels</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">sample_frequency</span><span class="p">):</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">sample_frequency</span><span class="p">):</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="sd">&quot;&quot;&quot;Returns resampled EEG recording.</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">    Args:</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be resampled.</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be resampled.</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">        sample_frequency (float): New sampling frequency.</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
 </span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">    Returns:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">        Raw (mne.io.Raw): Resampled EEG recording.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">        raw (mne.io.raw): Resampled EEG recording.</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="c1"># Resample</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="k">if</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sfreq&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sample_frequency</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sample_frequency</span><span class="p">)</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sfreq&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sample_frequency</span><span class="p">:</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sample_frequency</span><span class="p">)</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span></pre></div>
 
 
@@ -139,39 +139,39 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">filter_fir</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">Raw</span>, </span><span class="param"><span class="n">hp</span>, </span><span class="param"><span class="n">lp</span></span><span class="return-annotation">):</span></span>
+        <span class="name">filter_fir</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">raw</span>, </span><span class="param"><span class="n">hp</span>, </span><span class="param"><span class="n">lp</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="filter_fir-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#filter_fir"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="filter_fir-7"><a href="#filter_fir-7"><span class="linenos"> 7</span></a><span class="k">def</span> <span class="nf">filter_fir</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="filter_fir-7"><a href="#filter_fir-7"><span class="linenos"> 7</span></a><span class="k">def</span> <span class="nf">filter_fir</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">):</span>
 </span><span id="filter_fir-8"><a href="#filter_fir-8"><span class="linenos"> 8</span></a>    <span class="sd">&quot;&quot;&quot;Returns bandpass-filtered with FIR EEG recording.</span>
 </span><span id="filter_fir-9"><a href="#filter_fir-9"><span class="linenos"> 9</span></a>
 </span><span id="filter_fir-10"><a href="#filter_fir-10"><span class="linenos">10</span></a><span class="sd">    Args:</span>
-</span><span id="filter_fir-11"><a href="#filter_fir-11"><span class="linenos">11</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be filtered.</span>
+</span><span id="filter_fir-11"><a href="#filter_fir-11"><span class="linenos">11</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be filtered.</span>
 </span><span id="filter_fir-12"><a href="#filter_fir-12"><span class="linenos">12</span></a><span class="sd">        hp (float): High-pass cutoff frequency in Hz.</span>
 </span><span id="filter_fir-13"><a href="#filter_fir-13"><span class="linenos">13</span></a><span class="sd">        lp (float): Low-pass cutoff frequency in Hz.</span>
 </span><span id="filter_fir-14"><a href="#filter_fir-14"><span class="linenos">14</span></a>
 </span><span id="filter_fir-15"><a href="#filter_fir-15"><span class="linenos">15</span></a><span class="sd">    Returns:</span>
-</span><span id="filter_fir-16"><a href="#filter_fir-16"><span class="linenos">16</span></a><span class="sd">        Raw (mne.io.Raw): Filtered signal.</span>
+</span><span id="filter_fir-16"><a href="#filter_fir-16"><span class="linenos">16</span></a><span class="sd">        raw (mne.io.raw): Filtered signal.</span>
 </span><span id="filter_fir-17"><a href="#filter_fir-17"><span class="linenos">17</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="filter_fir-18"><a href="#filter_fir-18"><span class="linenos">18</span></a>    <span class="c1"># Filter FIR</span>
-</span><span id="filter_fir-19"><a href="#filter_fir-19"><span class="linenos">19</span></a>    <span class="k">if</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;highpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hp</span> <span class="ow">and</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;lowpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lp</span><span class="p">:</span>
-</span><span id="filter_fir-20"><a href="#filter_fir-20"><span class="linenos">20</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">fir_design</span><span class="o">=</span><span class="s2">&quot;firwin&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="filter_fir-21"><a href="#filter_fir-21"><span class="linenos">21</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="filter_fir-19"><a href="#filter_fir-19"><span class="linenos">19</span></a>    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;highpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hp</span> <span class="ow">and</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;lowpass&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lp</span><span class="p">:</span>
+</span><span id="filter_fir-20"><a href="#filter_fir-20"><span class="linenos">20</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">fir_design</span><span class="o">=</span><span class="s2">&quot;firwin&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="filter_fir-21"><a href="#filter_fir-21"><span class="linenos">21</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Returns bandpass-filtered with FIR EEG recording.</p>
 
 <p>Args:
-    Raw (mne.io.Raw): EEG recording to be filtered.
+    raw (mne.io.raw): EEG recording to be filtered.
     hp (float): High-pass cutoff frequency in Hz.
     lp (float): Low-pass cutoff frequency in Hz.</p>
 
 <p>Returns:
-    Raw (mne.io.Raw): Filtered signal.</p>
+    raw (mne.io.raw): Filtered signal.</p>
 </div>
 
 
@@ -181,35 +181,35 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">interpolate_bads</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">Raw</span></span><span class="return-annotation">):</span></span>
+        <span class="name">interpolate_bads</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">raw</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="interpolate_bads-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#interpolate_bads"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="interpolate_bads-24"><a href="#interpolate_bads-24"><span class="linenos">24</span></a><span class="k">def</span> <span class="nf">interpolate_bads</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="interpolate_bads-24"><a href="#interpolate_bads-24"><span class="linenos">24</span></a><span class="k">def</span> <span class="nf">interpolate_bads</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
 </span><span id="interpolate_bads-25"><a href="#interpolate_bads-25"><span class="linenos">25</span></a>    <span class="sd">&quot;&quot;&quot;Returns EEG recording with interpolated bad channels.</span>
 </span><span id="interpolate_bads-26"><a href="#interpolate_bads-26"><span class="linenos">26</span></a>
 </span><span id="interpolate_bads-27"><a href="#interpolate_bads-27"><span class="linenos">27</span></a><span class="sd">    Args:</span>
-</span><span id="interpolate_bads-28"><a href="#interpolate_bads-28"><span class="linenos">28</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording for which bad channels will be interpolated.</span>
+</span><span id="interpolate_bads-28"><a href="#interpolate_bads-28"><span class="linenos">28</span></a><span class="sd">        raw (mne.io.raw): EEG recording for which bad channels will be interpolated.</span>
 </span><span id="interpolate_bads-29"><a href="#interpolate_bads-29"><span class="linenos">29</span></a>
 </span><span id="interpolate_bads-30"><a href="#interpolate_bads-30"><span class="linenos">30</span></a><span class="sd">    Returns:</span>
-</span><span id="interpolate_bads-31"><a href="#interpolate_bads-31"><span class="linenos">31</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording with interpolated bad channels.</span>
+</span><span id="interpolate_bads-31"><a href="#interpolate_bads-31"><span class="linenos">31</span></a><span class="sd">        raw (mne.io.raw): EEG recording with interpolated bad channels.</span>
 </span><span id="interpolate_bads-32"><a href="#interpolate_bads-32"><span class="linenos">32</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="interpolate_bads-33"><a href="#interpolate_bads-33"><span class="linenos">33</span></a>    <span class="c1"># Interpolate bad channels</span>
-</span><span id="interpolate_bads-34"><a href="#interpolate_bads-34"><span class="linenos">34</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bads&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="interpolate_bads-35"><a href="#interpolate_bads-35"><span class="linenos">35</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">interpolate_bads</span><span class="p">(</span><span class="n">reset_bads</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="interpolate_bads-36"><a href="#interpolate_bads-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="interpolate_bads-34"><a href="#interpolate_bads-34"><span class="linenos">34</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;bads&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="interpolate_bads-35"><a href="#interpolate_bads-35"><span class="linenos">35</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">interpolate_bads</span><span class="p">(</span><span class="n">reset_bads</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="interpolate_bads-36"><a href="#interpolate_bads-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Returns EEG recording with interpolated bad channels.</p>
 
 <p>Args:
-    Raw (mne.io.Raw): EEG recording for which bad channels will be interpolated.</p>
+    raw (mne.io.raw): EEG recording for which bad channels will be interpolated.</p>
 
 <p>Returns:
-    Raw (mne.io.Raw): EEG recording with interpolated bad channels.</p>
+    raw (mne.io.raw): EEG recording with interpolated bad channels.</p>
 </div>
 
 
@@ -219,37 +219,37 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">reref</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">Raw</span>, </span><span class="param"><span class="n">reference</span></span><span class="return-annotation">):</span></span>
+        <span class="name">reref</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">raw</span>, </span><span class="param"><span class="n">reference</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="reref-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#reref"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="reref-39"><a href="#reref-39"><span class="linenos">39</span></a><span class="k">def</span> <span class="nf">reref</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="reref-39"><a href="#reref-39"><span class="linenos">39</span></a><span class="k">def</span> <span class="nf">reref</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
 </span><span id="reref-40"><a href="#reref-40"><span class="linenos">40</span></a>    <span class="sd">&quot;&quot;&quot;Returns re-referenced EEG recording.</span>
 </span><span id="reref-41"><a href="#reref-41"><span class="linenos">41</span></a>
 </span><span id="reref-42"><a href="#reref-42"><span class="linenos">42</span></a><span class="sd">    Args:</span>
-</span><span id="reref-43"><a href="#reref-43"><span class="linenos">43</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be re-referenced.</span>
+</span><span id="reref-43"><a href="#reref-43"><span class="linenos">43</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be re-referenced.</span>
 </span><span id="reref-44"><a href="#reref-44"><span class="linenos">44</span></a><span class="sd">        reference (str): New reference.</span>
 </span><span id="reref-45"><a href="#reref-45"><span class="linenos">45</span></a>
 </span><span id="reref-46"><a href="#reref-46"><span class="linenos">46</span></a><span class="sd">    Returns:</span>
-</span><span id="reref-47"><a href="#reref-47"><span class="linenos">47</span></a><span class="sd">        Raw (mne.io.Raw): Re-referenced EEG recording.</span>
+</span><span id="reref-47"><a href="#reref-47"><span class="linenos">47</span></a><span class="sd">        raw (mne.io.raw): Re-referenced EEG recording.</span>
 </span><span id="reref-48"><a href="#reref-48"><span class="linenos">48</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="reref-49"><a href="#reref-49"><span class="linenos">49</span></a>    <span class="c1"># Re-reference</span>
-</span><span id="reref-50"><a href="#reref-50"><span class="linenos">50</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;custom_ref_applied&#39;</span><span class="p">]:</span>
-</span><span id="reref-51"><a href="#reref-51"><span class="linenos">51</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">set_eeg_reference</span><span class="p">(</span><span class="n">ref_channels</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="reref-52"><a href="#reref-52"><span class="linenos">52</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="reref-50"><a href="#reref-50"><span class="linenos">50</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;custom_ref_applied&#39;</span><span class="p">]:</span>
+</span><span id="reref-51"><a href="#reref-51"><span class="linenos">51</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">set_eeg_reference</span><span class="p">(</span><span class="n">ref_channels</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="reref-52"><a href="#reref-52"><span class="linenos">52</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Returns re-referenced EEG recording.</p>
 
 <p>Args:
-    Raw (mne.io.Raw): EEG recording to be re-referenced.
+    raw (mne.io.raw): EEG recording to be re-referenced.
     reference (str): New reference.</p>
 
 <p>Returns:
-    Raw (mne.io.Raw): Re-referenced EEG recording.</p>
+    raw (mne.io.raw): Re-referenced EEG recording.</p>
 </div>
 
 
@@ -259,37 +259,37 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">resample</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">Raw</span>, </span><span class="param"><span class="n">sample_frequency</span></span><span class="return-annotation">):</span></span>
+        <span class="name">resample</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">raw</span>, </span><span class="param"><span class="n">sample_frequency</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="resample-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#resample"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="resample-54"><a href="#resample-54"><span class="linenos">54</span></a><span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">Raw</span><span class="p">,</span> <span class="n">sample_frequency</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="resample-54"><a href="#resample-54"><span class="linenos">54</span></a><span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">sample_frequency</span><span class="p">):</span>
 </span><span id="resample-55"><a href="#resample-55"><span class="linenos">55</span></a>    <span class="sd">&quot;&quot;&quot;Returns resampled EEG recording.</span>
 </span><span id="resample-56"><a href="#resample-56"><span class="linenos">56</span></a>
 </span><span id="resample-57"><a href="#resample-57"><span class="linenos">57</span></a><span class="sd">    Args:</span>
-</span><span id="resample-58"><a href="#resample-58"><span class="linenos">58</span></a><span class="sd">        Raw (mne.io.Raw): EEG recording to be resampled.</span>
+</span><span id="resample-58"><a href="#resample-58"><span class="linenos">58</span></a><span class="sd">        raw (mne.io.raw): EEG recording to be resampled.</span>
 </span><span id="resample-59"><a href="#resample-59"><span class="linenos">59</span></a><span class="sd">        sample_frequency (float): New sampling frequency.</span>
 </span><span id="resample-60"><a href="#resample-60"><span class="linenos">60</span></a>
 </span><span id="resample-61"><a href="#resample-61"><span class="linenos">61</span></a><span class="sd">    Returns:</span>
-</span><span id="resample-62"><a href="#resample-62"><span class="linenos">62</span></a><span class="sd">        Raw (mne.io.Raw): Resampled EEG recording.</span>
+</span><span id="resample-62"><a href="#resample-62"><span class="linenos">62</span></a><span class="sd">        raw (mne.io.raw): Resampled EEG recording.</span>
 </span><span id="resample-63"><a href="#resample-63"><span class="linenos">63</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="resample-64"><a href="#resample-64"><span class="linenos">64</span></a>    <span class="c1"># Resample</span>
-</span><span id="resample-65"><a href="#resample-65"><span class="linenos">65</span></a>    <span class="k">if</span> <span class="n">Raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sfreq&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sample_frequency</span><span class="p">:</span>
-</span><span id="resample-66"><a href="#resample-66"><span class="linenos">66</span></a>        <span class="n">Raw</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sample_frequency</span><span class="p">)</span>
-</span><span id="resample-67"><a href="#resample-67"><span class="linenos">67</span></a>    <span class="k">return</span> <span class="n">Raw</span>
+</span><span id="resample-65"><a href="#resample-65"><span class="linenos">65</span></a>    <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sfreq&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sample_frequency</span><span class="p">:</span>
+</span><span id="resample-66"><a href="#resample-66"><span class="linenos">66</span></a>        <span class="n">raw</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sample_frequency</span><span class="p">)</span>
+</span><span id="resample-67"><a href="#resample-67"><span class="linenos">67</span></a>    <span class="k">return</span> <span class="n">raw</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Returns resampled EEG recording.</p>
 
 <p>Args:
-    Raw (mne.io.Raw): EEG recording to be resampled.
+    raw (mne.io.raw): EEG recording to be resampled.
     sample_frequency (float): New sampling frequency.</p>
 
 <p>Returns:
-    Raw (mne.io.Raw): Resampled EEG recording.</p>
+    raw (mne.io.raw): Resampled EEG recording.</p>
 </div>
 
 

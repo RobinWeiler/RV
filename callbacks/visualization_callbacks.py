@@ -11,9 +11,8 @@ import plotly.express as px
 from skimage import io
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
-from helperfunctions.bad_channel_helperfunctions import get_bad_channels
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG
 from model.run_model import run_model
 
 import constants as c
@@ -106,26 +105,26 @@ def register_visualization_callbacks(app):
                         globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                         # print(segment_index)
 
-    # plot-, redraw-, left-arrow-, and right-arrow-button callback
+    # plot callback
     @app.callback(
         Output('EEG-graph', 'figure'),
-        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
+        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks'), Input('EEG-graph', 'clickData')],
         [
             State('data-file', 'children'),
-            State('bad-channels-dropdown', 'value'), State('selected-channels-dropdown', 'value'),
+            State('selected-channels-dropdown', 'value'),
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'), State('use-slider', 'value'),
             State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State("model-threshold", "value"),
-            State('EEG-graph', 'figure')
+            State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, current_file_name, current_selected_bad_channels, selected_channels,
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
                             model_output_files, model_run, model_annotate, model_threshold, 
-                            current_fig):
+                            current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
         Args:
@@ -133,8 +132,8 @@ def register_visualization_callbacks(app):
             redraw_button (int): Num clicks on redraw button.
             left_button (int): Num clicks on left-arrow button.
             right_button (int): Num clicks on right-arrow button.
+            point_clicked (dict): Data from latest click event.
             current_file_name (string): File-name of loaded EEG recording.
-            current_selected_bad_channels (list): List of strings of bad-channel names.
             selected_channels (list): List of strings of channels selected for plotting.
             high_pass (float): Input desired high-pass filter value.
             low_pass (float): Input desired low-pass filter value.
@@ -155,9 +154,10 @@ def register_visualization_callbacks(app):
         Returns:
             plotly.graph_objs.Figure: EEG plot.
         """
-        button_pressed = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        # print(trigger)
 
-        if 'right-button' in button_pressed:
+        if 'right-button' in trigger:
             if segment_size:
                 globals.current_plot_index += 1
 
@@ -173,7 +173,7 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
         
-        elif 'left-button' in button_pressed:
+        elif 'left-button' in trigger:
             if segment_size:
                 globals.current_plot_index -= 1
                 
@@ -189,51 +189,117 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
 
-        if plot_button or redraw_button:
-            print('Loading plot...')
-            
-            globals.preloaded_plots = {}
-            
-            if 'plot-button' in button_pressed:
-                globals.current_plot_index = 0
+        globals.preloaded_plots = {}
+
+        if 'clickData' in trigger:
+            channel_index = point_clicked['points'][0]['curveNumber']
+            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
+                return current_fig
+
+            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+
+            if channel_name not in current_selected_bad_channels:
+                current_selected_bad_channels.append(channel_name)
+            else:
+                current_selected_bad_channels.remove(channel_name)
+
+            globals.raw.info['bads'] = current_selected_bad_channels
+            print(current_selected_bad_channels)
+
+            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
                 
-                globals.x0 = -0.5
-                if segment_size:
-                    globals.x1 = segment_size + 0.5
+                if channel_name in current_selected_bad_channels:
+                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
+                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
                 else:
-                    globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
+                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
+                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
 
-            # If re-drawing, keep current annotations and bad channels
-            if 'redraw-button' in button_pressed:
-                globals.marked_annotations = get_annotations(globals.raw)
+                current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
 
-                selected_bad_channels = current_selected_bad_channels
-                
-                # print(current_fig['data'][0]['marker']['color'])
+            current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
+            current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
 
-                # current_fig['data'][0]['marker']['color'] = 'red'
-                
-                # print(current_fig['data'][0]['marker']['color'])
-                
-                # return current_fig
+            if len(current_fig['layout']['updatemenus'][0]['buttons']) > 3:
+                for model_index in range(len(globals.plotting_data['model'])):
+                    if globals.plotting_data['model'][model_index]['model_channels']:
+                        for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                            if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
+                                globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
+                                
+                            current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'][channel_index] = globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index]
+                            current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'][channel_index] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
+
+            return current_fig
+
+        # If re-drawing, keep current annotations and bad channels
+        if 'redraw-button' in trigger:
+            globals.model_raw.info['bads'] = current_selected_bad_channels
+
+            print('Running model...')
+            run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+
+            # Model annotations
+            if model_annotate:
+                all_model_annotations = []
+
+                if run_model_sample_rate:
+                    model_timestep = 1 / run_model_sample_rate
+                else:
+                    model_timestep = 1 / globals.model_raw.info['sfreq']
+                # print(model_timestep)
+
+                if not model_threshold:
+                    model_threshold = 0.7
+
+                model_annotations = confidence_intervals(model, model_threshold, 1, model_timestep)
+
+                all_annotations = globals.marked_annotations + model_annotations
+                all_annotations = merge_intervals(all_annotations)
+
+                globals.marked_annotations = all_annotations
+
+                annotations_to_raw(globals.raw, globals.marked_annotations)
+                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+            
+            globals.plotting_data['model'][-1]['model_data'] = run_model_output
+            globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
+            globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
+            globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model'])) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
+
+            globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
+            globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
+            
+            current_fig['data'][-1]['marker']['color'] = run_model_output
+            
+            current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
+            current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+
+            return current_fig
+
+        elif 'plot-button' in trigger:
+            globals.current_plot_index = 0
+            
+            globals.x0 = -0.5
+            if segment_size:
+                globals.x1 = segment_size + 0.5
+            else:
+                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
             print('Loading data...')
 
-            if globals.external_raw and 'plot-button' in button_pressed:
+            if globals.external_raw:
                 globals.raw = globals.external_raw.copy()
             elif not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
-            if 'redraw-button' in button_pressed:
-                print('Redrawing...')
-
-                # Use previously selected + loaded bad-channels
-                globals.raw.info['bads'] = selected_bad_channels
-
-                # Keep drawn annotations
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-            else:
-                globals.marked_annotations = get_annotations(globals.raw)
+            globals.marked_annotations = get_annotations(globals.raw)
+            
+            globals.raw.info['bads'] = current_selected_bad_channels
 
             if model_run:
                 globals.model_raw = globals.raw.copy()
@@ -241,55 +307,10 @@ def register_visualization_callbacks(app):
             # MNE preprocessing
             print('Pre-processing data...')
 
-            # Bandpass-filter
-            if (high_pass or low_pass) and not (float(high_pass) == globals.raw.info['highpass'] and float(low_pass) == globals.raw.info['lowpass']):
-                # print(high_pass)
-                # print(low_pass)
-                print('Applying bandpass-filter')
-                globals.raw.filter(high_pass, low_pass, method='fir', fir_window='blackman')
-
-            print(globals.raw.info['bads'])
-
-            # Bad-channel detection
-            if bad_channel_detection == 'None':
-                print('No automatic bad-channel detection')
-                bad_channel_detection = None
-            elif bad_channel_detection == 'Autoreject':
-                print('Automatic bad-channel detection using AutoReject')
-
-            if bad_channel_detection and (not ('redraw-button' in button_pressed)):
-                print('Performing automatic bad channel detection')
-                detected_bad_channels = get_bad_channels(globals.raw)
-                # print(detected_bad_channels)
-
-                total_bad_channels = globals.raw.info['bads']
-                for bad_channel in detected_bad_channels:
-                    if bad_channel not in total_bad_channels:
-                        total_bad_channels.append(bad_channel)
-
-                globals.raw.info['bads'] = total_bad_channels
-
-                if model_run:
-                    globals.model_raw.info['bads'] = total_bad_channels
-
-            # Re-referencing
-            if reference:
-                # print('Reference: {}'.format(reference))
-                if reference == 'None':
-                    print('No re-referencing')
-                    reference = None
-                elif reference != 'average':
-                    reference = [reference]
-
-                if reference:
-                    print('Applying custom reference {}'.format(reference))
-                    globals.raw.set_eeg_reference(reference)
-
-            # Bad-channel interpolation
-            if bad_channel_interpolation:
-                # print(globals.raw.info['bads'])
-                print('Performing bad-channel interpolation')
-                globals.raw = globals.raw.interpolate_bads(reset_bads=False)
+            globals.raw = preprocess_EEG(globals.raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation)
+            
+            if model_run:
+                globals.model_raw.info['bads'] = globals.raw.info['bads']
 
             # Resampling
             globals.viewing_raw = globals.raw.copy()
@@ -309,17 +330,13 @@ def register_visualization_callbacks(app):
                 selected_channel_names = []
                 print('No specific channels selected')
 
-            if (not (model_output_files or model_run)) and model_annotate:
-                print('No model selected to annotate with')
-                model_annotate = False
-
             model_output = []
             model_channel_names = []
             model_sample_rate = []
             if model_output_files:
                 for model_name in model_output_files:
                     # print(model_name)
-                    temp_model_output, temp_channel_names, temp_sample_rate = parse_model_output_file(model_name)
+                    temp_model_output, temp_channel_names, temp_sample_rate = parse_model_output_file(model_name, globals.raw)
                     model_output.append(temp_model_output)
                     model_channel_names.append(temp_channel_names)
                     model_sample_rate.append(temp_sample_rate)
@@ -330,6 +347,10 @@ def register_visualization_callbacks(app):
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
+
+            if (not (model_output_files or model_run)) and model_annotate:
+                print('No model selected to annotate with!')
+                model_annotate = False
 
             # Model annotations
             if model_annotate:

@@ -2,7 +2,7 @@ from flask import request
 
 from dash.dependencies import Input, Output, State
 
-from helperfunctions.saving_helperfunctions import save_to, overwrite_save, quick_save
+from helperfunctions.saving_helperfunctions import save_to, overwrite_save, quick_save, save_annotations, save_bad_channels
 
 import globals
 
@@ -31,6 +31,9 @@ def register_saving_callbacks(app):
             save_file_name (string): Name of save-file.
             extension (string): Save-file extension.
         """
+        if not save_file_name:
+            print('No file name given!')
+            save_file_name = 'unnamed'
         if not extension:
             extension = '.fif'
         globals.file_name = save_to(save_file_name, extension, globals.raw)
@@ -54,6 +57,50 @@ def register_saving_callbacks(app):
         else:
             overwrite_save(current_file_name, globals.raw)
 
+    # Save-annotations button callback
+    @app.callback(
+        Output('save-annotations', 'children'),
+        Input('save-annotations-button', 'n_clicks'),
+        State("save-file-name", "value"),
+        prevent_initial_call=True
+    )
+    def _save_button_click(save_annotations_button, save_file_name):
+        """Saves annotations to save_file_name as .csv file. Triggers when save-annotations-button is clicked.
+
+        Args:
+            save_annotations_button (int): Num clicks on save-annotations-button.
+            save_file_name (string): Name of save-file.
+        """
+        if not save_file_name:
+            print('No file name given!')
+            save_file_name = 'unnamed_annotations'
+        else:
+            save_file_name = save_file_name + '_annotations'
+
+        save_annotations(save_file_name, globals.raw)
+
+    # Save-bad-channels button callback
+    @app.callback(
+        Output('save-bad-channels', 'children'),
+        Input('save-bad-channels-button', 'n_clicks'),
+        State("save-file-name", "value"),
+        prevent_initial_call=True
+    )
+    def _save_button_click(save_bad_channels_button, save_file_name):
+        """Saves annotations to save_file_name as .csv file. Triggers when save-annotations-button is clicked.
+
+        Args:
+            save_bad_channels_button (int): Num clicks on save-bad-channels-button.
+            save_file_name (string): Name of save-file.
+        """
+        if not save_file_name:
+            print('No file name given!')
+            save_file_name = 'unnamed_bad_channels'
+        else:
+            save_file_name = save_file_name + '_bad_channels'
+
+        save_bad_channels(save_file_name, globals.raw)
+
     # Quit button callback
     @app.callback(
         Output('quit-viewer', 'children'),
@@ -76,3 +123,22 @@ def register_saving_callbacks(app):
         print('Shutting down server')
 
         _shutdown()
+
+    app.clientside_callback(
+        '''
+            function close(n){
+                        // sleep time expects milliseconds
+                function sleep (time) {
+                  return new Promise((resolve) => setTimeout(resolve, time));
+                }
+                if(n){
+                    //leave some time for the other callback
+                    sleep(1000).then(() => {
+                        window.close()
+                    });
+                }
+            }
+        ''',
+        Output('quit-viewer-close', 'children'),
+        Input('final-quit-button', 'n_clicks')
+    )

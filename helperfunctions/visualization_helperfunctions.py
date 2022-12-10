@@ -6,6 +6,7 @@ from plotly.graph_objs import Figure, Scattergl
 from mne.viz.topomap import _get_pos_outlines
 
 from helperfunctions.annotation_helperfunctions import get_annotations
+from helperfunctions.bad_channel_helperfunctions import get_bad_channels
 import constants as c
 import globals
 
@@ -29,13 +30,13 @@ def get_channel_locations_plot(raw):
         head_markers.append(max(head_coordinates[0]))
         head_markers.append(min(head_coordinates[1]))
         head_markers.append(max(head_coordinates[1]))
-        print(head_markers)
+        # print(head_markers)
     else:
         pos = np.array([])
         outlines = []
         head_markers = []
     # print(pos)
-    print(outlines)
+    # print(outlines)
     
     chs = raw.info['chs']
     channel_coordinates = pos  # np.empty((len(chs), 2))  # manual
@@ -44,6 +45,8 @@ def get_channel_locations_plot(raw):
     for index, channel in enumerate(chs):
         # channel_coordinates[index] = channel['loc'][:2]  # manual
         channel_names.append(channel['ch_name'])
+        
+    bad_channels = raw.info['bads']
 
     # Optional to scale channel locations
     # channel_coordinates = channel_coordinates * 1000
@@ -51,18 +54,18 @@ def get_channel_locations_plot(raw):
     topography_plot = Figure()
 
     if channel_coordinates.size > 0:
-        for channel in range(len(channel_names)):
+        for channel_index, channel in enumerate(channel_names):
             topography_plot.add_trace(
                 Scattergl(
-                    x=[channel_coordinates[channel, 0]],
-                    y=[channel_coordinates[channel, 1]],
-                    customdata=[channel_names[channel]],
+                    x=[channel_coordinates[channel_index, 0]],
+                    y=[channel_coordinates[channel_index, 1]],
+                    customdata=[channel],
                     mode="markers+text",
-                    name=channel_names[channel],
-                    text=channel_names[channel],
-                    textposition="bottom center" if channel_coordinates[channel, 1] <= 0 else 'top center',
-                    hovertemplate='<b>%{fullData.name}</b>' + '<extra></extra>',
-                    # marker=dict(color='#4796c5')
+                    name=channel,
+                    text=channel,
+                    textposition="bottom center" if channel_coordinates[channel_index, 1] <= 0 else 'top center',
+                    hovertemplate='<b>%{fullData.name}</b>' + '<extra></extra>' if channel not in bad_channels else '<b> Bad channel | %{fullData.name}</b>' + '<extra></extra>',
+                    marker=dict(color='black') if channel not in bad_channels else dict(color='red')
                 )
             )
         
@@ -81,12 +84,18 @@ def get_channel_locations_plot(raw):
     topography_plot.update_layout(
         dragmode='select',
         showlegend=False,
-        clickmode='event+select'
+        clickmode='event+select',
+        # plot_bgcolor='#dfdfdf',
     )
     
     topography_plot.update_yaxes(
         scaleanchor = "x",
         scaleratio = 1,
+        showgrid=False,
+    )
+    
+    topography_plot.update_xaxes(
+        showgrid=False,
     )
 
     # topography_plot.update_xaxes(
@@ -161,6 +170,60 @@ def get_most_prominent_freq(f, Pxx_den):
     # print(maximum_peak_value)
 
     return maximum_peak_value
+
+def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation):
+    # Bandpass-filter
+    if (high_pass or low_pass) and not (float(high_pass) == globals.raw.info['highpass'] and float(low_pass) == globals.raw.info['lowpass']):
+        # print(high_pass)
+        # print(low_pass)
+        print('Applying bandpass-filter')
+        raw.filter(high_pass, low_pass, method='fir', fir_window='blackman')
+
+    print(raw.info['bads'])
+
+    # Bad-channel detection
+    if bad_channel_detection == 'None':
+        print('No automatic bad-channel detection')
+        bad_channel_detection = None
+    elif bad_channel_detection == 'AutoReject':
+        print('Automatic bad-channel detection using AutoReject')
+        bad_channel_detection = 'AutoReject'
+    elif bad_channel_detection == 'RANSAC':
+        print('Automatic bad-channel detection using RANSAC')
+        bad_channel_detection = 'RANSAC'
+
+    if bad_channel_detection:
+        print('Performing automatic bad channel detection')
+        detected_bad_channels = get_bad_channels(globals.raw, bad_channel_detection)
+        # print(detected_bad_channels)
+
+        total_bad_channels = globals.raw.info['bads']
+        for bad_channel in detected_bad_channels:
+            if bad_channel not in total_bad_channels:
+                total_bad_channels.append(bad_channel)
+
+        raw.info['bads'] = total_bad_channels
+
+    # Re-referencing
+    if reference:
+        # print('Reference: {}'.format(reference))
+        if reference == 'None':
+            print('No re-referencing')
+            reference = None
+        elif reference != 'average':
+            reference = [reference]
+
+        if reference:
+            print('Applying custom reference {}'.format(reference))
+            raw.set_eeg_reference(reference)
+
+    # Bad-channel interpolation
+    if bad_channel_interpolation:
+        # print(globals.raw.info['bads'])
+        print('Performing bad-channel interpolation')
+        raw = raw.interpolate_bads(reset_bads=False)
+        
+    return raw
 
 def _get_scaling(EEG_scale):
     """Calculates scaling factor to multiply data with for given scale.

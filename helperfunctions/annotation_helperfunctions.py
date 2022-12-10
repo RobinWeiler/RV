@@ -51,6 +51,23 @@ def get_annotations(raw):
 
     return marked_annotations
 
+def get_annotations_dict(raw):
+    """Retrieves annotations of given raw object and stores them in dictionary.
+
+    Args:
+        raw (mne.io.Raw): Raw object to retrieve annotations from.
+
+    Returns:
+        dict: Dictionary with keys ['onset', 'duration', 'description'] of annotations.
+    """
+    marked_annotations = {
+        'onset': np.round(raw.annotations.onset, 3),
+        'duration': np.round(raw.annotations.duration, 3),
+        'description': raw.annotations.description
+    }
+
+    return marked_annotations
+
 def merge_intervals(marked_annotations):
     """Returns merged version of given annotations.
 

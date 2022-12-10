@@ -2,21 +2,23 @@ import numpy as np
 import pandas as pd
 
 import mne
-from autoreject import AutoReject
+from autoreject import AutoReject, Ransac, get_rejection_threshold
+
+from multiprocessing import cpu_count
 
 import constants as c
 
 
 def _segmentation(raw, windowSize=c.WINDOW_SIZE, windowOverlap=c.WINDOW_OVERLAP):
-    """_summary_
+    """Creates mne.Epochs object with segmented raw data.
 
     Args:
         raw (mne.io.Raw): Raw object to segment.
-        windowSize (float, optional): _description_. Defaults to c.WINDOW_SIZE.
-        windowOverlap (float, optional): _description_. Defaults to c.WINDOW_OVERLAP.
+        windowSize (float, optional): Segment size. Defaults to c.WINDOW_SIZE.
+        windowOverlap (float, optional): Overlap between segments. Defaults to c.WINDOW_OVERLAP.
 
     Returns:
-        mne.Epochs: _description_
+        mne.Epochs: Segmented data in epochs.
     """
     sfreq = raw.info["sfreq"]
     # Epoch length in timepoints
@@ -38,18 +40,21 @@ def _segmentation(raw, windowSize=c.WINDOW_SIZE, windowOverlap=c.WINDOW_OVERLAP)
     return segments
 
 def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, consensus=c.CONSENSUS):
-    """_summary_
+    """Detect bad channels using AutoReject.
 
     Args:
-        segments (mne.Epochs): _description_
+        segments (mne.Epochs): Segmented data in epochs.
         n_interpolate (np.array, optional): _description_. Defaults to c.N_INTERPOLATE.
         consensus (np.linspace, optional): _description_. Defaults to c.CONSENSUS.
 
     Returns:
         list: List of bad-channel names.
     """
+    num_workers = cpu_count()
+    print('Number of workers: {}'.format(num_workers))
+    
     # Define AR
-    ar = AutoReject(n_interpolate=n_interpolate, consensus=consensus, cv=10, n_jobs=4, random_state=7, verbose=False)
+    ar = AutoReject(n_interpolate=[1], consensus=[0.6], n_jobs=num_workers, random_state=0)
     # Fit to data - do not transform
     ar.fit(segments)
     # Get rejection log
@@ -71,16 +76,70 @@ def _find_bad_channels_autoreject(segments, n_interpolate=c.N_INTERPOLATE, conse
 
     return bad_channels
 
-def get_bad_channels(raw):
-    """_summary_
+def _find_bad_channels_autoreject_fast(segments):
+    """Testing different AutoReject method.
 
     Args:
-        raw (mne.io.Raw): Raw object to get bad channels from.
+        segments (mne.Epochs): Segmented data in epochs.
 
     Returns:
         list: List of bad-channel names.
     """
-    segments = _segmentation(raw)
-    bad_channels = _find_bad_channels_autoreject(segments)
+    channel_names = segments.ch_names
+
+    reject = get_rejection_threshold(segments, ch_types='eeg', random_state=0)
+
+    print('The rejection dictionary is %s' % reject)
+
+    segments.drop_bad(reject=reject)
+
+    bad_channels = []
+
+    for epoch in segments.drop_log:
+        if epoch and epoch[0] in channel_names:
+            bad_channels.append(epoch[0])
+
+    return bad_channels
+
+def _find_bad_channels_ransac(segments):
+    """Detect bad channels using the RANSAC method of the PREP pipeline implemented by AutoReject.
+
+    Args:
+        segments (mne.Epochs): Segmented data in epochs.
+
+    Returns:
+        list: List of bad-channel names.
+    """
+    num_workers = cpu_count()
+    print('Number of workers: {}'.format(num_workers))
+    
+    # Define AR
+    ransac = Ransac(n_jobs=num_workers, random_state=0)
+    # Fit to data - do not transform
+    ransac.fit(segments)
+
+    bad_channels = ransac.bad_chs_
+
+    return bad_channels
+
+def get_bad_channels(raw, method):
+    """Find bad channels in given raw data using given method.
+
+    Args:
+        raw (mne.io.Raw): Raw object to get bad channels from.
+        method (string): Name of method to use for automatic bad-channel detection. Currently 'AutoReject' or 'RANSAC'. 
+
+    Returns:
+        list: List of bad-channel names.
+    """
+    if method == 'AutoReject':
+        segments = _segmentation(raw)
+        bad_channels = _find_bad_channels_autoreject(segments)
+    elif method == 'RANSAC':
+        segments = _segmentation(raw, windowSize=4, windowOverlap=0)
+        bad_channels = _find_bad_channels_ransac(segments)
+    else:
+        print('This method is not supported')
+        bad_channels = []
 
     return bad_channels
