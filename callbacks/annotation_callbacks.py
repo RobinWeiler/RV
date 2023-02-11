@@ -1,7 +1,7 @@
 import json
 import re
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
 from helperfunctions.saving_helperfunctions import quick_save
@@ -14,9 +14,10 @@ def register_annotation_callbacks(app):
     @app.callback(
         Output('relayout-data', 'children'),
         Input('EEG-graph', 'relayoutData'),
+        State('show-annotations-only', 'value'),
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData):
+    def _make_annotation(relayoutData, show_annotations_only):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
@@ -83,5 +84,8 @@ def register_annotation_callbacks(app):
                 # print(save_marked_annotations)
 
                 globals.raw = annotations_to_raw(globals.raw, save_marked_annotations)
+                
+                if show_annotations_only:
+                    globals.current_plot_index = annotation_index
 
                 quick_save(globals.raw)
