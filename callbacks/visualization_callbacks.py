@@ -87,22 +87,22 @@ def register_visualization_callbacks(app):
             segment_size (int): Segment size of EEG plot.
             use_slider (bool): Whether or not to activate view-slider.
         """
-        if globals.plotting_data:
-            if segment_size:
-                print('Preloading segments...')
-                num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
-                # print(num_segments)
+        # if globals.plotting_data:
+        #     if segment_size:
+        #         print('Preloading segments...')
+        #         num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
+        #         # print(num_segments)
                 
-                upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
-                # print(upper_bound)
+        #         upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
+        #         # print(upper_bound)
 
-                globals.preloaded_plots[globals.current_plot_index] = fig
+        #         globals.preloaded_plots[globals.current_plot_index] = fig
 
-                for segment_index in range(upper_bound):
-                    if segment_index not in globals.preloaded_plots:
-                        new_x0 = segment_index * segment_size - 0.5
-                        new_x1 = segment_size + segment_index * segment_size + 0.5
-                        globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
+        #         for segment_index in range(upper_bound):
+        #             if segment_index not in globals.preloaded_plots:
+        #                 new_x0 = segment_index * segment_size - 0.5
+        #                 new_x1 = segment_size + segment_index * segment_size + 0.5
+        #                 globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                         # print(segment_index)
 
     # plot callback
