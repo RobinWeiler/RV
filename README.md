@@ -8,6 +8,21 @@ Robin's Viewer (RV) is an interactive web-application including a user-friendly 
 
 To view RV's documentation, click [here](https://robinweiler.github.io/RV/) or open the "index.html" file in the "docs" directory using the webbrowser of your choice.
 
+## Citation
+
+If you use this software, please cite the paper listed below.
+
+@ARTICLE{10.3389/fninf.2022.1025847,
+    AUTHOR={Weiler, Robin and Diachenko, Marina and Juarez-Martinez, Erika L. and Avramiea, Arthur-Ervin and Bloem, Peter and Linkenkaer-Hansen, Klaus},   
+    TITLE={Robin’s Viewer: Using deep-learning predictions to assist EEG annotation},      
+    JOURNAL={Frontiers in Neuroinformatics},      
+    VOLUME={16},           
+    YEAR={2023},      
+    URL={https://www.frontiersin.org/articles/10.3389/fninf.2022.1025847},       
+    DOI={10.3389/fninf.2022.1025847},      
+    ISSN={1662-5196},   
+}
+
 ## Getting started
 
 To use RV, clone this repository. Then, install the libraries listed in the "requirements.txt" file. RV was developed using Python 3.9.12.
