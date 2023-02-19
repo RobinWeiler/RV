@@ -200,10 +200,11 @@ def register_visualization_callbacks(app):
         if 'right-button' in trigger:
             if show_annotations_only or segment_size:
                 globals.current_plot_index += 1
+                # print(globals.current_plot_index)
 
                 if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
                     globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
-                    globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 0.5 if globals.marked_annotations[globals.current_plot_index][1] + 2 > globals.raw.n_times / globals.raw.info['sfreq'] else globals.marked_annotations[globals.current_plot_index][1] + 2
+                    globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
                 elif segment_size:
                     globals.x0 += segment_size
                     globals.x1 += segment_size
@@ -222,7 +223,7 @@ def register_visualization_callbacks(app):
                 globals.current_plot_index -= 1
                 
                 if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
-                    globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 0.5 if globals.marked_annotations[globals.current_plot_index][0] - 2 < 0 else globals.marked_annotations[globals.current_plot_index][0] - 2
+                    globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
                 elif segment_size:
                     globals.x0 -= segment_size
@@ -426,7 +427,7 @@ def register_visualization_callbacks(app):
             
             if show_annotations_only:
                 if globals.marked_annotations:
-                    globals.x0 = globals.marked_annotations[0][0] - 0.5
+                    globals.x0 = globals.marked_annotations[0][0] - 2
                     globals.x1 = globals.marked_annotations[0][1] + 2
                 else:
                     print('No annotations found')
