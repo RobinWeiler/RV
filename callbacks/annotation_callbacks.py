@@ -46,11 +46,11 @@ def register_annotation_callbacks(app):
 
                         globals.marked_annotations.append((annotation_start, annotation_end))
 
-                save_marked_annotations = merge_intervals(globals.marked_annotations)
+                globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
-                # print(save_marked_annotations)
+                # print(globals.marked_annotations)
 
-                globals.raw = annotations_to_raw(globals.raw, save_marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
 
                 quick_save(globals.raw)
 
@@ -78,10 +78,10 @@ def register_annotation_callbacks(app):
 
                 globals.marked_annotations[annotation_index] = (annotation_start, annotation_end)
 
-                save_marked_annotations = merge_intervals(globals.marked_annotations)
+                globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
-                # print(save_marked_annotations)
+                # print(globals.marked_annotations)
 
-                globals.raw = annotations_to_raw(globals.raw, save_marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
 
                 quick_save(globals.raw)
