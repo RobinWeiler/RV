@@ -49,7 +49,9 @@ def get_annotations(raw):
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index]))
 
-    return marked_annotations
+    merged_annotations = merge_intervals(marked_annotations)
+
+    return merged_annotations
 
 def get_annotations_dict(raw):
     """Retrieves annotations of given raw object and stores them in dictionary.
