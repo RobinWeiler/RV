@@ -49,7 +49,9 @@ def get_annotations(raw):
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index]))
 
-    return marked_annotations
+    merged_annotations = merge_intervals(marked_annotations)
+
+    return merged_annotations
 
 def get_annotations_dict(raw):
     """Retrieves annotations of given raw object and stores them in dictionary.
@@ -60,13 +62,13 @@ def get_annotations_dict(raw):
     Returns:
         dict: Dictionary with keys ['onset', 'duration', 'description'] of annotations.
     """
-    marked_annotations = {
+    marked_annotations_dict = {
         'onset': np.round(raw.annotations.onset, 3),
         'duration': np.round(raw.annotations.duration, 3),
         'description': raw.annotations.description
     }
 
-    return marked_annotations
+    return marked_annotations_dict
 
 def merge_intervals(marked_annotations):
     """Returns merged version of given annotations.
