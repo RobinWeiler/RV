@@ -46,6 +46,11 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ], className='aligned second'),
             html.Div([
                 dbc.Button(
+                    "Annotation settings",
+                    id="open-annotation-settings",
+                    className='button',
+                ),
+                dbc.Button(
                     "Stats",
                     id="open-stats",
                     className='button'
@@ -381,51 +386,51 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True,
         ),
-
-        # Stats modal
+        
+        # Channel modal
         dbc.Modal([
-            dbc.ModalHeader('Statistics'),
+            dbc.ModalHeader('Channel selection'),
             dbc.ModalBody([
                 html.Div([
-                    html.H2('File name:'),
-                    html.Font(id='file-name')
-                ]),
-                html.Div([
-                    html.H2('Recording length (in seconds):'),
-                    html.Font(id='recording-length')
-                ]),
-                html.Div([
-                    html.H2('Amount of annotated data (in seconds):'),
-                    html.Font(id='#noisy-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean data left (in seconds):'),
-                    html.Font(id='#clean-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean intervals longer than 2 seconds:'),
-                    html.Font(id='#clean-intervals')
+                    dcc.Dropdown(
+                        id='selected-channels-dropdown',
+                        multi=True,
+                        placeholder='Click here to select channels to plot or select them in the plot below...',
+                    )
                 ]),
                 html.Div([
                     dcc.Graph(
-                        id='clean-intervals-graph',
+                        id='channel-topography',
                         figure=Figure(),
                         config={
-                            'displayModeBar': False,
+                            'displayModeBar': True,
+                            'displaylogo': False,
+                            'modeBarButtonsToRemove': [
+                                # 'lasso2d',
+                                'autoScale2d',
+                                'toImage',
+                                'hoverClosestCartesian',
+                                'hoverCompareCartesian',
+                                'toggleSpikelines'
+                            ],
+                            'scrollZoom': True,
                         },
+                        style={
+                            'height': '70vh',
+                        }
                     ),
-                ]),
+                ])
             ]),
             dbc.ModalFooter(
-                dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
+                dbc.Button("Close", id="close-channel-select", className=["close-button", 'button'])
             )],
-            id="modal-stats",
-            scrollable=True,
+            id="modal-channel-select",
+            scrollable=False,
             is_open=False,
             size='lg',
             centered=True
         ),
-
+        
         # Save modal
         dbc.Modal([
             dbc.ModalHeader('Save to'),
@@ -490,6 +495,105 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True
         ),
+        
+        # Annotation settings modal
+        dbc.Modal([
+            dbc.ModalHeader('Annotation settings'),
+            dbc.ModalBody([
+                html.Div([
+                    # html.Div([
+                    #     html.Font('Are you sure you want to overwrite the current save-file?')
+                    # ]),
+                    # html.Div([
+                    #     dbc.ButtonGroup([
+                    #         dbc.Button("Yes", id="overwrite-button", className=['button']),
+                    #         dbc.Button("No", id="cancel-overwrite-button", className=['button']),
+                    #     ])
+                    # ]),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
+            )],
+            id="modal-annotation-settings",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Stats modal
+        dbc.Modal([
+            dbc.ModalHeader('Statistics'),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2('File name:'),
+                    html.Font(id='file-name')
+                ]),
+                html.Div([
+                    html.H2('Recording length (in seconds):'),
+                    html.Font(id='recording-length')
+                ]),
+                html.Div([
+                    html.H2('Amount of annotated data (in seconds):'),
+                    html.Font(id='#noisy-data')
+                ]),
+                html.Div([
+                    html.H2('Amount of clean data left (in seconds):'),
+                    html.Font(id='#clean-data')
+                ]),
+                html.Div([
+                    html.H2('Amount of clean intervals longer than 2 seconds:'),
+                    html.Font(id='#clean-intervals')
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='clean-intervals-graph',
+                        figure=Figure(),
+                        config={
+                            'displayModeBar': False,
+                        },
+                    ),
+                ]),
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
+            )],
+            id="modal-stats",
+            scrollable=True,
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+        
+        # Power-spectrum modal
+        dbc.Modal([
+            dbc.ModalHeader('Power spectrum of selected interval'),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2('Most prominent frequency:'),
+                    html.Font(id='selected-data'),
+                ]),
+                html.Div([
+                    html.H2('Welch power spectrum:'),
+                    dcc.Graph(
+                        id='power-spectrum',
+                        figure=Figure(),
+                        config={
+                            'displayModeBar': True,
+                            'scrollZoom': True
+                        },
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-power-spectrum", className=["close-button", 'button'])
+            )],
+            id="modal-power-spectrum",
+            scrollable=True,
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
 
         # Help modal
         dbc.Modal([
@@ -545,80 +649,6 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ])
             ])],
             id="modal-quit",
-            is_open=False,
-            size='lg',
-            centered=True
-        ),
-
-        # Channel modal
-        dbc.Modal([
-            dbc.ModalHeader('Channel selection'),
-            dbc.ModalBody([
-                html.Div([
-                    dcc.Dropdown(
-                        id='selected-channels-dropdown',
-                        multi=True,
-                        placeholder='Click here to select channels to plot or select them in the plot below...',
-                    )
-                ]),
-                html.Div([
-                    dcc.Graph(
-                        id='channel-topography',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': True,
-                            'displaylogo': False,
-                            'modeBarButtonsToRemove': [
-                                # 'lasso2d',
-                                'autoScale2d',
-                                'toImage',
-                                'hoverClosestCartesian',
-                                'hoverCompareCartesian',
-                                'toggleSpikelines'
-                            ],
-                            'scrollZoom': True,
-                        },
-                        style={
-                            'height': '70vh',
-                        }
-                    ),
-                ])
-            ]),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-channel-select", className=["close-button", 'button'])
-            )],
-            id="modal-channel-select",
-            scrollable=False,
-            is_open=False,
-            size='lg',
-            centered=True
-        ),
-
-        # Power-spectrum modal
-        dbc.Modal([
-            dbc.ModalHeader('Power spectrum of selected interval'),
-            dbc.ModalBody([
-                html.Div([
-                    html.H2('Most prominent frequency:'),
-                    html.Font(id='selected-data'),
-                ]),
-                html.Div([
-                    html.H2('Welch power spectrum:'),
-                    dcc.Graph(
-                        id='power-spectrum',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': True,
-                            'scrollZoom': True
-                        },
-                    ),
-                ])
-            ]),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-power-spectrum", className=["close-button", 'button'])
-            )],
-            id="modal-power-spectrum",
-            scrollable=True,
             is_open=False,
             size='lg',
             centered=True
