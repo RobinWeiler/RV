@@ -501,15 +501,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             dbc.ModalHeader('Annotation settings'),
             dbc.ModalBody([
                 html.Div([
-                    # html.Div([
-                    #     html.Font('Are you sure you want to overwrite the current save-file?')
-                    # ]),
-                    # html.Div([
-                    #     dbc.ButtonGroup([
-                    #         dbc.Button("Yes", id="overwrite-button", className=['button']),
-                    #         dbc.Button("No", id="cancel-overwrite-button", className=['button']),
-                    #     ])
-                    # ]),
+                    dcc.RadioItems(
+                        id='annotation-label',
+                        options=[
+                            {'label': 'bad_artifact', 'value': 'bad_artifact'},
+                            {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
+                        ],
+                        value='bad_artifact'
+                    )
                 ])
             ]),
             dbc.ModalFooter(

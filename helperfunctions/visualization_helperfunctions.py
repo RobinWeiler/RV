@@ -396,13 +396,14 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False):
     """Generates initial EEG figure.
 
     Args:
         file_name (string): File name.
         raw (mne.io.Raw): Raw object to plot data from.
         selected_channel_names (list): List of strings of selected channel names to plot.
+        annotation_label (string); Label for new annotations.
         EEG_scale (float): Desired scaling.
         channel_offset (int): Desired channel offset.
         model_output (list, optional): List of arrays of model outputs. Defaults to [].
@@ -417,17 +418,18 @@ def get_EEG_figure(file_name, raw, selected_channel_names, EEG_scale=None, chann
     plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, use_slider=use_slider)
+    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, annotation_label, use_slider=use_slider)
 
     return fig
 
-def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
+def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
     """Generates EEG plots.
 
     Args:
         plotting_data (dict): Dict holding all relevant data from raw object and model outputs for plotting.
         x0 (float): X-coordinate (in seconds) to start plot.
         x1 (float): X-coordinate (in seconds) to end plot.
+        annotation_label (string); Label for new annotations.
         use_slider (bool, optional): Whether or not to activate view-slider. Defaults to False.
 
     Returns:
@@ -552,7 +554,7 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
 
         dragmode='drawrect',
         newshape=dict(
-            fillcolor='red',
+            fillcolor='red' if annotation_label == 'bad_artifact' else 'purple',
             opacity=0.6,
             drawdirection='vertical',
             layer='below',

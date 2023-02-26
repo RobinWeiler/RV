@@ -1,7 +1,7 @@
 import json
 import re
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
 from helperfunctions.saving_helperfunctions import quick_save
@@ -10,17 +10,19 @@ import globals
 
 
 def register_annotation_callbacks(app):
-    # Artifact annotation through dragging mouse across intervals callback
+    # Annotation through dragging mouse across intervals callback
     @app.callback(
         Output('relayout-data', 'children'),
         Input('EEG-graph', 'relayoutData'),
+        State('annotation-label', 'value'),
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData):
+    def _make_annotation(relayoutData, annotation_label):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
             relayoutData (dict): Data from latest relayout event.
+            annotation_label (string); Label for new annotations.
         """
         # print(relayoutData)
         if relayoutData:
@@ -44,7 +46,7 @@ def register_annotation_callbacks(app):
                             annotation_start = x1
                             annotation_end = x0
 
-                        globals.marked_annotations.append((annotation_start, annotation_end))
+                        globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 

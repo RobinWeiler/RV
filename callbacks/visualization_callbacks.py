@@ -108,7 +108,14 @@ def register_visualization_callbacks(app):
     # plot callback
     @app.callback(
         Output('EEG-graph', 'figure'),
-        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks'), Input('EEG-graph', 'clickData')],
+        [
+            Input('plot-button', 'n_clicks'), 
+            Input('redraw-button', 'n_clicks'), 
+            Input('left-button', 'n_clicks'), 
+            Input('right-button', 'n_clicks'), 
+            Input('EEG-graph', 'clickData'),
+            Input('annotation-label', 'value')
+        ],
         [
             State('data-file', 'children'),
             State('selected-channels-dropdown', 'value'),
@@ -120,7 +127,8 @@ def register_visualization_callbacks(app):
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, current_file_name, selected_channels,
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, annotation_label, 
+                            current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
                             model_output_files, model_run, model_annotate, model_threshold, 
@@ -169,7 +177,7 @@ def register_visualization_callbacks(app):
                 if globals.current_plot_index in globals.preloaded_plots:
                     updated_fig = globals.preloaded_plots[globals.current_plot_index]
                 else:
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, use_slider=use_slider)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider=use_slider)
 
                 return updated_fig
         
@@ -185,11 +193,20 @@ def register_visualization_callbacks(app):
                 if globals.current_plot_index in globals.preloaded_plots:
                     updated_fig = globals.preloaded_plots[globals.current_plot_index]
                 else:
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, use_slider=use_slider)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider=use_slider)
 
                 return updated_fig
 
         globals.preloaded_plots = {}
+        
+        if 'annotation-label' in trigger:
+            if globals.plotting_data:
+                if annotation_label == 'bad_artifact':
+                    current_fig['layout']['newshape']['fillcolor'] = 'red'
+                elif annotation_label == 'bad_drowsiness':
+                    current_fig['layout']['newshape']['fillcolor'] = 'purple'
+
+                return current_fig
 
         if 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']
@@ -381,7 +398,7 @@ def register_visualization_callbacks(app):
                 annotations_to_raw(globals.raw, globals.marked_annotations)
                 annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channel_names, EEG_scale=scale, channel_offset=channel_offset, model_output=model_output, model_channels=model_channel_names, use_slider=use_slider)
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channel_names, annotation_label, EEG_scale=scale, channel_offset=channel_offset, model_output=model_output, model_channels=model_channel_names, use_slider=use_slider)
             
             return fig
 
