@@ -130,6 +130,7 @@ def parse_model_output_file(filename, raw=None):
 
             annotation_onsets = df['onset'].tolist()
             annotation_durations = df['duration'].tolist()
+            annotation_descriptions = df['description'].tolist()
             annotation_ends = [x + y for x, y in zip(annotation_onsets, annotation_durations)]
 
             model_output = np.zeros(raw.__len__())
@@ -141,19 +142,19 @@ def parse_model_output_file(filename, raw=None):
                 for timepoint in np.arange(start=annotation_start_index, stop=annotation_end_index, step=1):
                     model_output[timepoint] = 1
 
-            return model_output, None, sampling_frequency
+            return model_output, None, sampling_frequency, annotation_descriptions[0]
         elif '.txt' in filename:
             model_output = np.loadtxt(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None
+            return model_output, None, None, c.ANNOTATION_DESCRIPTION
         elif '.npy' in filename:
             model_output = np.load(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None
+            return model_output, None, None, c.ANNOTATION_DESCRIPTION
         else:
             print('Wrong file type!')
     else:
         print('Make sure to load the accompanying EEG data first')
-        return None, None, None
+        return None, None, None, None

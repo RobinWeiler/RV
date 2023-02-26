@@ -76,7 +76,7 @@ def register_annotation_callbacks(app):
                     annotation_start = x1
                     annotation_end = x0
 
-                globals.marked_annotations[annotation_index] = (annotation_start, annotation_end)
+                globals.marked_annotations[annotation_index] = (annotation_start, annotation_end, globals.marked_annotations[annotation_index][2])
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 

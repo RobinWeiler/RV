@@ -333,20 +333,23 @@ def register_visualization_callbacks(app):
             model_output = []
             model_channel_names = []
             model_sample_rate = []
+            model_descriptions = []
             if model_output_files:
                 for model_name in model_output_files:
                     # print(model_name)
-                    temp_model_output, temp_channel_names, temp_sample_rate = parse_model_output_file(model_name, globals.raw)
+                    temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.raw)
                     model_output.append(temp_model_output)
                     model_channel_names.append(temp_channel_names)
                     model_sample_rate.append(temp_sample_rate)
+                    model_descriptions.append(temp_descriptions)
 
             if model_run:
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
+                model_descriptions.append(run_model_description)
 
             if (not (model_output_files or model_run)) and model_annotate:
                 print('No model selected to annotate with!')
@@ -355,15 +358,17 @@ def register_visualization_callbacks(app):
             # Model annotations
             if model_annotate:
                 all_model_annotations = []
-                for i, model in enumerate(model_output):
-                    if model_sample_rate[i]:
-                        model_timestep = 1 / model_sample_rate[i]
+                for model_index, model in enumerate(model_output):
+                    if model_sample_rate[model_index]:
+                        model_timestep = 1 / model_sample_rate[model_index]
                     else:
                         model_timestep = 1 / globals.model_raw.info['sfreq']
                     # print(model_timestep)
                     if not model_threshold:
                         model_threshold = 0.7
                     output_intervals = confidence_intervals(model, model_threshold, 1, model_timestep)
+                    for interval_index, interval in enumerate(output_intervals):
+                        output_intervals[interval_index] = (interval[0], interval[1], model_descriptions[model_index])
                     all_model_annotations = all_model_annotations + output_intervals
 
                 merged_model_annotations = merge_intervals(all_model_annotations)

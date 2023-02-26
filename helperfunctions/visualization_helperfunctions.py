@@ -587,6 +587,7 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
             editable=True,
             x0=annotation[0],
             x1=annotation[1],
+            annotation_text=annotation[2],
             fillcolor='red',
             opacity=0.6,
             layer='below',
