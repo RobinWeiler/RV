@@ -28,13 +28,18 @@ def register_annotation_callbacks(app):
         if relayoutData:
             # Annotation added/removed
             if 'shapes' in relayoutData:
-                globals.marked_annotations[:] = []
+                # globals.marked_annotations[:] = []
 
                 if relayoutData['shapes']:
                     # For debugging
                     # print(relayoutData['shapes'][-1]['x0'])
                     # print(relayoutData['shapes'][-1]['x1'])
+                    
+                    check_add = []
+                    for annotation in globals.marked_annotations:
+                        check_add.append((annotation[0], annotation[1]))
 
+                    check_remove = []
                     for shape in relayoutData['shapes']:
                         x0 = round(shape['x0'], 3)
                         x1 = round(shape['x1'], 3)
@@ -45,8 +50,17 @@ def register_annotation_callbacks(app):
                         else:
                             annotation_start = x1
                             annotation_end = x0
+                        
+                        check_remove.append((annotation_start, annotation_end))
 
-                        globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
+                        if (annotation_start, annotation_end) not in check_add:
+                            # print('new annotation {}'.format((annotation_start, annotation_end, annotation_label)))
+                            globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
+
+                    for annotation in globals.marked_annotations:
+                        if (annotation[0], annotation[1]) not in check_remove:
+                            # print('remove annotation {}'.format((annotation[0], annotation[1], annotation[2])))
+                            globals.marked_annotations.remove((annotation[0], annotation[1], annotation[2]))
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
