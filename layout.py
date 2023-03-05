@@ -507,9 +507,27 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             {'label': 'bad_artifact', 'value': 'bad_artifact'},
                             {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
                         ],
-                        value='bad_artifact'
+                        value='bad_artifact',
+                        labelStyle={'display': 'block'},
                     )
-                ])
+                ]),
+                html.Div([
+                    dcc.Input(
+                        id="new-annotation-label",
+                        placeholder="New annotation label",
+                        debounce=True,
+                        minLength=1
+                        # className='small-input',
+                    ),
+                ], className='aligned'),
+                # html.Div([
+                #     dcc.Input(
+                #         id="new-annotation-color",
+                #         placeholder="Color",
+                #         debounce=True,
+                #         # className='small-input',
+                #     ),
+                # ], className='aligned'),
             ]),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])

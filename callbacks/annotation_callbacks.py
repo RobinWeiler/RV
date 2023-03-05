@@ -101,3 +101,14 @@ def register_annotation_callbacks(app):
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
 
                 quick_save(globals.raw)
+
+    @app.callback(
+        [Output('annotation-label', 'options'), Output('new-annotation-label', 'value')],
+        Input('new-annotation-label', 'value'),
+        State('annotation-label', 'options'),
+        prevent_initial_call=True
+    )
+    def _make_annotation(new_annotation_label, current_annotation_labels):
+        current_annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
+
+        return current_annotation_labels, ''
