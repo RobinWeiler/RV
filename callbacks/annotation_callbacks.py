@@ -1,6 +1,7 @@
 import json
 import re
 
+import dash
 from dash.dependencies import Input, Output, State
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
@@ -104,11 +105,16 @@ def register_annotation_callbacks(app):
 
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value')],
-        Input('new-annotation-label', 'value'),
+        [Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
         State('annotation-label', 'options'),
         prevent_initial_call=True
     )
-    def _make_annotation(new_annotation_label, current_annotation_labels):
-        current_annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
+    def _make_annotation(new_annotation_label, remove_annotations_button, current_annotation_labels):
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+        if 'remove-annotation-label' in trigger:
+            current_annotation_labels.pop()
+        else:
+            current_annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
 
         return current_annotation_labels, ''

@@ -505,7 +505,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         id='annotation-label',
                         options=[
                             {'label': 'bad_artifact', 'value': 'bad_artifact'},
-                            {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
+                            # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
                         ],
                         value='bad_artifact',
                         labelStyle={'display': 'block'},
@@ -520,14 +520,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         # className='small-input',
                     ),
                 ], className='aligned'),
-                # html.Div([
+                html.Div([
+                    dbc.Button("Remove last label", id="remove-annotation-label", className=['button'])
                 #     dcc.Input(
                 #         id="new-annotation-color",
                 #         placeholder="Color",
                 #         debounce=True,
                 #         # className='small-input',
                 #     ),
-                # ], className='aligned'),
+                ], className='aligned'),
             ]),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
