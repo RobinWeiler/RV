@@ -2,6 +2,7 @@ from jupyter_dash import JupyterDash
 
 from dash import dcc, html
 import dash_bootstrap_components as dbc
+import dash_daq as daq
 
 from plotly.graph_objs import Figure
 
@@ -501,15 +502,25 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             dbc.ModalHeader('Annotation settings'),
             dbc.ModalBody([
                 html.Div([
-                    dcc.RadioItems(
-                        id='annotation-label',
-                        options=[
-                            {'label': 'bad_artifact', 'value': 'bad_artifact'},
-                            # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
-                        ],
-                        value='bad_artifact',
-                        labelStyle={'display': 'block'},
-                    )
+                    html.Div([
+                        dcc.RadioItems(
+                            id='annotation-label',
+                            options=[
+                                {'label': 'bad_artifact', 'value': 'bad_artifact'},
+                                # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
+                            ],
+                            value='bad_artifact',
+                            labelStyle={'display': 'block'},
+                        )
+                    ], className='aligned'),
+                    html.Div([
+                        daq.ColorPicker(
+                            id="annotation-label-color",
+                            label='Label color',
+                            size=256,
+                            value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+                        ),
+                    ], className='aligned'),
                 ]),
                 html.Div([
                     dcc.Input(
@@ -517,9 +528,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         placeholder="New annotation label",
                         debounce=True,
                         minLength=1
-                        # className='small-input',
                     ),
-                ], className='aligned'),
+                ]),
                 html.Div([
                     dbc.Button("Remove last label", id="remove-annotation-label", className=['button'])
                 #     dcc.Input(
@@ -528,7 +538,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 #         debounce=True,
                 #         # className='small-input',
                 #     ),
-                ], className='aligned'),
+                ]),
             ]),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
@@ -720,6 +730,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         html.Pre(id='chosen-save-file-name'),
         html.Pre(id='chosen-extension'),
         html.Pre(id='chosen-overwrite'),
+        html.Pre(id='chosen-annotation-color'),
         html.Pre(id='save-file'),
         html.Pre(id='save-annotations'),
         html.Pre(id='save-bad-channels'),

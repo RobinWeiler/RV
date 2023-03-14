@@ -137,6 +137,15 @@ hr {
     vertical-align: top;
 }
 
+#annotation-label-color{
+    margin-left: 10rem;
+    border-radius: 0% !important;
+}
+
+/* .daq-colorpicker-light__chromepicker {
+    border-radius: 0% !important;
+} */
+
 .right-pre {
     margin-left: 1rem;
     border-left: 2px solid var(--main-horizontal-line-color);

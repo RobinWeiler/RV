@@ -114,7 +114,8 @@ def register_visualization_callbacks(app):
             Input('left-button', 'n_clicks'), 
             Input('right-button', 'n_clicks'), 
             Input('EEG-graph', 'clickData'),
-            Input('annotation-label', 'value')
+            Input('annotation-label', 'value'),
+            Input('annotation-label-color', 'value')
         ],
         [
             State('data-file', 'children'),
@@ -127,7 +128,7 @@ def register_visualization_callbacks(app):
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, annotation_label, 
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, annotation_label, annotation_label_color,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
@@ -141,6 +142,8 @@ def register_visualization_callbacks(app):
             left_button (int): Num clicks on left-arrow button.
             right_button (int): Num clicks on right-arrow button.
             point_clicked (dict): Data from latest click event.
+            annotation_label (string); Label for new annotations.
+            annotation_label_color (dict); Color for new annotations.
             current_file_name (string): File-name of loaded EEG recording.
             selected_channels (list): List of strings of channels selected for plotting.
             high_pass (float): Input desired high-pass filter value.
@@ -199,12 +202,11 @@ def register_visualization_callbacks(app):
 
         globals.preloaded_plots = {}
         
-        if 'annotation-label' in trigger:
+        if 'annotation-label' or 'annotation-label-color' in trigger:
             if globals.plotting_data:
-                if annotation_label == 'bad_artifact':
-                    current_fig['layout']['newshape']['fillcolor'] = 'red'
-                elif annotation_label == 'bad_drowsiness':
-                    current_fig['layout']['newshape']['fillcolor'] = 'purple'
+                print('Here')
+                print(annotation_label_color)
+                current_fig['layout']['newshape']['fillcolor'] = 'rgb{}'.format((annotation_label_color['rgb']['r'], annotation_label_color['rgb']['g'], annotation_label_color['rgb']['b']))
 
                 return current_fig
 

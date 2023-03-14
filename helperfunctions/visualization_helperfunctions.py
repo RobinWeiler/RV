@@ -513,6 +513,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
         )
     
     longest_channel_name_length = len(max(plotting_data['EEG']['channel_names'], key=len))
+    print(globals.annotation_label_colors[annotation_label]['rgb'])
 
     fig.update_layout(
         plot_bgcolor='#fafafa',
@@ -554,7 +555,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
 
         dragmode='drawrect',
         newshape=dict(
-            fillcolor='red' if annotation_label == 'bad_artifact' else 'purple',
+            fillcolor='rgb{}'.format((globals.annotation_label_colors[annotation_label]['rgb']['r'], globals.annotation_label_colors[annotation_label]['rgb']['g'], globals.annotation_label_colors[annotation_label]['rgb']['b'])),
             opacity=0.6,
             drawdirection='vertical',
             layer='below',
@@ -589,8 +590,8 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
             editable=True,
             x0=annotation[0],
             x1=annotation[1],
-            annotation_text=annotation[2],
-            fillcolor='red',
+            # annotation_text=annotation[2],
+            fillcolor='rgb{}'.format((globals.annotation_label_colors[annotation[2]]['rgb']['r'], globals.annotation_label_colors[annotation[2]]['rgb']['g'], globals.annotation_label_colors[annotation[2]]['rgb']['b'])),
             opacity=0.6,
             layer='below',
             line_width=0

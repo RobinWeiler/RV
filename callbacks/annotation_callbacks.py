@@ -109,12 +109,45 @@ def register_annotation_callbacks(app):
         State('annotation-label', 'options'),
         prevent_initial_call=True
     )
-    def _make_annotation(new_annotation_label, remove_annotations_button, current_annotation_labels):
+    # Adds new annotation label callback
+    def _add_annotation_label(new_annotation_label, remove_annotations_button, current_annotation_labels):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-        if 'remove-annotation-label' in trigger:
+        if 'remove-annotation-label' in trigger:  # and len(current_annotation_labels) > 1:
             current_annotation_labels.pop()
         else:
             current_annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
 
         return current_annotation_labels, ''
+
+    @app.callback(
+        Output('annotation-label-color', 'value'),
+        Input('annotation-label', 'value'),
+        # State('annotation-label', 'options'),
+        # prevent_initial_call=True
+    )
+    # Switch to current annotation-label color callback
+    def _switch_annotation_label_color(current_annotation_label):
+        print('YO')
+        print(current_annotation_label)
+        if current_annotation_label in globals.annotation_label_colors:
+            print('Yes')
+            color = {'rgb': globals.annotation_label_colors[current_annotation_label]['rgb']}
+        else:
+            color = {'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+        
+        return color
+
+    @app.callback(
+        Output('chosen-annotation-color', 'children'),
+        Input('annotation-label-color', 'value'),
+        State('annotation-label', 'value'),
+        prevent_initial_call=True
+    )
+    # Choose annotation-label color callback
+    def _choose_annotation_label_color(current_annotation_label_color, current_annotation_label):
+        print(current_annotation_label_color)
+        print(current_annotation_label)
+        globals.annotation_label_colors[current_annotation_label] = {'rgb': current_annotation_label_color['rgb']}
+
+        print(globals.annotation_label_colors)

@@ -10,8 +10,6 @@ DEFAULT_SEGMENT_SIZE = 60
 
 BAD_CHANNEL_COLOR = '#8f8f8f'
 
-ANNOTATION_DESCRIPTION = 'bad_artifact'
-
 # Path variables
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 DATA_DIRECTORY = os.path.join(CURRENT_PATH, 'data')
