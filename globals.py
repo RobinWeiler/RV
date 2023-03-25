@@ -8,7 +8,7 @@ model_raw = None
 external_raw = None
 
 marked_annotations = []
-annotation_label_colors = {'bad_artifact': {'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}}
+annotation_label_colors = {'bad_artifact': 'red', 'bad_artifact_model': 'red'}
 
 plotting_data = {}
 

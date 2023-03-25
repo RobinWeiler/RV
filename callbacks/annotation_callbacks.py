@@ -4,6 +4,8 @@ import re
 import dash
 from dash.dependencies import Input, Output, State
 
+import numpy as np
+
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
 from helperfunctions.saving_helperfunctions import quick_save
 
@@ -42,8 +44,8 @@ def register_annotation_callbacks(app):
 
                     check_remove = []
                     for shape in relayoutData['shapes']:
-                        x0 = round(shape['x0'], 3)
-                        x1 = round(shape['x1'], 3)
+                        x0 = np.round(shape['x0'], 3)
+                        x1 = np.round(shape['x1'], 3)
 
                         if x0 < x1:
                             annotation_start = x0
@@ -83,8 +85,8 @@ def register_annotation_callbacks(app):
                     if key.endswith('x1'):
                         x1_key = key
 
-                x0 = round(relayoutData[x0_key], 3)
-                x1 = round(relayoutData[x1_key], 3)
+                x0 = np.round(relayoutData[x0_key], 3)
+                x1 = np.round(relayoutData[x1_key], 3)
 
                 if x0 < x1:
                     annotation_start = x0
@@ -128,13 +130,11 @@ def register_annotation_callbacks(app):
     )
     # Switch to current annotation-label color callback
     def _switch_annotation_label_color(current_annotation_label):
-        print('YO')
         print(current_annotation_label)
         if current_annotation_label in globals.annotation_label_colors:
-            print('Yes')
-            color = {'rgb': globals.annotation_label_colors[current_annotation_label]['rgb']}
+            color = globals.annotation_label_colors[current_annotation_label]
         else:
-            color = {'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+            color = 'red'
         
         return color
 
@@ -148,6 +148,6 @@ def register_annotation_callbacks(app):
     def _choose_annotation_label_color(current_annotation_label_color, current_annotation_label):
         print(current_annotation_label_color)
         print(current_annotation_label)
-        globals.annotation_label_colors[current_annotation_label] = {'rgb': current_annotation_label_color['rgb']}
+        globals.annotation_label_colors[current_annotation_label] = current_annotation_label_color
 
         print(globals.annotation_label_colors)

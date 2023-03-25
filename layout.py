@@ -507,6 +507,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             id='annotation-label',
                             options=[
                                 {'label': 'bad_artifact', 'value': 'bad_artifact'},
+                                {'label': 'bad_artifact_model', 'value': 'bad_artifact_model'},
                                 # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
                             ],
                             value='bad_artifact',
@@ -514,12 +515,26 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         )
                     ], className='aligned'),
                     html.Div([
-                        daq.ColorPicker(
-                            id="annotation-label-color",
-                            label='Label color',
-                            size=256,
-                            value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
-                        ),
+                        # daq.ColorPicker(
+                        #     id="annotation-label-color",
+                        #     label='Label color',
+                        #     size=256,
+                        #     value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+                        # ),
+                        dcc.Dropdown(
+                            id='annotation-label-color',
+                            options=[
+                                {'label': 'red', 'value': 'red'},
+                                {'label': 'green', 'value': 'green'},
+                                {'label': 'blue', 'value': 'blue'},
+                                {'label': 'yellow', 'value': 'yellow'},
+                                {'label': 'orange', 'value': 'orange'},
+                                {'label': 'purple', 'value': 'purple'}
+                            ],
+                            value='red',
+                            clearable=False,
+                            className='small-dropdown'
+                        )
                     ], className='aligned'),
                 ]),
                 html.Div([

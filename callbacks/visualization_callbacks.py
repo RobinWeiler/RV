@@ -166,7 +166,7 @@ def register_visualization_callbacks(app):
             plotly.graph_objs.Figure: EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        # print(trigger)
+        print(trigger)
 
         if 'right-button' in trigger:
             if segment_size:
@@ -184,7 +184,7 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
         
-        elif 'left-button' in trigger:
+        if 'left-button' in trigger:
             if segment_size:
                 globals.current_plot_index -= 1
                 
@@ -202,11 +202,10 @@ def register_visualization_callbacks(app):
 
         globals.preloaded_plots = {}
         
-        if 'annotation-label' or 'annotation-label-color' in trigger:
+        if 'annotation-label' in trigger or 'annotation-label-color' in trigger:
             if globals.plotting_data:
-                print('Here')
                 print(annotation_label_color)
-                current_fig['layout']['newshape']['fillcolor'] = 'rgb{}'.format((annotation_label_color['rgb']['r'], annotation_label_color['rgb']['g'], annotation_label_color['rgb']['b']))
+                current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
 
                 return current_fig
 
@@ -300,7 +299,7 @@ def register_visualization_callbacks(app):
 
             return current_fig
 
-        elif 'plot-button' in trigger:
+        if 'plot-button' in trigger:
             globals.current_plot_index = 0
             
             globals.x0 = -0.5

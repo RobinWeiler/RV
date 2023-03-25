@@ -5,7 +5,7 @@ import constants as c
 
 
 def annotations_to_raw(raw, marked_annotations):
-    """Adds marked_annotations to raw object. Change "ANNOTATION_DESCRIPTION" in "constants.py" or here to give annotations different description (currently: "bad_artifact").
+    """Adds marked_annotations to raw object. 
 
     Args:
         raw (mne.io.Raw): Raw object to add annotations to.
@@ -46,7 +46,7 @@ def get_annotations(raw):
 
     marked_annotations = []
     for annotation_index in range(len(annotation_starts)):
-        annotation_ends[annotation_index] = round(annotation_ends[annotation_index], 3)
+        annotation_ends[annotation_index] = np.round(annotation_ends[annotation_index], 3)
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index], annotation_descriptions[annotation_index]))
 
@@ -175,12 +175,12 @@ def annotation_interval_calc(timestep, interval_datapoints):
             annotation_length = annotation_length + 1
         else:
             annotation_end = annotation_start + annotation_length
-            intervals.append((annotation_start * timestep, annotation_end * timestep))
+            intervals.append((np.round(annotation_start * timestep, 3), np.round(annotation_end * timestep, 3)))
             annotation_start = interval_datapoints[index + 1]
     #         annotation_end = annotation_start + 1
             annotation_length = 1
 
     annotation_end = interval_datapoints[-1]
-    intervals.append((annotation_start * timestep, annotation_end * timestep))
+    intervals.append((np.round(annotation_start * timestep, 3), np.round(annotation_end * timestep, 3)))
 
     return intervals
