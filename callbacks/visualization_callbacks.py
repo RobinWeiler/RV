@@ -148,7 +148,14 @@ def register_visualization_callbacks(app):
     # plot callback
     @app.callback(
         Output('EEG-graph', 'figure'),
-        [Input('plot-button', 'n_clicks'), Input('redraw-button', 'n_clicks'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks'), Input('EEG-graph', 'clickData')],
+        [
+            Input('plot-button', 'n_clicks'),
+            Input('redraw-button', 'n_clicks'),
+            Input('left-button', 'n_clicks'),
+            Input('right-button', 'n_clicks'),
+            Input('EEG-graph', 'clickData'),
+            Input("model-threshold", "value")
+        ],
         [
             State('data-file', 'children'),
             State('selected-channels-dropdown', 'value'),
@@ -156,14 +163,14 @@ def register_visualization_callbacks(app):
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'), State('use-slider', 'value'),
-            State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State("model-threshold", "value"), State('show-annotations-only', 'value'),
+            State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State('show-annotations-only', 'value'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, current_file_name, selected_channels,
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, model_threshold, current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, scale, channel_offset, segment_size, use_slider,
-                            model_output_files, run_model_bool, model_annotate, model_threshold, show_annotations_only,
+                            model_output_files, run_model_bool, model_annotate, show_annotations_only,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
@@ -173,6 +180,7 @@ def register_visualization_callbacks(app):
             left_button (int): Num clicks on left-arrow button.
             right_button (int): Num clicks on right-arrow button.
             point_clicked (dict): Data from latest click event.
+            model_threshold (float): Input desired confidence threshold over which to automatically annotate.
             current_file_name (string): File-name of loaded EEG recording.
             selected_channels (list): List of strings of channels selected for plotting.
             high_pass (float): Input desired high-pass filter value.
@@ -188,7 +196,6 @@ def register_visualization_callbacks(app):
             model_output_files (list): List of strings of model-output file-names.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
-            model_threshold (float): Input desired confidence threshold over which to automatically annotate.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
@@ -238,9 +245,9 @@ def register_visualization_callbacks(app):
 
                 return updated_fig
 
-        globals.preloaded_plots = {}
+        # globals.preloaded_plots = {}
 
-        if 'clickData' in trigger:
+        elif 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']
             if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
                 return current_fig
@@ -286,7 +293,7 @@ def register_visualization_callbacks(app):
             return current_fig
 
         # If re-drawing, keep current annotations and bad channels
-        if 'redraw-button' in trigger:
+        elif 'redraw-button' in trigger:
             globals.model_raw.info['bads'] = current_selected_bad_channels
 
             print('Running model...')
@@ -327,6 +334,41 @@ def register_visualization_callbacks(app):
             
             current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
             current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+
+            return current_fig
+        
+        elif 'model-threshold' in trigger and model_annotate and globals.plotting_data:
+            all_model_annotations = []
+            for model in globals.plotting_data['model']:
+                model_timestep = model['model_timescale'][1]
+
+                output_intervals = confidence_intervals(model['model_data'], model_threshold, 1, model_timestep)
+                all_model_annotations = all_model_annotations + output_intervals
+
+            merged_model_annotations = merge_intervals(all_model_annotations)
+
+            globals.marked_annotations = merged_model_annotations
+
+            annotations_to_raw(globals.raw, globals.marked_annotations)
+            annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+
+            current_fig['layout']['shapes'] = []
+            for annotation in globals.marked_annotations:
+                current_fig['layout']['shapes'].append({
+                    'editable': True,
+                    'xref': 'x',
+                    'yref': 'y',
+                    'layer': 'below',
+                    'opacity': 0.6,
+                    'line': {'width': 0},
+                    'fillcolor': 'red',
+                    'fillrule': 'evenodd',
+                    'type': 'rect',
+                    'x0': annotation[0],
+                    'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                    'x1': annotation[1],
+                    'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                })
 
             return current_fig
 
