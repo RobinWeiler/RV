@@ -360,6 +360,8 @@ def register_visualization_callbacks(app):
                 model_timestep = model['model_timescale'][1]
 
                 output_intervals = confidence_intervals(model['model_data'], model_threshold, 1, model_timestep)
+                for interval_index, interval in enumerate(output_intervals):
+                    output_intervals[interval_index] = (interval[0], interval[1], 'bad_artifact_model')
                 all_model_annotations = all_model_annotations + output_intervals
 
             merged_model_annotations = merge_intervals(all_model_annotations)
@@ -378,7 +380,7 @@ def register_visualization_callbacks(app):
                     'layer': 'below',
                     'opacity': 0.6,
                     'line': {'width': 0},
-                    'fillcolor': 'red',
+                    'fillcolor': globals.annotation_label_colors[annotation[2]],
                     'fillrule': 'evenodd',
                     'type': 'rect',
                     'x0': annotation[0],
