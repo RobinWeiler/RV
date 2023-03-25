@@ -206,6 +206,24 @@ def register_visualization_callbacks(app):
             if globals.plotting_data:
                 print(annotation_label_color)
                 current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+                
+                current_fig['layout']['shapes'] = []
+                for annotation in globals.marked_annotations:
+                    current_fig['layout']['shapes'].append({
+                        'editable': True,
+                        'xref': 'x',
+                        'yref': 'y',
+                        'layer': 'below',
+                        'opacity': 0.6,
+                        'line': {'width': 0},
+                        'fillcolor': globals.annotation_label_colors[annotation[2]],
+                        'fillrule': 'evenodd',
+                        'type': 'rect',
+                        'x0': annotation[0],
+                        'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                        'x1': annotation[1],
+                        'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                    })
 
                 return current_fig
 

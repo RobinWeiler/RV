@@ -527,8 +527,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 {'label': 'red', 'value': 'red'},
                                 {'label': 'green', 'value': 'green'},
                                 {'label': 'blue', 'value': 'blue'},
-                                {'label': 'yellow', 'value': 'yellow'},
-                                {'label': 'orange', 'value': 'orange'},
+                                {'label': 'yellow', 'value': 'orange'},
+                                {'label': 'turquoise', 'value': 'turquoise'},
                                 {'label': 'purple', 'value': 'purple'}
                             ],
                             value='red',
