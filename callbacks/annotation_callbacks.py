@@ -17,10 +17,10 @@ def register_annotation_callbacks(app):
     @app.callback(
         Output('relayout-data', 'children'),
         Input('EEG-graph', 'relayoutData'),
-        State('annotation-label', 'value'),
+        [State('annotation-label', 'value'), State('show-annotations-only', 'value')],
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData, annotation_label):
+    def _make_annotation(relayoutData, annotation_label, show_annotations_only):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
@@ -67,8 +67,6 @@ def register_annotation_callbacks(app):
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
-                # print(globals.marked_annotations)
-
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
 
                 quick_save(globals.raw)
@@ -99,9 +97,11 @@ def register_annotation_callbacks(app):
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
-                # print(globals.marked_annotations)
-
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+                
+                if show_annotations_only:
+                    print(annotation_index)
+                    globals.current_plot_index = annotation_index
 
                 quick_save(globals.raw)
 

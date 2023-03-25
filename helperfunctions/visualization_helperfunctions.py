@@ -396,7 +396,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False):
     """Generates initial EEG figure.
 
     Args:
@@ -418,11 +418,11 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, annotation_label, use_slider=use_slider)
+    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
     return fig
 
-def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
+def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_annotations_only=False):
     """Generates EEG plots.
 
     Args:
@@ -577,7 +577,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
         showgrid=True,
         zeroline=False,
         constrain='domain',
-        range=(x0, x1) if not use_slider else (x0, x0 + 11),  # Start x-axis range to show approx. 10 seconds
+        range=(x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11),
     )
 
     # Add annotations
@@ -605,7 +605,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False):
                         method="relayout", 
                         args=[{
                             "xaxis.range[0]": x0,
-                            "xaxis.range[1]": x1 if not use_slider else x0 + 11,
+                            "xaxis.range[1]": x1 if (not use_slider) or show_annotations_only else x0 + 11,
                         }]
                     ),
                     dict(label="Reset channel-axis",  

@@ -373,6 +373,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 className='medium-input'
                             ),
                         ], className='aligned'),
+                        html.Div([
+                            dbc.Checklist(
+                                id='show-annotations-only',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Only show annotations', 'value': 0},
+                                ],
+                            )
+                        ]),
                     ]),
                 ]),
                 html.Hr(),
