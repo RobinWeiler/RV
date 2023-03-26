@@ -364,9 +364,11 @@ def register_visualization_callbacks(app):
                     output_intervals[interval_index] = (interval[0], interval[1], 'bad_artifact_model')
                 all_model_annotations = all_model_annotations + output_intervals
 
-            merged_model_annotations = merge_intervals(all_model_annotations)
+            remaining_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != 'bad_artifact_model']
 
-            globals.marked_annotations = merged_model_annotations
+            merged_annotations = merge_intervals(all_model_annotations + remaining_annotations)
+
+            globals.marked_annotations = merged_annotations
 
             annotations_to_raw(globals.raw, globals.marked_annotations)
             annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
