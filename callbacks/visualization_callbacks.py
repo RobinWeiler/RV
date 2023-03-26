@@ -11,7 +11,7 @@ import plotly.express as px
 from skimage import io
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
-from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file
+from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
 from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG
 from model.run_model import run_model
 
@@ -189,6 +189,7 @@ def register_visualization_callbacks(app):
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
+            current_selected_bad_channels (list): List containing names of currently selected bad channels.
 
         Returns:
             plotly.graph_objs.Figure: EEG plot.
@@ -264,7 +265,7 @@ def register_visualization_callbacks(app):
 
                 return current_fig
 
-        elif 'clickData' in trigger:
+        if 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']
             if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
                 return current_fig
@@ -310,7 +311,7 @@ def register_visualization_callbacks(app):
             return current_fig
 
         # If re-drawing, keep current annotations and bad channels
-        elif 'redraw-button' in trigger:
+        if 'redraw-button' in trigger:
             globals.model_raw.info['bads'] = current_selected_bad_channels
 
             print('Running model...')
@@ -354,7 +355,7 @@ def register_visualization_callbacks(app):
 
             return current_fig
         
-        elif 'model-threshold' in trigger and model_annotate and globals.plotting_data:
+        if 'model-threshold' in trigger and model_annotate and globals.plotting_data:
             all_model_annotations = []
             for model in globals.plotting_data['model']:
                 model_timestep = model['model_timescale'][1]
@@ -448,12 +449,19 @@ def register_visualization_callbacks(app):
             model_descriptions = []
             if model_output_files:
                 for model_name in model_output_files:
-                    # print(model_name)
-                    temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.raw)
-                    model_output.append(temp_model_output)
-                    model_channel_names.append(temp_channel_names)
-                    model_sample_rate.append(temp_sample_rate)
-                    model_descriptions.append(temp_descriptions)
+                    if '.csv' in model_name:
+                        loaded_annotations = parse_annotation_file(model_name)
+                        merged_annotations = merge_intervals(globals.marked_annotations + loaded_annotations)
+
+                        globals.marked_annotations = merged_annotations
+                        annotations_to_raw(globals.raw, globals.marked_annotations)
+                        annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                    else:
+                        temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.raw)
+                        model_output.append(temp_model_output)
+                        model_channel_names.append(temp_channel_names)
+                        model_sample_rate.append(temp_sample_rate)
+                        model_descriptions.append(temp_descriptions)
 
             if run_model_bool:
                 print('Running model...')

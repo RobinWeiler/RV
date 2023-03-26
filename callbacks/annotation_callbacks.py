@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
+from helperfunctions.loading_helperfunctions import parse_annotation_file
 from helperfunctions.saving_helperfunctions import quick_save
 
 import globals
@@ -107,18 +108,29 @@ def register_annotation_callbacks(app):
 
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value')],
-        [Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
+        [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
         State('annotation-label', 'options'),
         prevent_initial_call=True
     )
     # Adds new annotation label callback
-    def _add_annotation_label(new_annotation_label, remove_annotations_button, current_annotation_labels):
+    def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, current_annotation_labels):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        print(trigger)
 
-        if 'remove-annotation-label' in trigger:  # and len(current_annotation_labels) > 1:
+        if 'model-output-files' in trigger:
+            for file_name in loaded_files:
+                if '.csv' in file_name:
+                    loaded_annotations = parse_annotation_file(file_name)
+
+                    for annotation in loaded_annotations:
+                        if annotation[2] not in globals.annotation_label_colors.keys():
+                            current_annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
+                            globals.annotation_label_colors[annotation[2]] = 'red'
+        elif 'remove-annotation-label' in trigger:  # and len(current_annotation_labels) > 1:
             current_annotation_labels.pop()
-        else:
+        elif new_annotation_label not in globals.annotation_label_colors.keys():
             current_annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
+            globals.annotation_label_colors[new_annotation_label] = 'red'
 
         return current_annotation_labels, ''
 
@@ -131,10 +143,8 @@ def register_annotation_callbacks(app):
     # Switch to current annotation-label color callback
     def _switch_annotation_label_color(current_annotation_label):
         print(current_annotation_label)
-        if current_annotation_label in globals.annotation_label_colors:
-            color = globals.annotation_label_colors[current_annotation_label]
-        else:
-            color = 'red'
+
+        color = globals.annotation_label_colors[current_annotation_label]
         
         return color
 

@@ -321,7 +321,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             id='upload-model-output',
                             children=html.Div([
                                 'Drag-and-drop or ',
-                                html.A('click here to select model output')
+                                html.A('click here to select model-output files or annotation files')
                             ]),
                             style={
                                 'width': '97%',

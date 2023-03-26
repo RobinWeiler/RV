@@ -513,7 +513,6 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
         )
     
     longest_channel_name_length = len(max(plotting_data['EEG']['channel_names'], key=len))
-    print(globals.annotation_label_colors[annotation_label])
 
     fig.update_layout(
         plot_bgcolor='#fafafa',
@@ -591,7 +590,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
             x0=annotation[0],
             x1=annotation[1],
             # annotation_text=annotation[2],
-            fillcolor=globals.annotation_label_colors[annotation[2]],
+            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red',
             opacity=0.6,
             layer='below',
             line_width=0
