@@ -654,6 +654,16 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 html.Div([
                     html.Div([
                         html.Label([
+                            'Publication: ',
+                            html.A(
+                                'Click here',
+                                href='https://doi.org/10.3389/fninf.2022.1025847',
+                                target='_blank'
+                            )
+                        ]),
+                    ]),
+                    html.Div([
+                        html.Label([
                             'GitHub: ',
                             html.A(
                                 'Click here',
