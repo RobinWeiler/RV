@@ -374,25 +374,34 @@ def register_visualization_callbacks(app):
             annotations_to_raw(globals.raw, globals.marked_annotations)
             annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
 
-            current_fig['layout']['shapes'] = []
-            for annotation in globals.marked_annotations:
-                current_fig['layout']['shapes'].append({
-                    'editable': True,
-                    'xref': 'x',
-                    'yref': 'y',
-                    'layer': 'below',
-                    'opacity': 0.6,
-                    'line': {'width': 0},
-                    'fillcolor': globals.annotation_label_colors[annotation[2]],
-                    'fillrule': 'evenodd',
-                    'type': 'rect',
-                    'x0': annotation[0],
-                    'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
-                    'x1': annotation[1],
-                    'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
-                })
+            if show_annotations_only and len(globals.marked_annotations) > 0:
+                globals.current_plot_index = 0
 
-            return current_fig
+                globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
+                globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                return updated_fig
+            else:
+                current_fig['layout']['shapes'] = []
+                for annotation in globals.marked_annotations:
+                    current_fig['layout']['shapes'].append({
+                        'editable': True,
+                        'xref': 'x',
+                        'yref': 'y',
+                        'layer': 'below',
+                        'opacity': 0.6,
+                        'line': {'width': 0},
+                        'fillcolor': globals.annotation_label_colors[annotation[2]],
+                        'fillrule': 'evenodd',
+                        'type': 'rect',
+                        'x0': annotation[0],
+                        'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                        'x1': annotation[1],
+                        'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                    })
+
+                return current_fig
 
         if 'plot-button' in trigger:
             globals.current_plot_index = 0
