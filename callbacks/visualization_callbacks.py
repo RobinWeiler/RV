@@ -144,6 +144,7 @@ def register_visualization_callbacks(app):
             Input("scale", "value"),
             Input("channel-offset", "value"),
             Input('segment-size', 'value'),
+            Input('use-slider', 'value'),
             Input('annotation-label', 'value'),
             Input('annotation-label-color', 'value'),
             Input("model-threshold", "value")
@@ -154,16 +155,17 @@ def register_visualization_callbacks(app):
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
-            State("resample-rate", "value"), State('use-slider', 'value'),
+            State("resample-rate", "value"),
             State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State('show-annotations-only', 'value'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, 
-                            scale, channel_offset, segment_size, annotation_label, annotation_label_color, model_threshold, 
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked,
+                            scale, channel_offset, segment_size, use_slider,
+                            annotation_label, annotation_label_color, model_threshold,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
-                            resample_rate, use_slider,
+                            resample_rate,
                             model_output_files, run_model_bool, model_annotate, show_annotations_only,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
@@ -177,6 +179,7 @@ def register_visualization_callbacks(app):
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
             segment_size (int): Input desired segment size for plots.
+            use_slider (bool): Whether or not to activate view-slider.
             annotation_label (string); Label for new annotations.
             annotation_label_color (dict); Color for new annotations.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
@@ -188,7 +191,6 @@ def register_visualization_callbacks(app):
             bad_channel_detection (string): Chosen automatic bad-channel detection.
             bad_channel_interpolation (list): List containing 1 if bad-channel interpolation is chosen.
             resample_rate (int): Input desired sampling frequency.
-            use_slider (bool): Whether or not to activate view-slider.
             model_output_files (list): List of strings of model-output file-names.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
@@ -313,6 +315,12 @@ def register_visualization_callbacks(app):
                 else:
                     globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
+
+        if 'use-slider' in trigger:
+            if globals.plotting_data:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
                 return updated_fig
