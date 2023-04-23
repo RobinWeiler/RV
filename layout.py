@@ -39,11 +39,28 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ),
             ], className='aligned first'),
             html.Div([
-                dbc.Button(
-                    "Rerun model",
-                    id="redraw-button",
-                    className='button'
-                ),
+                html.Div([
+                    dbc.Button(
+                        "Rerun model",
+                        id="redraw-button",
+                        className='button'
+                    ),
+                ], className='aligned-threshold'),
+                html.Div([
+                    html.Font('Model threshold:', id='threshold-text-main')
+                ], className='aligned-threshold'),
+                html.Div([
+                    dcc.Input(
+                        id="model-threshold",
+                        type='number',
+                        value=0.7,
+                        min=0,
+                        max=1,
+                        step=0.1,
+                        debounce=True,
+                        className='small-input'
+                    ),
+                ], className='aligned-threshold'),
             ], className='aligned second'),
             html.Div([
                 dbc.Button(
@@ -358,21 +375,22 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 id='annotate-model',
                                 switch=True,  # no effect in Safari
                                 options=[
-                                    {'label': 'Annotate according to model with threshold', 'value': 0}
+                                    {'label': 'Annotate according to model(s)', 'value': 0}
                                 ],
                             )
                         ], className='aligned checklist'),
-                        html.Div([
-                            dcc.Input(
-                                id="model-threshold",
-                                type='number',
-                                placeholder="default: 0.7",
-                                min=0,
-                                max=1,
-                                debounce=True,
-                                className='medium-input'
-                            ),
-                        ], className='aligned'),
+                        # html.Div([
+                        #     dcc.Input(
+                        #         id="model-threshold",
+                        #         type='number',
+                        #         placeholder="default: 0.7",
+                        #         min=0,
+                        #         max=1,
+                        #         step=0.1,
+                        #         debounce=True,
+                        #         className='medium-input'
+                        #     ),
+                        # ], className='aligned'),
                         html.Div([
                             dbc.Checklist(
                                 id='show-annotations-only',

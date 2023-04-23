@@ -27,3 +27,15 @@ def register_model_callbacks(app):
         elif list_selected_file_names:
             print('Selected files: {}'.format(list_selected_file_names))
             return list_selected_file_names, list_selected_file_names
+
+    # Model threshold disable callback
+    @app.callback(
+        Output('model-threshold', 'disabled'),
+        Input('annotate-model', 'value'),
+        # prevent_initial_call=True
+    )
+    def _disable_model_threshold(model_annotate):
+        if model_annotate:
+            return False
+        else:
+            return True
