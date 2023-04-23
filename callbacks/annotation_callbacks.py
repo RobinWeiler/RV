@@ -138,7 +138,7 @@ def register_annotation_callbacks(app):
         Output('annotation-label-color', 'value'),
         Input('annotation-label', 'value'),
         # State('annotation-label', 'options'),
-        # prevent_initial_call=True
+        prevent_initial_call=True
     )
     # Switch to current annotation-label color callback
     def _switch_annotation_label_color(current_annotation_label):

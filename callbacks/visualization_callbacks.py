@@ -12,7 +12,7 @@ from skimage import io
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG, _get_scaling, _get_offset
 from model.run_model import run_model
 
 import constants as c
@@ -141,6 +141,9 @@ def register_visualization_callbacks(app):
             Input('left-button', 'n_clicks'), 
             Input('right-button', 'n_clicks'), 
             Input('EEG-graph', 'clickData'),
+            Input("scale", "value"),
+            Input("channel-offset", "value"),
+            Input('segment-size', 'value'),
             Input('annotation-label', 'value'),
             Input('annotation-label-color', 'value'),
             Input("model-threshold", "value")
@@ -151,15 +154,16 @@ def register_visualization_callbacks(app):
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
-            State("resample-rate", "value"), State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'), State('use-slider', 'value'),
+            State("resample-rate", "value"), State('use-slider', 'value'),
             State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State('show-annotations-only', 'value'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, annotation_label, annotation_label_color, model_threshold, 
+    def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked, 
+                            scale, channel_offset, segment_size, annotation_label, annotation_label_color, model_threshold, 
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
-                            resample_rate, scale, channel_offset, segment_size, use_slider,
+                            resample_rate, use_slider,
                             model_output_files, run_model_bool, model_annotate, show_annotations_only,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
@@ -170,6 +174,9 @@ def register_visualization_callbacks(app):
             left_button (int): Num clicks on left-arrow button.
             right_button (int): Num clicks on right-arrow button.
             point_clicked (dict): Data from latest click event.
+            scale (float): Input desired scaling for data.
+            channel_offset (float): Input desired channel offset.
+            segment_size (int): Input desired segment size for plots.
             annotation_label (string); Label for new annotations.
             annotation_label_color (dict); Color for new annotations.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
@@ -181,9 +188,6 @@ def register_visualization_callbacks(app):
             bad_channel_detection (string): Chosen automatic bad-channel detection.
             bad_channel_interpolation (list): List containing 1 if bad-channel interpolation is chosen.
             resample_rate (int): Input desired sampling frequency.
-            scale (float): Input desired scaling for data.
-            channel_offset (float): Input desired channel offset.
-            segment_size (int): Input desired segment size for plots.
             use_slider (bool): Whether or not to activate view-slider.
             model_output_files (list): List of strings of model-output file-names.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
@@ -264,6 +268,54 @@ def register_visualization_callbacks(app):
                     })
 
                 return current_fig
+
+        if 'scale' in trigger or 'channel-offset' in trigger:
+            if globals.plotting_data:
+                if 'scale' in trigger and globals.plotting_data['EEG']['scaling_factor'] != scale:
+                    new_scale = _get_scaling(scale)
+                    print(new_scale)
+                    
+                    globals.plotting_data['EEG']['scaling_factor'] = new_scale
+                    
+                if 'channel-offset' in trigger and globals.plotting_data['plot']['offset_factor'] != channel_offset:
+                    new_offset = _get_offset(channel_offset)
+                    print(new_offset)
+                    
+                    globals.plotting_data['plot']['offset_factor'] = new_offset
+                    
+                    for model_index, model_array in enumerate(globals.plotting_data['model']):
+                        globals.plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][model_index]['model_timescale']))]
+
+                    y_ticks_model_output = np.arange((-len(globals.plotting_data['model']) - 1), -1)
+                    y_ticks_channels = np.arange(0, len(globals.plotting_data['EEG']['channel_names']))
+                    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+                    y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
+
+                    globals.plotting_data['plot']['y_ticks'] = y_ticks
+
+                offset_EEG = globals.plotting_data['EEG']['EEG_data'].copy() 
+                offset_EEG = offset_EEG * globals.plotting_data['EEG']['scaling_factor']
+                
+                for channel_index in range(offset_EEG.shape[1]):
+                    # Calculate offset for y-axis
+                    offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((globals.plotting_data['plot']['offset_factor']) * (len(globals.plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+
+                globals.plotting_data['EEG']['offset_EEG_data'] = offset_EEG
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
+
+        if 'segment-size' in trigger:
+            if globals.plotting_data:
+                if segment_size:
+                    globals.x1 = globals.x0 + segment_size + 1
+                else:
+                    globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
 
         if 'clickData' in trigger:
             channel_index = point_clicked['points'][0]['curveNumber']

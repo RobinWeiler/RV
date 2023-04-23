@@ -385,7 +385,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
     y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
     
-    plotting_data['plot']['y_ticks'] = y_ticks.copy()
+    plotting_data['plot']['y_ticks'] = y_ticks
 
     y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
     for model_id in range(len(model_output)):
