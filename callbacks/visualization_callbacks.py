@@ -147,7 +147,8 @@ def register_visualization_callbacks(app):
             Input('use-slider', 'value'),
             Input('annotation-label', 'value'),
             Input('annotation-label-color', 'value'),
-            Input("model-threshold", "value")
+            Input("model-threshold", "value"),
+            Input('show-annotations-only', 'value'),
         ],
         [
             State('data-file', 'children'),
@@ -156,17 +157,17 @@ def register_visualization_callbacks(app):
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"),
-            State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"), State('show-annotations-only', 'value'),
+            State('model-output-files', 'children'), State("run-model", "value"), State("annotate-model", "value"),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
     def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked,
                             scale, channel_offset, segment_size, use_slider,
-                            annotation_label, annotation_label_color, model_threshold,
+                            annotation_label, annotation_label_color, model_threshold, show_annotations_only,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate,
-                            model_output_files, run_model_bool, model_annotate, show_annotations_only,
+                            model_output_files, run_model_bool, model_annotate,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
@@ -183,6 +184,7 @@ def register_visualization_callbacks(app):
             annotation_label (string); Label for new annotations.
             annotation_label_color (dict); Color for new annotations.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
+            show_annotations_only (bool): Whether or not to only show annotations.
             current_file_name (string): File-name of loaded EEG recording.
             selected_channels (list): List of strings of channels selected for plotting.
             high_pass (float): Input desired high-pass filter value.
@@ -462,6 +464,28 @@ def register_visualization_callbacks(app):
                     })
 
                 return current_fig
+        
+        if 'show-annotations-only' in trigger:
+            if globals.plotting_data:
+                globals.current_plot_index = 0
+
+                if show_annotations_only:
+                    if globals.marked_annotations:
+                        globals.x0 = globals.marked_annotations[0][0] - 2
+                        globals.x1 = globals.marked_annotations[0][1] + 2
+                    else:
+                        print('No annotations found')
+                        show_annotations_only = False
+                else:
+                    globals.x0 = -0.5
+                    if segment_size:
+                        globals.x1 = segment_size + 0.5
+                    else:
+                        globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                
+                return updated_fig
 
         if 'plot-button' in trigger:
             globals.current_plot_index = 0

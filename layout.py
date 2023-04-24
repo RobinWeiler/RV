@@ -333,7 +333,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 # Deep-learning model
                 html.Div([
                     html.Div([
-                        html.H2('Deep-learning model'),
+                        html.H2('Annotations & deep-learning model'),
                         dcc.Upload(
                             id='upload-model-output',
                             children=html.Div([
@@ -353,7 +353,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             multiple=True
                         ),
                         html.Label([
-                            'Selected model output:',
+                            'Selected files:',
                             html.Div(id='model-output-files')
                         ]),
                     ]),
