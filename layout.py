@@ -737,6 +737,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             centered=True
         ),
 
+        html.Div([
+            dcc.Slider(0, 1, 1,
+                value=0,
+                disabled=True,
+                id='segment-slider'
+            ),
+        ]),
+
         # EEG graph
         dcc.Loading(
             id="loading-icon",
