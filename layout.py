@@ -93,17 +93,30 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ], className='aligned', id='right-buttons'),
         ], className='top-bar'),
         html.Div([
-            dbc.Button(
-                "<-",
-                id="left-button",
-                className='button'
-            ),
-            dbc.Button(
-                "->",
-                id="right-button",
-                className='button'
-            ),
-        ], className='aligned', id='arrow-buttons'),
+            html.Div([
+                dbc.Button(
+                    "<-",
+                    id="left-button",
+                    className='button'
+                ),
+            ], className='aligned'),
+
+            html.Div([
+                dcc.Slider(0, 1, 1,
+                    value=0,
+                    disabled=True,
+                    id='segment-slider',
+                ),
+            ], className='aligned', id='segment-slider-container'),
+
+            html.Div([
+                dbc.Button(
+                    "->",
+                    id="right-button",
+                    className='button'
+                ),
+            ], className='aligned')
+        ], id='arrow-buttons'),
 
         # Open-file modal
         dbc.Modal([
@@ -736,14 +749,6 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True
         ),
-
-        html.Div([
-            dcc.Slider(0, 1, 1,
-                value=0,
-                disabled=True,
-                id='segment-slider'
-            ),
-        ]),
 
         # EEG graph
         dcc.Loading(
