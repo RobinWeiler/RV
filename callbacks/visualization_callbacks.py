@@ -101,7 +101,7 @@ def register_visualization_callbacks(app):
         return left_disabled, right_disabled
     
     @app.callback(
-        [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step')],
+        [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks')],
         Input('EEG-graph', 'figure'),
         [State('segment-size', 'value'), State('show-annotations-only', 'value')]
         # prevent_initial_call=True
@@ -119,15 +119,17 @@ def register_visualization_callbacks(app):
         """
         if globals.plotting_data and segment_size:
             if show_annotations_only and len(globals.marked_annotations) > 0:
-                num_segments = len(globals.marked_annotations) - 1
+                num_segments = int(len(globals.marked_annotations) - 1)
+                marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
-                num_segments = globals.plotting_data['EEG']['recording_length'] // segment_size
+                num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
+                marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
 
             # print(num_segments)
 
-            return False, num_segments, 1
+            return False, num_segments, 1, marks
         else:
-            return True, 1, 1
+            return True, 1, 1, {0: '0', 1: '1'}
     
     @app.callback(
         [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value')],
