@@ -330,7 +330,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ]),
                 html.Hr(),
                 
-                # Deep-learning model
+                # Deep-learning model & annotations
                 html.Div([
                     html.Div([
                         html.H2('Annotations & deep-learning model'),

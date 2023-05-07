@@ -147,6 +147,8 @@ def register_visualization_callbacks(app):
             Input('use-slider', 'value'),
             Input('annotation-label', 'value'),
             Input('annotation-label-color', 'value'),
+            Input('reset-models', 'n_clicks'),
+            Input("run-model", "value"),
             Input("annotate-model", "value"),
             Input("model-threshold", "value"),
             Input('show-annotations-only', 'value'),
@@ -158,18 +160,18 @@ def register_visualization_callbacks(app):
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"),
-            State('model-output-files', 'children'), State("run-model", "value"),
+            State('model-output-files', 'children'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
     def _update_EEG_plot(plot_button, redraw_button, left_button, right_button, point_clicked,
                             scale, channel_offset, segment_size, use_slider,
                             annotation_label, annotation_label_color, 
-                            model_annotate, model_threshold, show_annotations_only,
+                            reset_models, run_model_bool, model_annotate, model_threshold, show_annotations_only,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate,
-                            model_output_files, run_model_bool,
+                            model_output_files,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
@@ -185,6 +187,8 @@ def register_visualization_callbacks(app):
             use_slider (bool): Whether or not to activate view-slider.
             annotation_label (string); Label for new annotations.
             annotation_label_color (dict); Color for new annotations.
+            reset_models (int): Num clicks on reset-models buttons.
+            run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
             show_annotations_only (bool): Whether or not to only show annotations.
@@ -197,7 +201,6 @@ def register_visualization_callbacks(app):
             bad_channel_interpolation (list): List containing 1 if bad-channel interpolation is chosen.
             resample_rate (int): Input desired sampling frequency.
             model_output_files (list): List of strings of model-output file-names.
-            run_model_bool (list): List containing 1 if running integrated model is chosen.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
 
@@ -375,50 +378,83 @@ def register_visualization_callbacks(app):
             return current_fig
 
         # If re-drawing, keep current annotations and bad channels
-        if 'redraw-button' in trigger:
-            globals.model_raw.info['bads'] = current_selected_bad_channels
+        if ('redraw-button' in trigger or 'run-model' in trigger) and run_model_bool:
+            if globals.plotting_data:
+                globals.model_raw.info['bads'] = current_selected_bad_channels
 
-            print('Running model...')
-            run_model_output, run_model_channel_names, run_model_sample_rate = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+                print('Running model...')
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
 
-            # Model annotations
-            if model_annotate:
-                all_model_annotations = []
+                # Model annotations
+                if model_annotate:
+                    all_model_annotations = []
 
-                if run_model_sample_rate:
-                    model_timestep = 1 / run_model_sample_rate
-                else:
-                    model_timestep = 1 / globals.model_raw.info['sfreq']
-                # print(model_timestep)
+                    if run_model_sample_rate:
+                        model_timestep = 1 / run_model_sample_rate
+                    else:
+                        model_timestep = 1 / globals.model_raw.info['sfreq']
+                    # print(model_timestep)
 
-                if not model_threshold:
-                    model_threshold = 0.7
+                    if not model_threshold:
+                        model_threshold = 0.7
 
-                model_annotations = confidence_intervals(model, model_threshold, 1, model_timestep)
+                    model_annotations = confidence_intervals(model, model_threshold, 1, model_timestep)
+                    for interval_index, interval in enumerate(model_annotations):
+                        model_annotations[interval_index] = (interval[0], interval[1], run_model_description)
 
-                all_annotations = globals.marked_annotations + model_annotations
-                all_annotations = merge_intervals(all_annotations)
+                    all_annotations = globals.marked_annotations + model_annotations
+                    all_annotations = merge_intervals(all_annotations)
 
-                globals.marked_annotations = all_annotations
+                    globals.marked_annotations = all_annotations
 
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
-            
-            globals.plotting_data['model'][-1]['model_data'] = run_model_output
-            globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
-            globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
-            globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model'])) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
+                    annotations_to_raw(globals.raw, globals.marked_annotations)
+                    annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                
+                if not globals.plotting_data['model']:
+                    globals.plotting_data['model'].append({})
+                    globals.plotting_data['EEG']['default_channel_colors'].append(None)
+                    globals.plotting_data['EEG']['highlighted_channel_colors'].append(None)
+                    globals.plotting_data['EEG']['channel_visibility'].append(True)
 
-            globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
-            globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
-            
-            current_fig['data'][-1]['marker']['color'] = run_model_output
-            
-            current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
-            current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+                globals.plotting_data['model'][-1]['model_data'] = run_model_output
+                globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
+                globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
+                globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model']) - 1) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
 
-            return current_fig
-        
+                globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
+                globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
+                
+                # current_fig['data'][-1]['marker']['color'] = run_model_output
+                
+                # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
+                # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
+            else:
+                return current_fig
+
+        if 'reset-models' in trigger:
+            if globals.plotting_data and globals.plotting_data['model']:
+                del globals.plotting_data['model'][:-1]
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
+            else:
+                return current_fig
+
+        if 'run-model' in trigger and not run_model_bool:
+            if globals.plotting_data and globals.plotting_data['model']:
+                del globals.plotting_data['model'][-1]
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+                return updated_fig
+            else:
+                return current_fig
+
         if 'model-threshold' in trigger or 'annotate-model' in trigger:
             if globals.plotting_data:
                 all_model_annotations = []
@@ -518,8 +554,8 @@ def register_visualization_callbacks(app):
             
             globals.raw.info['bads'] = current_selected_bad_channels
 
-            if run_model_bool:
-                globals.model_raw = globals.raw.copy()
+            # if run_model_bool:
+            globals.model_raw = globals.raw.copy()
 
             # MNE preprocessing
             print('Pre-processing data...')
