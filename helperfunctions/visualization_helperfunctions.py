@@ -380,29 +380,30 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     plotting_data['EEG']['highlighted_channel_colors'] = highlighted_channel_colors
     plotting_data['EEG']['channel_visibility'] = channel_visibility
     
-    y_ticks_model_output = np.arange((-len(model_output) - 1), -1)
-    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
-    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
+    # y_ticks_model_output = np.arange((-len(model_output) - 1), -1)
+    # y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
+    # y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+    # y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
     
-    plotting_data['plot']['y_ticks'] = y_ticks.copy()
+    # plotting_data['plot']['y_ticks'] = y_ticks
 
-    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
-    for model_id in range(len(model_output)):
-        y_tick_labels.append('M{}'.format(model_id))
-    y_tick_labels.reverse()
+    # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    # for model_id in range(len(model_output)):
+    #     y_tick_labels.append('M{}'.format(model_id))
+    # y_tick_labels.reverse()
     
-    plotting_data['plot']['y_tick_labels'] = y_tick_labels.copy()
+    # plotting_data['plot']['y_tick_labels'] = y_tick_labels.copy()
             
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False):
     """Generates initial EEG figure.
 
     Args:
         file_name (string): File name.
         raw (mne.io.Raw): Raw object to plot data from.
         selected_channel_names (list): List of strings of selected channel names to plot.
+        annotation_label (string); Label for new annotations.
         EEG_scale (float): Desired scaling.
         channel_offset (int): Desired channel offset.
         model_output (list, optional): List of arrays of model outputs. Defaults to [].
@@ -417,17 +418,18 @@ def get_EEG_figure(file_name, raw, selected_channel_names, EEG_scale=None, chann
     plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, use_slider=use_slider)
+    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
     return fig
 
-def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
+def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_annotations_only=False):
     """Generates EEG plots.
 
     Args:
         plotting_data (dict): Dict holding all relevant data from raw object and model outputs for plotting.
         x0 (float): X-coordinate (in seconds) to start plot.
         x1 (float): X-coordinate (in seconds) to end plot.
+        annotation_label (string); Label for new annotations.
         use_slider (bool, optional): Whether or not to activate view-slider. Defaults to False.
 
     Returns:
@@ -552,13 +554,27 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
 
         dragmode='drawrect',
         newshape=dict(
-            fillcolor='red',
+            fillcolor=globals.annotation_label_colors[annotation_label],
             opacity=0.6,
             drawdirection='vertical',
             layer='below',
             line_width=0
         ),
     )
+
+    y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
+    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
+    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
+    
+    plotting_data['plot']['y_ticks'] = y_ticks
+
+    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    for model_id in range(len(plotting_data['model'])):
+        y_tick_labels.append('M{}'.format(model_id))
+    y_tick_labels.reverse()
+    
+    plotting_data['plot']['y_tick_labels'] = y_tick_labels
 
     fig.update_yaxes(
         tickmode='array',
@@ -574,7 +590,7 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
         showgrid=True,
         zeroline=False,
         constrain='domain',
-        range=(x0, x1) if not use_slider else (x0, x0 + 11),  # Start x-axis range to show approx. 10 seconds
+        range=(x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11),
     )
 
     # Add annotations
@@ -587,7 +603,8 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
             editable=True,
             x0=annotation[0],
             x1=annotation[1],
-            fillcolor='red',
+            # annotation_text=annotation[2],
+            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red',
             opacity=0.6,
             layer='below',
             line_width=0
@@ -601,7 +618,7 @@ def get_EEG_plot(data_to_plot, x0, x1, use_slider=False):
                         method="relayout", 
                         args=[{
                             "xaxis.range[0]": x0,
-                            "xaxis.range[1]": x1 if not use_slider else x0 + 11,
+                            "xaxis.range[1]": x1 if (not use_slider) or show_annotations_only else x0 + 11,
                         }]
                     ),
                     dict(label="Reset channel-axis",  

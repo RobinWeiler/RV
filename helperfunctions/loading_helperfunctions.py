@@ -98,8 +98,32 @@ def parse_data_file(filename):
     else:
         print('This file type is not supported yet!')
 
+def parse_annotation_file(filename):
+    data_file = os.path.join(c.DATA_DIRECTORY, filename)
+    save_file = os.path.join(c.SAVE_FILES_DIRECTORY, filename)
+
+    if os.path.exists(data_file):
+        print('Found data-file')
+        file = data_file
+    elif os.path.exists(save_file):
+        print('Found save-file')
+        file = save_file
+    else:
+        print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
+
+    df = pd.read_csv(file)
+
+    annotation_onsets = df['onset'].tolist()
+    annotation_durations = df['duration'].tolist()
+    annotation_descriptions = df['description'].tolist()
+    annotation_ends = [x + y for x, y in zip(annotation_onsets, annotation_durations)]
+
+    loaded_annotations = [(np.round(annotation_onsets[i], 3), np.round(annotation_ends[i], 3), annotation_descriptions[i]) for i in range(len(annotation_onsets))]
+
+    return loaded_annotations
+
 def parse_model_output_file(filename, raw=None):
-    """Loads model-output from given file-name. Currently supported file-formats are .csv, .txt, and .npy.
+    """Loads model-output from given file-name. Currently supported file-formats are .txt, and .npy.
 
     Args:
         filename (string): Model-output file-name to load. Has to be located in 'data' directory.
@@ -121,39 +145,18 @@ def parse_model_output_file(filename, raw=None):
         print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
 
     if raw:
-        if '.csv' in filename:
-            df = pd.read_csv(file)
-
-            sampling_frequency = raw.info['sfreq']
-            print(sampling_frequency)
-            timestep = 1 / sampling_frequency
-
-            annotation_onsets = df['onset'].tolist()
-            annotation_durations = df['duration'].tolist()
-            annotation_ends = [x + y for x, y in zip(annotation_onsets, annotation_durations)]
-
-            model_output = np.zeros(raw.__len__())
-
-            for index, annotation_start in enumerate(annotation_onsets):
-                annotation_start_index = int(annotation_start * sampling_frequency)
-                annotation_end_index = int(annotation_ends[index] * sampling_frequency)
-
-                for timepoint in np.arange(start=annotation_start_index, stop=annotation_end_index, step=1):
-                    model_output[timepoint] = 1
-
-            return model_output, None, sampling_frequency
-        elif '.txt' in filename:
+        if '.txt' in filename:
             model_output = np.loadtxt(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None
+            return model_output, None, None, c.ANNOTATION_DESCRIPTION
         elif '.npy' in filename:
             model_output = np.load(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None
+            return model_output, None, None, c.ANNOTATION_DESCRIPTION
         else:
             print('Wrong file type!')
     else:
         print('Make sure to load the accompanying EEG data first')
-        return None, None, None
+        return None, None, None, None

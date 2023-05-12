@@ -26,7 +26,12 @@ h2 {
 }
 
 .header {
-    margin-right: 1rem;
+    margin-right: 0.5rem;
+}
+
+#threshold-text-main {
+    margin-left: 1rem;
+    color: var(--main-text-color);
 }
 
 /* dcc.Loading component with transparent background */
@@ -137,6 +142,21 @@ hr {
     vertical-align: top;
 }
 
+.aligned-threshold {
+    /* width: 100%; */
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#annotation-label-color{
+    margin-left: 10rem;
+    border-radius: 0% !important;
+}
+
+/* .daq-colorpicker-light__chromepicker {
+    border-radius: 0% !important;
+} */
+
 .right-pre {
     margin-left: 1rem;
     border-left: 2px solid var(--main-horizontal-line-color);
@@ -166,6 +186,7 @@ input {
     height: 1rem;
     font-size: 1rem;
     color: var(--main-text-color);
+    margin-left: 0.5rem;
 }
 
 #save-file-name {
@@ -178,8 +199,7 @@ input {
 }
 
 .medium-input {
-    width: 120px;
-    margin-left: 0.5rem;
+    width: 140px;
 }
 
 #save-to-input {

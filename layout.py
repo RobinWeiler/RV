@@ -2,6 +2,7 @@ from jupyter_dash import JupyterDash
 
 from dash import dcc, html
 import dash_bootstrap_components as dbc
+# import dash_daq as daq
 
 from plotly.graph_objs import Figure
 
@@ -38,13 +39,35 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ),
             ], className='aligned first'),
             html.Div([
-                dbc.Button(
-                    "Rerun model",
-                    id="redraw-button",
-                    className='button'
-                ),
+                html.Div([
+                    dbc.Button(
+                        "Rerun model",
+                        id="redraw-button",
+                        className='button'
+                    ),
+                ], className='aligned-threshold'),
+                html.Div([
+                    html.Font('Model threshold:', id='threshold-text-main')
+                ], className='aligned-threshold'),
+                html.Div([
+                    dcc.Input(
+                        id="model-threshold",
+                        type='number',
+                        value=0.7,
+                        min=0,
+                        max=1,
+                        step=0.1,
+                        debounce=True,
+                        className='small-input'
+                    ),
+                ], className='aligned-threshold'),
             ], className='aligned second'),
             html.Div([
+                dbc.Button(
+                    "Annotation settings",
+                    id="open-annotation-settings",
+                    className='button',
+                ),
                 dbc.Button(
                     "Stats",
                     id="open-stats",
@@ -307,15 +330,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ]),
                 html.Hr(),
                 
-                # Deep-learning model
+                # Deep-learning model & annotations
                 html.Div([
                     html.Div([
-                        html.H2('Deep-learning model'),
+                        html.H2('Annotations & deep-learning model'),
                         dcc.Upload(
                             id='upload-model-output',
                             children=html.Div([
                                 'Drag-and-drop or ',
-                                html.A('click here to select model output')
+                                html.A('click here to select model-output files or annotation files')
                             ]),
                             style={
                                 'width': '97%',
@@ -330,7 +353,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             multiple=True
                         ),
                         html.Label([
-                            'Selected model output:',
+                            'Selected files:',
                             html.Div(id='model-output-files')
                         ]),
                     ]),
@@ -352,21 +375,31 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 id='annotate-model',
                                 switch=True,  # no effect in Safari
                                 options=[
-                                    {'label': 'Annotate according to model with threshold', 'value': 0}
+                                    {'label': 'Annotate according to model(s)', 'value': 0}
                                 ],
                             )
                         ], className='aligned checklist'),
+                        # html.Div([
+                        #     dcc.Input(
+                        #         id="model-threshold",
+                        #         type='number',
+                        #         placeholder="default: 0.7",
+                        #         min=0,
+                        #         max=1,
+                        #         step=0.1,
+                        #         debounce=True,
+                        #         className='medium-input'
+                        #     ),
+                        # ], className='aligned'),
                         html.Div([
-                            dcc.Input(
-                                id="model-threshold",
-                                type='number',
-                                placeholder="default: 0.7",
-                                min=0,
-                                max=1,
-                                debounce=True,
-                                className='medium-input'
-                            ),
-                        ], className='aligned'),
+                            dbc.Checklist(
+                                id='show-annotations-only',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Only show annotations', 'value': 0},
+                                ],
+                            )
+                        ]),
                     ]),
                 ]),
                 html.Hr(),
@@ -381,51 +414,51 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True,
         ),
-
-        # Stats modal
+        
+        # Channel modal
         dbc.Modal([
-            dbc.ModalHeader('Statistics'),
+            dbc.ModalHeader('Channel selection'),
             dbc.ModalBody([
                 html.Div([
-                    html.H2('File name:'),
-                    html.Font(id='file-name')
-                ]),
-                html.Div([
-                    html.H2('Recording length (in seconds):'),
-                    html.Font(id='recording-length')
-                ]),
-                html.Div([
-                    html.H2('Amount of annotated data (in seconds):'),
-                    html.Font(id='#noisy-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean data left (in seconds):'),
-                    html.Font(id='#clean-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean intervals longer than 2 seconds:'),
-                    html.Font(id='#clean-intervals')
+                    dcc.Dropdown(
+                        id='selected-channels-dropdown',
+                        multi=True,
+                        placeholder='Click here to select channels to plot or select them in the plot below...',
+                    )
                 ]),
                 html.Div([
                     dcc.Graph(
-                        id='clean-intervals-graph',
+                        id='channel-topography',
                         figure=Figure(),
                         config={
-                            'displayModeBar': False,
+                            'displayModeBar': True,
+                            'displaylogo': False,
+                            'modeBarButtonsToRemove': [
+                                # 'lasso2d',
+                                'autoScale2d',
+                                'toImage',
+                                'hoverClosestCartesian',
+                                'hoverCompareCartesian',
+                                'toggleSpikelines'
+                            ],
+                            'scrollZoom': True,
                         },
+                        style={
+                            'height': '70vh',
+                        }
                     ),
-                ]),
+                ])
             ]),
             dbc.ModalFooter(
-                dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
+                dbc.Button("Close", id="close-channel-select", className=["close-button", 'button'])
             )],
-            id="modal-stats",
-            scrollable=True,
+            id="modal-channel-select",
+            scrollable=False,
             is_open=False,
             size='lg',
             centered=True
         ),
-
+        
         # Save modal
         dbc.Modal([
             dbc.ModalHeader('Save to'),
@@ -490,12 +523,166 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True
         ),
+        
+        # Annotation settings modal
+        dbc.Modal([
+            dbc.ModalHeader('Annotation settings'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        dcc.RadioItems(
+                            id='annotation-label',
+                            options=[
+                                {'label': 'bad_artifact', 'value': 'bad_artifact'},
+                                {'label': 'bad_artifact_model', 'value': 'bad_artifact_model'},
+                                # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
+                            ],
+                            value='bad_artifact',
+                            labelStyle={'display': 'block'},
+                        )
+                    ], className='aligned'),
+                    html.Div([
+                        # daq.ColorPicker(
+                        #     id="annotation-label-color",
+                        #     label='Label color',
+                        #     size=256,
+                        #     value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+                        # ),
+                        dcc.Dropdown(
+                            id='annotation-label-color',
+                            options=[
+                                {'label': 'red', 'value': 'red'},
+                                {'label': 'green', 'value': 'green'},
+                                {'label': 'blue', 'value': 'blue'},
+                                {'label': 'yellow', 'value': 'orange'},
+                                {'label': 'turquoise', 'value': 'turquoise'},
+                                {'label': 'purple', 'value': 'purple'}
+                            ],
+                            value='red',
+                            clearable=False,
+                            className='small-dropdown'
+                        )
+                    ], className='aligned'),
+                ]),
+                html.Div([
+                    dcc.Input(
+                        id="new-annotation-label",
+                        placeholder="New annotation label",
+                        debounce=True,
+                        minLength=1
+                    ),
+                ]),
+                html.Div([
+                    dbc.Button("Remove last label", id="remove-annotation-label", className=['button'])
+                ]),
+                # html.Div([
+                #     dbc.Checklist(
+                #         id='show-annotation-labels',
+                #         switch=True,  # no effect in Safari
+                #         options=[
+                #             {'label': 'Display annotation labels', 'value': 1},
+                #         ],
+                #     )
+                # ]),
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
+            )],
+            id="modal-annotation-settings",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Stats modal
+        dbc.Modal([
+            dbc.ModalHeader('Statistics'),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2('File name:'),
+                    html.Font(id='file-name')
+                ]),
+                html.Div([
+                    html.H2('Recording length (in seconds):'),
+                    html.Font(id='recording-length')
+                ]),
+                html.Div([
+                    html.H2('Amount of annotated data (in seconds):'),
+                    html.Font(id='#noisy-data')
+                ]),
+                html.Div([
+                    html.H2('Amount of clean data left (in seconds):'),
+                    html.Font(id='#clean-data')
+                ]),
+                html.Div([
+                    html.H2('Amount of clean intervals longer than 2 seconds:'),
+                    html.Font(id='#clean-intervals')
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='clean-intervals-graph',
+                        figure=Figure(),
+                        config={
+                            'displayModeBar': False,
+                        },
+                    ),
+                ]),
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
+            )],
+            id="modal-stats",
+            scrollable=True,
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+        
+        # Power-spectrum modal
+        dbc.Modal([
+            dbc.ModalHeader('Power spectrum of selected interval'),
+            dbc.ModalBody([
+                html.Div([
+                    html.H2('Most prominent frequency:'),
+                    html.Font(id='selected-data'),
+                ]),
+                html.Div([
+                    html.H2('Welch power spectrum:'),
+                    dcc.Graph(
+                        id='power-spectrum',
+                        figure=Figure(),
+                        config={
+                            'displayModeBar': True,
+                            'scrollZoom': True
+                        },
+                    ),
+                ])
+            ]),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-power-spectrum", className=["close-button", 'button'])
+            )],
+            id="modal-power-spectrum",
+            scrollable=True,
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
 
         # Help modal
         dbc.Modal([
             dbc.ModalHeader('Help'),
             dbc.ModalBody([
                 html.Div([
+                    html.Div([
+                        html.Label([
+                            'Publication: ',
+                            html.A(
+                                'Click here',
+                                href='https://doi.org/10.3389/fninf.2022.1025847',
+                                target='_blank'
+                            )
+                        ]),
+                    ]),
                     html.Div([
                         html.Label([
                             'GitHub: ',
@@ -550,80 +737,6 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             centered=True
         ),
 
-        # Channel modal
-        dbc.Modal([
-            dbc.ModalHeader('Channel selection'),
-            dbc.ModalBody([
-                html.Div([
-                    dcc.Dropdown(
-                        id='selected-channels-dropdown',
-                        multi=True,
-                        placeholder='Click here to select channels to plot or select them in the plot below...',
-                    )
-                ]),
-                html.Div([
-                    dcc.Graph(
-                        id='channel-topography',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': True,
-                            'displaylogo': False,
-                            'modeBarButtonsToRemove': [
-                                # 'lasso2d',
-                                'autoScale2d',
-                                'toImage',
-                                'hoverClosestCartesian',
-                                'hoverCompareCartesian',
-                                'toggleSpikelines'
-                            ],
-                            'scrollZoom': True,
-                        },
-                        style={
-                            'height': '70vh',
-                        }
-                    ),
-                ])
-            ]),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-channel-select", className=["close-button", 'button'])
-            )],
-            id="modal-channel-select",
-            scrollable=False,
-            is_open=False,
-            size='lg',
-            centered=True
-        ),
-
-        # Power-spectrum modal
-        dbc.Modal([
-            dbc.ModalHeader('Power spectrum of selected interval'),
-            dbc.ModalBody([
-                html.Div([
-                    html.H2('Most prominent frequency:'),
-                    html.Font(id='selected-data'),
-                ]),
-                html.Div([
-                    html.H2('Welch power spectrum:'),
-                    dcc.Graph(
-                        id='power-spectrum',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': True,
-                            'scrollZoom': True
-                        },
-                    ),
-                ])
-            ]),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-power-spectrum", className=["close-button", 'button'])
-            )],
-            id="modal-power-spectrum",
-            scrollable=True,
-            is_open=False,
-            size='lg',
-            centered=True
-        ),
-
         # EEG graph
         dcc.Loading(
             id="loading-icon",
@@ -672,6 +785,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         html.Pre(id='chosen-save-file-name'),
         html.Pre(id='chosen-extension'),
         html.Pre(id='chosen-overwrite'),
+        html.Pre(id='chosen-annotation-color'),
         html.Pre(id='save-file'),
         html.Pre(id='save-annotations'),
         html.Pre(id='save-bad-channels'),

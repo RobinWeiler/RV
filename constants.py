@@ -8,9 +8,7 @@ CONVERSION_VALUE_VOLTS_TO_MICROVOLTS = 1e+6
 DEFAULT_Y_AXIS_OFFSET = 40
 DEFAULT_SEGMENT_SIZE = 60
 
-BAD_CHANNEL_COLOR = '#8f8f8f'
-
-ANNOTATION_DESCRIPTION = 'bad_artifact'
+BAD_CHANNEL_COLOR = '#eb5f6e'  # '#8f8f8f'
 
 # Path variables
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))

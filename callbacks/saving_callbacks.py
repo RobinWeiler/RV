@@ -140,5 +140,6 @@ def register_saving_callbacks(app):
             }
         ''',
         Output('quit-viewer-close', 'children'),
-        Input('final-quit-button', 'n_clicks')
+        Input('final-quit-button', 'n_clicks'),
+        prevent_initial_call=True
     )

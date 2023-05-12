@@ -5,7 +5,7 @@ import constants as c
 
 
 def annotations_to_raw(raw, marked_annotations):
-    """Adds marked_annotations to raw object. Change "ANNOTATION_DESCRIPTION" in "constants.py" or here to give annotations different description (currently: "bad_artifact").
+    """Adds marked_annotations to raw object. 
 
     Args:
         raw (mne.io.Raw): Raw object to add annotations to.
@@ -14,15 +14,15 @@ def annotations_to_raw(raw, marked_annotations):
     Returns:
         mne.io.Raw: Raw object with added annotations.
     """
-    onset = []
-    duration = []
+    onsets = []
+    durations = []
     descriptions = []
     for annotation in marked_annotations:
-        onset.append(annotation[0])
-        duration.append(annotation[1] - annotation[0])
-        descriptions.append(c.ANNOTATION_DESCRIPTION)
+        onsets.append(annotation[0])
+        durations.append(annotation[1] - annotation[0])
+        descriptions.append(annotation[2])
 
-    mne_annotations = mne.Annotations(onset, duration, description=descriptions)
+    mne_annotations = mne.Annotations(onsets, durations, description=descriptions)
 
     raw.set_annotations(mne_annotations)
 
@@ -39,15 +39,16 @@ def get_annotations(raw):
     """
     annotation_starts = raw.annotations.onset
     annotation_ends = annotation_starts + raw.annotations.duration
+    annotation_descriptions = raw.annotations.description
     
     # print(annotation_starts)
     # print(annotation_ends)
 
     marked_annotations = []
     for annotation_index in range(len(annotation_starts)):
-        annotation_ends[annotation_index] = round(annotation_ends[annotation_index], 3)
+        annotation_ends[annotation_index] = np.round(annotation_ends[annotation_index], 3)
 
-        marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index]))
+        marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index], annotation_descriptions[annotation_index]))
 
     merged_annotations = merge_intervals(marked_annotations)
 
@@ -90,17 +91,18 @@ def merge_intervals(marked_annotations):
             # print(marked_annotations)
 
             for j, compare_element in enumerate(marked_annotations):
-                merged_interval = False
+                merged_interval = None
 
                 if element == compare_element:
                     continue
 
-                if compare_element[0] <= element[0] and compare_element[1] >= element[0] and compare_element[1] <= element[1]:
-                    merged_interval = (compare_element[0], element[1])
-                elif compare_element[0] <= element[1] and compare_element[0] >= element[0] and compare_element[1] >= element[1]:
-                    merged_interval = (element[0], compare_element[1])
-                elif (compare_element[0] <= element[0] and compare_element[1] >= element[1]): #or (element[0] < compare_element[0] and element[1] > compare_element[1]):
-                    merged_interval = (compare_element[0], compare_element[1])
+                if compare_element[2] == element[2]:
+                    if compare_element[0] <= element[0] and compare_element[1] >= element[0] and compare_element[1] <= element[1]:
+                        merged_interval = (compare_element[0], element[1], element[2])
+                    elif compare_element[0] <= element[1] and compare_element[0] >= element[0] and compare_element[1] >= element[1]:
+                        merged_interval = (element[0], compare_element[1], element[2])
+                    elif (compare_element[0] <= element[0] and compare_element[1] >= element[1]): #or (element[0] < compare_element[0] and element[1] > compare_element[1]):
+                        merged_interval = (compare_element[0], compare_element[1], element[2])
 
                 if merged_interval:
                     marked_annotations[i] = merged_interval
@@ -173,12 +175,12 @@ def annotation_interval_calc(timestep, interval_datapoints):
             annotation_length = annotation_length + 1
         else:
             annotation_end = annotation_start + annotation_length
-            intervals.append((annotation_start * timestep, annotation_end * timestep))
+            intervals.append((np.round(annotation_start * timestep, 3), np.round(annotation_end * timestep, 3)))
             annotation_start = interval_datapoints[index + 1]
     #         annotation_end = annotation_start + 1
             annotation_length = 1
 
     annotation_end = interval_datapoints[-1]
-    intervals.append((annotation_start * timestep, annotation_end * timestep))
+    intervals.append((np.round(annotation_start * timestep, 3), np.round(annotation_end * timestep, 3)))
 
     return intervals
