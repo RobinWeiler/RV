@@ -4,7 +4,7 @@ from helperfunctions.modal_helperfunctions import _toggle_modal
 
 
 def register_modal_callbacks(app):
-    # Open-file modal callback
+    # Toggle preprocessing modal
     @app.callback(
         Output("modal-file", "is_open"),
         [Input("open-file", "n_clicks"), Input("close-file", "n_clicks"), Input('plot-button', 'n_clicks')],
@@ -24,7 +24,7 @@ def register_modal_callbacks(app):
         """
         return _toggle_modal([open_file, close_file, plot_button], is_open)
 
-    # Help modal callback
+    # Toggle help modal
     @app.callback(
         Output("modal-help", "is_open"),
         [Input("open-help", "n_clicks"), Input("close-help", "n_clicks")],
@@ -44,7 +44,7 @@ def register_modal_callbacks(app):
         """
         return _toggle_modal([open_help, close_help], is_open)
 
-    # Quit modal callback
+    # Toggle quit modal
     @app.callback(
         Output("modal-quit", "is_open"),
         [Input("quit-button", "n_clicks"), Input('cancel-quit-button', 'n_clicks')],

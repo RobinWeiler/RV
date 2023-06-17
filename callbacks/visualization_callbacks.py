@@ -61,8 +61,6 @@ def register_visualization_callbacks(app):
             Input("scale", "value"),
             Input("channel-offset", "value"),
             Input('use-slider', 'value'),
-            Input('annotation-label', 'value'),
-            Input('annotation-label-color', 'value'),
             Input('reset-models', 'n_clicks'),
             Input("run-model", "value"),
             Input("annotate-model", "value"),
@@ -76,17 +74,18 @@ def register_visualization_callbacks(app):
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State('segment-size', 'value'),
+            State('annotation-label', 'value'),
             State('model-output-files', 'children'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
     def _update_EEG_plot(plot_button, redraw_button, point_clicked,
-                            scale, channel_offset, use_slider,
-                            annotation_label, annotation_label_color, 
+                            scale, channel_offset, use_slider, 
                             reset_models, run_model_bool, model_annotate, model_threshold, show_annotations_only,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, segment_size,
+                            annotation_label,
                             model_output_files,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
@@ -98,8 +97,6 @@ def register_visualization_callbacks(app):
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
             use_slider (bool): Whether or not to activate view-slider.
-            annotation_label (string); Label for new annotations.
-            annotation_label_color (dict); Color for new annotations.
             reset_models (int): Num clicks on reset-models buttons.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
@@ -114,6 +111,7 @@ def register_visualization_callbacks(app):
             bad_channel_interpolation (list): List containing 1 if bad-channel interpolation is chosen.
             resample_rate (int): Input desired sampling frequency.
             segment_size (int): Input desired segment size for plots.
+            annotation_label (string); Label for new annotations.
             model_output_files (list): List of strings of model-output file-names.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
@@ -125,31 +123,6 @@ def register_visualization_callbacks(app):
         print(trigger)
 
         globals.preloaded_plots = {}
-        
-        if 'annotation-label' in trigger or 'annotation-label-color' in trigger:
-            if globals.plotting_data:
-                print(annotation_label_color)
-                current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
-                
-                current_fig['layout']['shapes'] = []
-                for annotation in globals.marked_annotations:
-                    current_fig['layout']['shapes'].append({
-                        'editable': True,
-                        'xref': 'x',
-                        'yref': 'y',
-                        'layer': 'below',
-                        'opacity': 0.6,
-                        'line': {'width': 0},
-                        'fillcolor': globals.annotation_label_colors[annotation[2]],
-                        'fillrule': 'evenodd',
-                        'type': 'rect',
-                        'x0': annotation[0],
-                        'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
-                        'x1': annotation[1],
-                        'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
-                    })
-
-                return current_fig
 
         if 'scale' in trigger or 'channel-offset' in trigger:
             if globals.plotting_data:
