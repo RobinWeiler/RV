@@ -74,7 +74,8 @@ def register_segments_callbacks(app):
             return False, num_segments, 1, marks
         else:
             return True, 1, 1, {0: '0', 1: '1'}
-    
+
+    # Switch plotted segment via segment-slider or arrow buttons
     @app.callback(
         [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value')],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
@@ -122,3 +123,33 @@ def register_segments_callbacks(app):
             return updated_fig, globals.current_plot_index
         else:
             return current_fig, 0
+
+    # Update plot when segment_size is changed
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('segment-size', 'value'),
+        [State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        prevent_initial_call=True
+    )
+    def _use_segment_slider(segment_size, show_annotations_only, use_slider, annotation_label, current_fig):
+        """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+
+        Args:
+            segment_size (int): Segment size of EEG plot.
+            show_annotations_only (bool): Whether or not to only show annotations.
+
+        Returns:
+            tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
+        """
+        if globals.plotting_data:
+            if segment_size:
+                globals.x1 = globals.x0 + segment_size + 1
+            else:
+                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+
+            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+            return updated_fig
+
+        else:
+            return current_fig
