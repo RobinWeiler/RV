@@ -2,7 +2,7 @@ from dash.dependencies import Input, Output, State
 from plotly.graph_objs import Figure
 
 from helperfunctions.modal_helperfunctions import _toggle_modal
-from helperfunctions.visualization_helperfunctions import get_channel_locations_plot
+from helperfunctions.channel_selection_helperfunctions import get_channel_locations_plot
 
 import globals
 

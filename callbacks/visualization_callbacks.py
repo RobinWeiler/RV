@@ -9,7 +9,8 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, preprocess_EEG, _get_scaling, _get_offset
+from helperfunctions.preprocessing_helperfunctions import preprocess_EEG
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, _get_scaling, _get_offset
 from model.run_model import run_model
 
 import constants as c
