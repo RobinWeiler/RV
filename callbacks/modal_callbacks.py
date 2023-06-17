@@ -3,26 +3,10 @@ from dash.dependencies import Input, Output, State
 from plotly.graph_objs import Figure
 
 from helperfunctions.annotation_helperfunctions import get_annotations
+from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.stats_helperfunctions import calc_stats, get_clean_intervals_graph
-from helperfunctions.visualization_helperfunctions import get_channel_locations_plot
 
 import globals
-
-
-def _toggle_modal(list_button_clicks, is_open):
-    """Indicates whether modal should be open or closed based on relevant button clicks.
-
-    Args:
-        list_button_clicks (list of ints): List of clicked buttons.
-        is_open (bool): Whether or not modal is currently open.
-
-    Returns:
-        bool: Whether or not modal should now be open.
-    """
-    for button in list_button_clicks:
-        if button:
-            return not is_open
-    return is_open
 
 
 def register_modal_callbacks(app):
@@ -45,35 +29,6 @@ def register_modal_callbacks(app):
             bool: Whether or not modal should now be open.
         """
         return _toggle_modal([open_file, close_file, plot_button], is_open)
-
-    # Select-channels modal callback
-    @app.callback(
-        [Output("modal-channel-select", "is_open"), Output("channel-topography", "figure")],
-        [Input("open-channel-select", "n_clicks"), Input("close-channel-select", "n_clicks")],
-        [State("modal-channel-select", "is_open")],
-        prevent_initial_call=True
-    )
-    def _toggle_channel_selection_modal(open_channel_select, close_channel_select, is_open):
-        """Opens or closes channel-select modal based on relevant button clicks and loads channel-topography plot if available.
-
-        Args:
-            open_channel_select (int): Num clicks on open-channel-select button.
-            close_channel_select (int): Num clicks on close-channel-select button.
-            is_open (bool): Whether or not modal is currently open.
-
-        Returns:
-            tuple(bool and plotly.graph_objs.Figure): Bool whether or not modal should now be open. Figure with channel-topography plot.
-        """
-        topography_plot = Figure()
-
-        if globals.raw:
-            topography_plot = get_channel_locations_plot(globals.raw)
-        else:
-            topography_plot = Figure()
-
-        if open_channel_select or close_channel_select:
-            return not is_open, topography_plot
-        return is_open, topography_plot
 
     # Save-file modal callback
     @app.callback(

@@ -19,49 +19,6 @@ import globals
 
 
 def register_visualization_callbacks(app):
-    # Selecting channels to plot callback
-    @app.callback(
-        [Output('selected-channels-dropdown', 'value'), Output('channel-topography', 'selectedData')],
-        [Input('channel-topography', 'selectedData'), Input('data-file', 'children')],
-        # Input('selected-channels-dropdown', 'value'),
-        # prevent_initial_call=True
-    )
-    def _get_selected_channels(selectedData, file_name):
-        """Retrieves names of selected channels. Triggered when datapoints are selected in channel-topography plot and when new file is loaded.
-
-        Args:
-            selectedData (dict): Data from latest selection event.
-            file_name (string): File-name.
-
-        Returns:
-            tuple(list, dict): List of strings of channels selected for plotting, empty dict to reset selectedData.
-        """
-        # print(json.dumps(selectedData, indent=2))
-        selected_channels = []
-
-        if selectedData:
-            for selected_channel in selectedData['points']:
-                # print(selected_channel['customdata'])
-                selected_channels.append(selected_channel['customdata'])
-
-        return selected_channels, {}
-    
-    # @app.callback(
-    #     [Output("run-model", "value"), Output("annotate-model", "value")],
-    #     [Input("annotate-model", "value"), Input('show-annotations-only', 'value')],
-    #     [State('model-output-files', 'children'), State("run-model", "value")],
-    #     prevent_initial_call=True
-    # )
-    # def _update_model_checkboxes(annotate_model, show_annotations_only, model_output_files, run_model_bool):
-    #     trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-
-    #     if 'show-annotations-only' in trigger and show_annotations_only:
-    #         return [int(True)], [int(True)]
-    #     elif 'annotate-model' in trigger and annotate_model:
-    #         return [int(True)], show_annotations_only
-    #     else:
-    #         return run_model_bool, annotate_model
-        
 
     @app.callback(
         [Output('left-button', 'disabled'), Output('right-button', 'disabled')],
@@ -223,43 +180,12 @@ def register_visualization_callbacks(app):
         #                 globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                         # print(segment_index)
 
-    # @app.callback(
-    #     Output('EEG-graph', 'figure', allow_duplicate=True),
-    #     Input('segment-slider', 'value'),
-    #     [State('EEG-graph', 'figure'), State('segment-size', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('show-annotations-only', 'value')],
-    #     prevent_initial_call=True
-    # )
-    # def _segment_selection(segment_slider, current_fig, segment_size, use_slider, annotation_label, show_annotations_only):
-    #     if globals.plotting_data:
-    #         if globals.current_plot_index != segment_slider:
-    #             print('Here')
-    #             print(segment_slider)
-
-    #             globals.current_plot_index = segment_slider
-
-    #             # if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
-    #             #     globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
-    #             #     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
-    #             if segment_size:
-    #                 globals.x0 += segment_size * segment_slider
-    #                 globals.x1 += segment_size * segment_slider
-
-    #             updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
-
-    #             return updated_fig
-
-    #     else:
-    #         print('There')
-    #         return current_fig
-
     # plot callback
     @app.callback(
         Output('EEG-graph', 'figure'),
         [
             Input('plot-button', 'n_clicks'),
             Input('redraw-button', 'n_clicks'),
-            # Input('left-button', 'n_clicks'),
-            # Input('right-button', 'n_clicks'),
             Input('EEG-graph', 'clickData'),
             Input("scale", "value"),
             Input("channel-offset", "value"),
@@ -298,8 +224,6 @@ def register_visualization_callbacks(app):
         Args:
             plot_button (int): Num clicks on plot button.
             redraw_button (int): Num clicks on redraw button.
-            left_button (int): Num clicks on left-arrow button.
-            right_button (int): Num clicks on right-arrow button.
             point_clicked (dict): Data from latest click event.
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
@@ -329,47 +253,6 @@ def register_visualization_callbacks(app):
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         print(trigger)
-
-        # if 'right-button' in trigger:
-        #     if show_annotations_only or segment_size:
-        #         globals.current_plot_index += 1
-        #         # print(globals.current_plot_index)
-
-        #         if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
-        #             globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
-        #             globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
-        #         elif segment_size:
-        #             globals.x0 += segment_size
-        #             globals.x1 += segment_size
-                
-        #         # print(globals.x0, globals.x1)
-
-        #         if globals.current_plot_index in globals.preloaded_plots:
-        #             updated_fig = globals.preloaded_plots[globals.current_plot_index]
-        #         else:
-        #             updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
-
-        #         return updated_fig
-        
-        # if 'left-button' in trigger:
-        #     if show_annotations_only or segment_size:
-        #         globals.current_plot_index -= 1
-                
-        #         if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
-        #             globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
-        #             globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
-        #         elif segment_size:
-        #             globals.x0 -= segment_size
-        #             globals.x1 -= segment_size
-                
-        #         # print(globals.x0, globals.x1)
-
-        #         if globals.current_plot_index in globals.preloaded_plots:
-        #             updated_fig = globals.preloaded_plots[globals.current_plot_index]
-        #         else:
-        #             updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
-
-        #         return updated_fig
 
         globals.preloaded_plots = {}
         

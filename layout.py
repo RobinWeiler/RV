@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 
 from plotly.graph_objs import Figure
 
+from callbacks.channel_selection_callbacks import register_channel_selection_callbacks
 from callbacks.modal_callbacks import register_modal_callbacks
 from callbacks.loading_callbacks import register_loading_callbacks
 from callbacks.saving_callbacks import register_saving_callbacks
@@ -808,6 +809,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     ])
 
     # Register callbacks
+    register_channel_selection_callbacks(app)
     register_modal_callbacks(app)
     register_loading_callbacks(app)
     register_saving_callbacks(app)
