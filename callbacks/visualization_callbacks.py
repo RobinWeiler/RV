@@ -1,17 +1,15 @@
-import math
-import collections
-import numpy as np
-
 import dash
 from dash.dependencies import Input, Output, State
 
-from plotly.graph_objs import Figure
 import plotly.express as px
+
 from skimage import io
+
+import numpy as np
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, calc_power_spectrum, get_most_prominent_freq, get_power_spectrum_plot, get_EEG_plot, preprocess_EEG, _get_scaling, _get_offset
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, preprocess_EEG, _get_scaling, _get_offset
 from model.run_model import run_model
 
 import constants as c
@@ -525,55 +523,3 @@ def register_visualization_callbacks(app):
             fig.update_yaxes(showticklabels=False)
             fig.update_traces(hovertemplate=None, hoverinfo='skip')
             return fig
-
-    # Data selection returning power-spectrum callback
-    @app.callback(
-        [Output('selected-data', 'children'), Output('power-spectrum', 'figure')],
-        [Input('EEG-graph', 'selectedData')]
-    )
-    def _get_selected_power_spectrum(selectedData):
-        """Calculates frequency with highest power density and power-spectrum plot of selectedData.
-
-        Args:
-            selectedData (dict): Data from latest selection event.
-
-        Returns:
-            tuple(string, plotly.graph_objs.Figure): String of frequency with highest power density, power-spectrum plot of selectedData.
-        """
-        if not selectedData or (not selectedData['points']):
-            most_prominent_freq = '-'
-            fig = Figure()
-        else:
-            # print(selectedData)
-            # selected_data = []
-
-            trace_number = selectedData['points'][0]['curveNumber']
-            # print('First trace: {}'.format(trace_number))
-
-            selected_range = selectedData['range']
-            print('Range: {}'.format(selected_range))
-
-            split_dict = collections.defaultdict(list)
-
-            for datapoint in selectedData['points']:
-                split_dict[datapoint['curveNumber']].append(datapoint['customdata'])
-
-            selected_traces_list = list(split_dict.values())
-
-            sample_rate = globals.viewing_raw.info['sfreq']
-
-            all_Pxx_den = []
-
-            for counter, trace in enumerate(selected_traces_list):
-                # print(counter)
-                f, Pxx_den = calc_power_spectrum(sample_rate, trace)
-                all_Pxx_den.append(Pxx_den)
-
-            mean_Pxx_den = np.mean(all_Pxx_den, axis=0)
-
-            most_prominent_freq = get_most_prominent_freq(f, mean_Pxx_den)
-            most_prominent_freq = round(most_prominent_freq, 2)
-
-            fig = get_power_spectrum_plot(f, mean_Pxx_den)
-
-        return (str(most_prominent_freq) + ' Hz'), fig

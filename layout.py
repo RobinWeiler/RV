@@ -14,6 +14,7 @@ from callbacks.annotation_callbacks import register_annotation_callbacks
 from callbacks.bad_channel_callbacks import register_bad_channel_callbacks
 from callbacks.model_callbacks import register_model_callbacks
 from callbacks.segments_callbacks import register_segments_callbacks
+from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
@@ -818,6 +819,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     register_bad_channel_callbacks(app)
     register_model_callbacks(app)
     register_segments_callbacks(app)
+    register_stats_callbacks(app)
     register_visualization_callbacks(app)
     
     return app

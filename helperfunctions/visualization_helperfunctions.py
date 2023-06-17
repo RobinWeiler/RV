@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.signal import welch
 
 from plotly.graph_objs import Figure, Scattergl
 
@@ -107,69 +106,6 @@ def get_channel_locations_plot(raw):
     # )
 
     return topography_plot
-
-def get_power_spectrum_plot(f, Pxx_den):
-    """Generates power spectrum plot.
-
-    Args:
-        f (array): Sample frequencies.
-        Pxx_den (array): Power densities.
-
-    Returns:
-        plotly.graph_objs.Figure: Plot of power spectrum.
-    """
-    fig = Figure()
-
-    fig.add_trace(
-        Scattergl(
-            x=f,
-            y=Pxx_den,
-            hovertemplate='Frequency (in Hz)=%{x:.2f}, Power density=%{y:.2f}' + '<extra></extra>',
-            marker=dict(color='#4796c5')
-        )
-    )
-
-    fig.update_layout(
-        xaxis=dict(
-            title_text='Frequencies (in Hz)',
-        ),
-        yaxis=dict(
-            title_text='Power density'
-        ),
-    )
-
-    return fig
-
-def calc_power_spectrum(sample_rate, selected_data):
-    """Calculate power spectrum of selected data using SciPy's welch method.
-
-    Args:
-        sample_rate (float): Sample rate of selected data.
-        selected_data (array): Selected data to calculate power spectrum of.
-
-    Returns:
-        tuple(array, array): Tuple of sample frequencies and corresponding power densities.
-    """
-    f, Pxx_den = welch(selected_data, sample_rate)
-
-    return f, Pxx_den
-
-def get_most_prominent_freq(f, Pxx_den):
-    """Calculate most prominent frequency of selected data.
-
-    Args:
-        f (array): Sample frequencies.
-        Pxx_den (array): Power densities.
-
-    Returns:
-        float: Frequency with highest density.
-    """
-    temp_list = Pxx_den.tolist()
-    maximum_peak = temp_list.index(Pxx_den.max())
-    maximum_peak_value = f[maximum_peak]
-    # print(maximum_peak_value)
-
-    return maximum_peak_value
 
 def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation):
     # Bandpass-filter

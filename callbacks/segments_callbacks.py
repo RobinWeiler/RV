@@ -137,6 +137,9 @@ def register_segments_callbacks(app):
         Args:
             segment_size (int): Segment size of EEG plot.
             show_annotations_only (bool): Whether or not to only show annotations.
+            use_slider (bool): Whether or not to activate view-slider.
+            annotation_label (string); Label for new annotations.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
             tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
