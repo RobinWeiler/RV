@@ -8,12 +8,34 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
 from helperfunctions.loading_helperfunctions import parse_annotation_file
+from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
 
 import globals
 
 
 def register_annotation_callbacks(app):
+    
+    # Toggle annotation-settings modal
+    @app.callback(
+        Output("modal-annotation-settings", "is_open"),
+        [Input("open-annotation-settings", "n_clicks"), Input("close-annotation-settings", "n_clicks")],
+        [State("modal-annotation-settings", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_annotation_settings_modal(open_annotation_settings, close_annotation_settings, is_open):
+        """Opens or closes help modal based on relevant button clicks.
+
+        Args:
+            open_annotation_settings (int): Num clicks on open-annotation-settings button.
+            close_annotation_settings (int): Num clicks on close-annotation-settings button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_annotation_settings, close_annotation_settings], is_open)
+
     # Annotation through dragging mouse across intervals callback
     @app.callback(
         Output('relayout-data', 'children'),

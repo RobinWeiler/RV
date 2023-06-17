@@ -30,69 +30,6 @@ def register_modal_callbacks(app):
         """
         return _toggle_modal([open_file, close_file, plot_button], is_open)
 
-    # Save-file modal callback
-    @app.callback(
-        Output("modal-save", "is_open"),
-        [Input("open-save", "n_clicks"), Input("close-save", "n_clicks"), Input('save-button', 'n_clicks'), Input('open-overwrite-button', 'n_clicks')],
-        [State("modal-save", "is_open")],
-        prevent_initial_call=True
-    )
-    def _toggle_save_modal(open_save, close_save, save_button, open_overwrite_button, is_open):
-        """Opens or closes save modal based on relevant button clicks.
-
-        Args:
-            open_save (int): Num clicks on open-save button.
-            close_save (int): Num clicks on close-save button.
-            save_button (int): Num clicks on save button.
-            open_overwrite_button (int): Num clicks on open-overwrite button.
-            is_open (bool): Whether or not modal is currently open.
-
-        Returns:
-            bool: Whether or not modal should now be open.
-        """
-        return _toggle_modal([open_save, close_save, save_button, open_overwrite_button], is_open)
-
-    # Overwrite_file modal callback
-    @app.callback(
-        Output("modal-overwrite", "is_open"),
-        [Input("open-overwrite-button", "n_clicks"), Input('cancel-overwrite-button', 'n_clicks'), Input('overwrite-button', 'n_clicks')],
-        [State("modal-overwrite", "is_open")],
-        prevent_initial_call=True
-    )
-    def _toggle_overwrite_modal(open_overwrite_button, cancel_overwrite_button, overwrite_button, is_open):
-        """Opens or closes overwrite modal based on relevant button clicks.
-
-        Args:
-            open_overwrite_button (int): Num clicks on open-overwrite button.
-            cancel_overwrite_button (int): Num clicks on cancel-overwrite button.
-            overwrite_button (int): Num clicks on overwrite button.
-            is_open (bool):  Whether or not modal is currently open.
-
-        Returns:
-            bool: Whether or not modal should now be open.
-        """
-        return _toggle_modal([open_overwrite_button, cancel_overwrite_button, overwrite_button], is_open)
-
-    # Annotation settings modal callback
-    @app.callback(
-        Output("modal-annotation-settings", "is_open"),
-        [Input("open-annotation-settings", "n_clicks"), Input("close-annotation-settings", "n_clicks")],
-        [State("modal-annotation-settings", "is_open")],
-        prevent_initial_call=True
-    )
-    def _toggle_annotation_settings_modal(open_annotation_settings, close_annotation_settings, is_open):
-        """Opens or closes help modal based on relevant button clicks.
-
-        Args:
-            open_annotation_settings (int): Num clicks on open-annotation-settings button.
-            close_annotation_settings (int): Num clicks on close-annotation-settings button.
-            is_open (bool): Whether or not modal is currently open.
-
-        Returns:
-            bool: Whether or not modal should now be open.
-        """
-        return _toggle_modal([open_annotation_settings, close_annotation_settings], is_open)
-
     # Stats modal callback
     @app.callback(
         [

@@ -3,6 +3,7 @@ from plotly.graph_objs import Figure
 
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.visualization_helperfunctions import get_channel_locations_plot
+
 import globals
 
 def register_channel_selection_callbacks(app):
