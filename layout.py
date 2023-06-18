@@ -45,7 +45,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 html.Div([
                     dbc.Button(
                         "Rerun model",
-                        id="redraw-button",
+                        id="rerun-model-button",
                         className='button'
                     ),
                 ], className='aligned-threshold'),
