@@ -44,10 +44,7 @@ def register_model_callbacks(app):
         # prevent_initial_call=True
     )
     def _disable_model_threshold(model_annotate):
-        if model_annotate:
-            return False
-        else:
-            return True
+        return not model_annotate
 
     # Update plot when annotation-label or annotation-label-color is changed
     @app.callback(
@@ -69,9 +66,10 @@ def register_model_callbacks(app):
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-        # If re-running model, keep current annotations and bad channels
-        if ('rerun-model-button' in trigger or 'run-model' in trigger) and run_model_bool:
-            if globals.plotting_data:
+        if globals.plotting_data:
+            # If re-running model, keep current annotations and bad channels
+            if ('rerun-model-button' in trigger or 'run-model' in trigger) and run_model_bool:
+
                 globals.model_raw.info['bads'] = current_selected_bad_channels
 
                 print('Running model...')
@@ -124,31 +122,24 @@ def register_model_callbacks(app):
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
                 return updated_fig
-            else:
-                return current_fig
 
-        if 'reset-models' in trigger:
-            if globals.plotting_data and globals.plotting_data['model']:
-                del globals.plotting_data['model'][:-1]
+            if 'reset-models' in trigger:
+                if globals.plotting_data['model']:
+                    del globals.plotting_data['model'][:-1]
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
-                return updated_fig
-            else:
-                return current_fig
+                    return updated_fig
 
-        if 'run-model' in trigger and not run_model_bool:
-            if globals.plotting_data and globals.plotting_data['model']:
-                del globals.plotting_data['model'][-1]
+            if 'run-model' in trigger and not run_model_bool:
+                if globals.plotting_data['model']:
+                    del globals.plotting_data['model'][-1]
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
-                return updated_fig
-            else:
-                return current_fig
+                    return updated_fig
 
-        if 'model-threshold' in trigger or 'annotate-model' in trigger:
-            if globals.plotting_data:
+            if 'model-threshold' in trigger or 'annotate-model' in trigger:
                 all_model_annotations = []
                 
                 if model_annotate:
