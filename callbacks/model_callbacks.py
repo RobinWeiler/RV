@@ -37,6 +37,21 @@ def register_model_callbacks(app):
             print('Selected files: {}'.format(list_selected_file_names))
             return list_selected_file_names, list_selected_file_names
 
+    # Disable rerun-model button
+    @app.callback(
+        Output('rerun-model-button', 'disabled'),
+        [Input('EEG-graph', 'clickData'), Input('rerun-model-button', 'n_clicks')], 
+        [State("run-model", "value"), State('model-output-files', 'children')],
+        # prevent_initial_call=True
+    )
+    def _disable_rerun_model_button(selected_bad_channel, rerun_model_button, run_model_bool, model_files):
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+        if 'clickData' in trigger and globals.plotting_data and (run_model_bool or model_files):
+            return False
+
+        return True
+
     # Disable model threshold
     @app.callback(
         Output('model-threshold', 'disabled'),
@@ -46,19 +61,26 @@ def register_model_callbacks(app):
     def _disable_model_threshold(model_annotate):
         return not model_annotate
 
-    # Update plot when annotation-label or annotation-label-color is changed
+    # Update plot when model settings are changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input("run-model", "value"), Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
         [State('use-slider', 'value'), State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('bad-channels-dropdown', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
     )
-    def _use_segment_slider(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, annotation_label, show_annotations_only, current_selected_bad_channels, current_fig):
-        """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, annotation_label, show_annotations_only, current_selected_bad_channels, current_fig):
+        """Updates plot when model settings are changed.
 
         Args:
+            run_model_bool (list): List containing 1 if running integrated model is chosen.
+            rerun_model_button (int): Num clicks on rerun-model button.
+            reset_models_button (int): Num clicks on reset-models button.
+            model_annotate (list): List containing 1 if automatic annotation is chosen.
+            model_threshold (float): Input desired confidence threshold over which to automatically annotate.
+            use_slider (bool): Whether or not to activate view-slider.
             annotation_label (string); Label for new annotations.
-            annotation_label_color (dict); Color for new annotations.
+            show_annotations_only (bool): Whether or not to only show annotations.
+            current_selected_bad_channels (list): List containing names of currently selected bad channels.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
@@ -167,6 +189,7 @@ def register_model_callbacks(app):
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
                     updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
                     return updated_fig
                 else:
                     current_fig['layout']['shapes'] = []

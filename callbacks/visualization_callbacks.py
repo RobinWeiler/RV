@@ -56,7 +56,6 @@ def register_visualization_callbacks(app):
         Output('EEG-graph', 'figure'),
         [
             Input('plot-button', 'n_clicks'),
-            Input('EEG-graph', 'clickData'),
             Input("scale", "value"),
             Input("channel-offset", "value"),
             Input('use-slider', 'value'),
@@ -77,7 +76,7 @@ def register_visualization_callbacks(app):
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
-    def _update_EEG_plot(plot_button, point_clicked,
+    def _update_EEG_plot(plot_button,
                             scale, channel_offset, use_slider, 
                             show_annotations_only,
                             current_file_name, selected_channels,
@@ -90,12 +89,9 @@ def register_visualization_callbacks(app):
 
         Args:
             plot_button (int): Num clicks on plot button.
-            redraw_button (int): Num clicks on redraw button.
-            point_clicked (dict): Data from latest click event.
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
             use_slider (bool): Whether or not to activate view-slider.
-            reset_models (int): Num clicks on reset-models buttons.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
@@ -164,51 +160,6 @@ def register_visualization_callbacks(app):
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
                 return updated_fig
-
-        if 'clickData' in trigger:
-            channel_index = point_clicked['points'][0]['curveNumber']
-            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
-                return current_fig
-
-            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-
-            if channel_name not in current_selected_bad_channels:
-                current_selected_bad_channels.append(channel_name)
-            else:
-                current_selected_bad_channels.remove(channel_name)
-
-            globals.raw.info['bads'] = current_selected_bad_channels
-            print(current_selected_bad_channels)
-
-            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                
-                if channel_name in current_selected_bad_channels:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
-                else:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
-
-                current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
-
-            current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
-            current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
-
-            if len(current_fig['layout']['updatemenus'][0]['buttons']) > 3:
-                for model_index in range(len(globals.plotting_data['model'])):
-                    if globals.plotting_data['model'][model_index]['model_channels']:
-                        for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                            if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
-                                globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
-                                
-                            current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'][channel_index] = globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index]
-                            current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'][channel_index] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
-
-            return current_fig
 
         if 'show-annotations-only' in trigger:
             if globals.plotting_data:
