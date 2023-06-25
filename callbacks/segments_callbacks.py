@@ -49,14 +49,15 @@ def register_segments_callbacks(app):
     @app.callback(
         [Output('minus-ten-seconds-button', 'disabled'), Output('plus-ten-seconds-button', 'disabled')],
         Input('EEG-graph', 'figure'),
-        [State('show-annotations-only', 'value'), State('EEG-graph', 'figure')]
+        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure')]
         # prevent_initial_call=True
     )
-    def _update_10_seconds_buttons(fig, show_annotations_only, current_fig):
+    def _update_10_seconds_buttons(fig, segment_size, show_annotations_only, current_fig):
         """Disables/enables plus-/minus-10-seconds buttons based on position of current segment. Triggered when EEG plot has loaded.
 
         Args:
             fig (plotly.graph_objs.Figure): EEG plot.
+            segment_size (int): Segment size of EEG plot.
             show_annotations_only (bool): Whether or not to only show annotations.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -68,7 +69,7 @@ def register_segments_callbacks(app):
         right_disabled = True
 
         if globals.plotting_data:
-            if show_annotations_only:
+            if show_annotations_only or segment_size <= 10:
                 left_disabled = True
                 right_disabled = True
             else:
