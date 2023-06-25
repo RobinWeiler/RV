@@ -105,4 +105,10 @@ def register_bad_channel_callbacks(app):
                         if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
                             globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
 
+            # current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
+            current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
+
+            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
+            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+
         return current_fig
