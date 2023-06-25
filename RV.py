@@ -2,7 +2,7 @@ from layout import setup_app
 
 import globals
 
-app = setup_app()
+# app = setup_app()
 
 def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
     """Run Robin's Viewer with optional arguments. Will open RV in browser at "http://localhost:8050".

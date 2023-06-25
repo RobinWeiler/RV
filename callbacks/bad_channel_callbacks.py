@@ -60,18 +60,17 @@ def register_bad_channel_callbacks(app):
         else:
             return [], [], []
 
-    # Update plot when bad-channel settings are changed
+    # Update plot when bad channels changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        Input('EEG-graph', 'clickData'),
-        [State('bad-channels-dropdown', 'value'), State('EEG-graph', 'figure')],
+        Input('bad-channels-dropdown', 'value'),
+        State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(point_clicked, current_selected_bad_channels, current_fig):
-        """Updates plot when bad-channel settings are changed.
+    def _update_EEG_plot_model(current_selected_bad_channels, current_fig):
+        """Updates plot when bad channels changed.
 
         Args:
-            point_clicked (dict): Data from latest click event.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -82,40 +81,28 @@ def register_bad_channel_callbacks(app):
         print(trigger)
 
         if globals.plotting_data:
-            if 'clickData' in trigger:
-                channel_index = point_clicked['points'][0]['curveNumber']
-                if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
-                    return current_fig
+            globals.raw.info['bads'] = current_selected_bad_channels
+            print(current_selected_bad_channels)
 
+            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-
-                if channel_name not in current_selected_bad_channels:
-                    current_selected_bad_channels.append(channel_name)
+                
+                if channel_name in current_selected_bad_channels:
+                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
+                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
                 else:
-                    current_selected_bad_channels.remove(channel_name)
+                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
+                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
+                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
 
-                globals.raw.info['bads'] = current_selected_bad_channels
-                print(current_selected_bad_channels)
+                current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
 
-                for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                    channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                    
-                    if channel_name in current_selected_bad_channels:
-                        globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
-                        globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
-                        globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
-                    else:
-                        globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
-                        globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
-                        globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
-
-                    current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
-
-                for model_index in range(len(globals.plotting_data['model'])):
-                    if globals.plotting_data['model'][model_index]['model_channels']:
-                        for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                            if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
-                                globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
+            for model_index in range(len(globals.plotting_data['model'])):
+                if globals.plotting_data['model'][model_index]['model_channels']:
+                    for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                        channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                        if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
+                            globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
 
         return current_fig
