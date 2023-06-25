@@ -103,6 +103,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     className='button'
                 ),
             ], className='aligned'),
+            
+            html.Div([
+                dbc.Button(
+                    "-10s",
+                    id="minus-ten-seconds-button",
+                    className='button'
+                ),
+            ], className='aligned'),
 
             html.Div([
                 dcc.Slider(0, 1, 1,
@@ -111,6 +119,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     id='segment-slider',
                 ),
             ], className='aligned', id='segment-slider-container'),
+            
+            html.Div([
+                dbc.Button(
+                    "+10s",
+                    id="plus-ten-seconds-button",
+                    className='button'
+                ),
+            ], className='aligned'),
 
             html.Div([
                 dbc.Button(

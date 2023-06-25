@@ -45,6 +45,38 @@ def register_segments_callbacks(app):
 
         return left_disabled, right_disabled
 
+    # Enable/disable plus-/minus-10-seconds buttons at edges
+    @app.callback(
+        [Output('minus-ten-seconds-button', 'disabled'), Output('plus-ten-seconds-button', 'disabled')],
+        Input('EEG-graph', 'figure'),
+        [State('show-annotations-only', 'value'), State('EEG-graph', 'figure')]
+        # prevent_initial_call=True
+    )
+    def _update_10_seconds_buttons(fig, show_annotations_only, current_fig):
+        """Disables/enables plus-/minus-10-seconds buttons based on position of current segment. Triggered when EEG plot has loaded.
+
+        Args:
+            fig (plotly.graph_objs.Figure): EEG plot.
+            show_annotations_only (bool): Whether or not to only show annotations.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
+
+        Returns:
+            tuple(bool, bool): Whether or not to disable minus-10-seconds button, whether or not to disable plus-10-seconds button.
+        """
+
+        left_disabled = True
+        right_disabled = True
+
+        if globals.plotting_data:
+            if show_annotations_only:
+                left_disabled = True
+                right_disabled = True
+            else:
+                left_disabled = current_fig['layout']['xaxis']['range'][0] < globals.x0
+                right_disabled = current_fig['layout']['xaxis']['range'][1] > globals.x1
+
+        return left_disabled, right_disabled
+
     # Enable/disable segment-slider
     @app.callback(
         [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks')],
@@ -61,7 +93,7 @@ def register_segments_callbacks(app):
             show_annotations_only (bool): Whether or not to only show annotations.
 
         Returns:
-            tuple(bool, bool): Whether or not to disable segment-slider, max value.
+            tuple(bool, int, int, dict): Whether or not to disable segment-slider, max value, step size, dict of marks.
         """
         if globals.plotting_data and segment_size:
             if show_annotations_only and len(globals.marked_annotations) > 0:
@@ -86,14 +118,20 @@ def register_segments_callbacks(app):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
+            segment_slider (int): Current value of segment-sldier.
+            left_button (int): Num clicks on left-arrow button.
+            right_button (int): Num clicks on right-arrow button.
             segment_size (int): Segment size of EEG plot.
             show_annotations_only (bool): Whether or not to only show annotations.
+            use_slider (bool): Whether or not to activate view-slider.
+            annotation_label (string); Label for new annotations.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
             tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        # print(trigger)
 
         if globals.plotting_data and segment_size:
             if 'segment-slider' in trigger:
@@ -123,6 +161,39 @@ def register_segments_callbacks(app):
             return updated_fig, globals.current_plot_index
         else:
             return current_fig, 0
+
+    # Move view by 10 seconds left or right
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        [Input('minus-ten-seconds-button', 'n_clicks'), Input('plus-ten-seconds-button', 'n_clicks')],
+        State('EEG-graph', 'figure'),
+        prevent_initial_call=True
+    )
+    def _use_10_seconds_buttons(minus_10_seconds, plus_10_seconds, current_fig):
+        """Moves viewed segment. Triggered when minus-10-seconds or plus-10-seconds button is clicked.
+
+        Args:
+            minus_10_seconds (int): Num clicks on minus-10-seconds button.
+            plus_10_seconds (int): Num clicks on plus-10-seconds button.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
+
+        Returns:
+            tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
+        """
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        # print(trigger)
+
+        if globals.plotting_data:
+            if 'minus' in trigger:
+                current_fig['layout']['xaxis']['range'][0] -= 10
+                current_fig['layout']['xaxis']['range'][1] -= 10
+            elif 'plus' in trigger:
+                current_fig['layout']['xaxis']['range'][0] += 10
+                current_fig['layout']['xaxis']['range'][1] += 10
+
+            return current_fig
+        else:
+            return current_fig
 
     # Update plot when segment_size is changed
     @app.callback(
