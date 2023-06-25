@@ -6,12 +6,15 @@ import dash_bootstrap_components as dbc
 
 from plotly.graph_objs import Figure
 
+from callbacks.channel_selection_callbacks import register_channel_selection_callbacks
 from callbacks.modal_callbacks import register_modal_callbacks
 from callbacks.loading_callbacks import register_loading_callbacks
 from callbacks.saving_callbacks import register_saving_callbacks
 from callbacks.annotation_callbacks import register_annotation_callbacks
 from callbacks.bad_channel_callbacks import register_bad_channel_callbacks
 from callbacks.model_callbacks import register_model_callbacks
+from callbacks.segments_callbacks import register_segments_callbacks
+from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
@@ -42,7 +45,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 html.Div([
                     dbc.Button(
                         "Rerun model",
-                        id="redraw-button",
+                        id="rerun-model-button",
                         className='button'
                     ),
                 ], className='aligned-threshold'),
@@ -100,6 +103,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     className='button'
                 ),
             ], className='aligned'),
+            
+            html.Div([
+                dbc.Button(
+                    "-10s",
+                    id="minus-ten-seconds-button",
+                    className='button'
+                ),
+            ], className='aligned'),
 
             html.Div([
                 dcc.Slider(0, 1, 1,
@@ -108,6 +119,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     id='segment-slider',
                 ),
             ], className='aligned', id='segment-slider-container'),
+            
+            html.Div([
+                dbc.Button(
+                    "+10s",
+                    id="plus-ten-seconds-button",
+                    className='button'
+                ),
+            ], className='aligned'),
 
             html.Div([
                 dbc.Button(
@@ -808,12 +827,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     ])
 
     # Register callbacks
+    register_channel_selection_callbacks(app)
     register_modal_callbacks(app)
     register_loading_callbacks(app)
     register_saving_callbacks(app)
     register_annotation_callbacks(app)
     register_bad_channel_callbacks(app)
     register_model_callbacks(app)
+    register_segments_callbacks(app)
+    register_stats_callbacks(app)
     register_visualization_callbacks(app)
     
     return app

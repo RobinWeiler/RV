@@ -8,12 +8,34 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
 from helperfunctions.loading_helperfunctions import parse_annotation_file
+from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
 
 import globals
 
 
 def register_annotation_callbacks(app):
+    
+    # Toggle annotation-settings modal
+    @app.callback(
+        Output("modal-annotation-settings", "is_open"),
+        [Input("open-annotation-settings", "n_clicks"), Input("close-annotation-settings", "n_clicks")],
+        [State("modal-annotation-settings", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_annotation_settings_modal(open_annotation_settings, close_annotation_settings, is_open):
+        """Opens or closes help modal based on relevant button clicks.
+
+        Args:
+            open_annotation_settings (int): Num clicks on open-annotation-settings button.
+            close_annotation_settings (int): Num clicks on close-annotation-settings button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_annotation_settings, close_annotation_settings], is_open)
+
     # Annotation through dragging mouse across intervals callback
     @app.callback(
         Output('relayout-data', 'children'),
@@ -106,13 +128,13 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
+    # Add new annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
         [State('annotation-label', 'options'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
-    # Adds new annotation label callback
     def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, annotation_labels, current_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         print(trigger)
@@ -140,24 +162,66 @@ def register_annotation_callbacks(app):
 
         return annotation_labels, '', current_annotation_label
 
+    # Switch to current annotation-label color
     @app.callback(
         Output('annotation-label-color', 'value'),
         Input('annotation-label', 'value'),
         # State('annotation-label', 'options'),
         prevent_initial_call=True
     )
-    # Switch to current annotation-label color callback
     def _switch_annotation_label_color(current_annotation_label):
         color = globals.annotation_label_colors[current_annotation_label]
         
         return color
 
+    # Choose annotation-label color
     @app.callback(
         Output('chosen-annotation-color', 'children'),
         Input('annotation-label-color', 'value'),
         State('annotation-label', 'value'),
         prevent_initial_call=True
     )
-    # Choose annotation-label color callback
     def _choose_annotation_label_color(current_annotation_label_color, current_annotation_label):
         globals.annotation_label_colors[current_annotation_label] = current_annotation_label_color
+
+    # Update plot when annotation-label or annotation-label-color is changed
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        [Input('annotation-label', 'value'), Input('annotation-label-color', 'value')],
+        State('EEG-graph', 'figure'),
+        prevent_initial_call=True
+    )
+    def _use_segment_slider(annotation_label, annotation_label_color, current_fig):
+        """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+
+        Args:
+            annotation_label (string); Label for new annotations.
+            annotation_label_color (dict); Color for new annotations.
+            current_fig (plotly.graph_objs.Figure): The current EEG plot.
+
+        Returns:
+            tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
+        """
+        if globals.plotting_data:
+            print(annotation_label_color)
+            current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+            
+            current_fig['layout']['shapes'] = []
+            for annotation in globals.marked_annotations:
+                current_fig['layout']['shapes'].append({
+                    'editable': True,
+                    'xref': 'x',
+                    'yref': 'y',
+                    'layer': 'below',
+                    'opacity': 0.6,
+                    'line': {'width': 0},
+                    'fillcolor': globals.annotation_label_colors[annotation[2]],
+                    'fillrule': 'evenodd',
+                    'type': 'rect',
+                    'x0': annotation[0],
+                    'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                    'x1': annotation[1],
+                    'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                })
+
+        return current_fig
