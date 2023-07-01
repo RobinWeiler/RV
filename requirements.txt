@@ -1,11 +1,11 @@
 autoreject==0.4.0
-dash==2.0.0
-dash_bootstrap_components==1.0.0
+dash==2.9.3
+dash_bootstrap_components==1.4.1
 dash_daq==0.5.0
 Flask==2.1.2
 gpuparallel==0.0.4
 joblib==1.1.0
-jupyter_dash==0.4.0
+jupyter_dash==0.4.2
 matplotlib==3.4.3
 mne==1.2.1
 numpy==1.21.2
