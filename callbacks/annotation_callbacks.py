@@ -50,7 +50,7 @@ def register_annotation_callbacks(app):
             relayoutData (dict): Data from latest relayout event.
             annotation_label (string); Label for new annotations.
         """
-        print(relayoutData)
+        # print(relayoutData)
         if relayoutData:
             # Annotation added/removed
             if 'shapes' in relayoutData:
@@ -94,6 +94,8 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
+                print(globals.marked_annotations)
+
             # Annotation was moved/resized
             elif json.dumps(relayoutData).startswith('shapes', 2):
                 # print('Annotation was changed')
@@ -128,7 +130,7 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
-            print(globals.marked_annotations)
+                print(globals.marked_annotations)
 
     # Add new annotation label
     @app.callback(
