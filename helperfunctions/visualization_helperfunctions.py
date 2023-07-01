@@ -163,19 +163,19 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     plotting_data['EEG']['highlighted_channel_colors'] = highlighted_channel_colors
     plotting_data['EEG']['channel_visibility'] = channel_visibility
     
-    # y_ticks_model_output = np.arange((-len(model_output) - 1), -1)
-    # y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
-    # y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-    # y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
+    y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
+    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
+    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
     
-    # plotting_data['plot']['y_ticks'] = y_ticks
+    plotting_data['plot']['y_ticks'] = y_ticks
 
-    # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
-    # for model_id in range(len(model_output)):
-    #     y_tick_labels.append('M{}'.format(model_id))
-    # y_tick_labels.reverse()
+    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    for model_id in range(len(plotting_data['model'])):
+        y_tick_labels.append('M{}'.format(model_id))
+    y_tick_labels.reverse()
     
-    # plotting_data['plot']['y_tick_labels'] = y_tick_labels.copy()
+    plotting_data['plot']['y_tick_labels'] = y_tick_labels
             
     return plotting_data
 
@@ -198,14 +198,14 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     """
     fig = Figure()
     
-    plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
-    globals.plotting_data = plotting_data.copy()    
+    globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
+    # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
     return fig
 
-def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_annotations_only=False):
+def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False):
     """Generates EEG plots.
 
     Args:
@@ -220,7 +220,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
     """
     fig = Figure()
     
-    plotting_data = data_to_plot.copy()
+    # plotting_data = data_to_plot.copy()
 
     index_0 = None
     index_1 = None
@@ -345,19 +345,19 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
         ),
     )
 
-    y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
-    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
-    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
+    # y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
+    # y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
+    # y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+    # y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
     
-    plotting_data['plot']['y_ticks'] = y_ticks
+    # plotting_data['plot']['y_ticks'] = y_ticks
 
-    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
-    for model_id in range(len(plotting_data['model'])):
-        y_tick_labels.append('M{}'.format(model_id))
-    y_tick_labels.reverse()
+    # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    # for model_id in range(len(plotting_data['model'])):
+    #     y_tick_labels.append('M{}'.format(model_id))
+    # y_tick_labels.reverse()
     
-    plotting_data['plot']['y_tick_labels'] = y_tick_labels
+    # plotting_data['plot']['y_tick_labels'] = y_tick_labels
 
     fig.update_yaxes(
         tickmode='array',

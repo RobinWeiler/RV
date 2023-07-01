@@ -194,9 +194,7 @@ def register_visualization_callbacks(app):
 
             print('Loading data...')
 
-            if globals.external_raw:
-                globals.raw = globals.external_raw.copy()
-            elif not globals.external_raw:
+            if not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
             globals.marked_annotations = get_annotations(globals.raw)
@@ -225,13 +223,6 @@ def register_visualization_callbacks(app):
 
             print(globals.viewing_raw.info)
 
-            if selected_channels:
-                selected_channel_names = selected_channels
-                print(selected_channel_names)
-            else:
-                selected_channel_names = []
-                print('No specific channels selected')
-
             model_output = []
             model_channel_names = []
             model_sample_rate = []
@@ -254,7 +245,7 @@ def register_visualization_callbacks(app):
 
             if run_model_bool:
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw, globals.viewing_raw)
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
@@ -298,7 +289,7 @@ def register_visualization_callbacks(app):
                     print('No annotations found')
                     show_annotations_only = False
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channel_names, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only)
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only)
             
             return fig
 

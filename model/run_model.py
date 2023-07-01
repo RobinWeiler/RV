@@ -171,7 +171,7 @@ def preprocess_data(raw, viewing_raw=None):
     windowSize = 1.0  # in seconds
     windowOverlap = 0.5   # ratio overlap between consecutive windows
 
-    preprocessedRaw = raw.copy()
+    preprocessedRaw = raw  # .copy()
 
     # Remove annotations (but not the annotation intervals!)
     data = preprocessedRaw.get_data()

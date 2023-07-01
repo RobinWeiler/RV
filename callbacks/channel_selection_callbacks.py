@@ -1,8 +1,9 @@
 from dash.dependencies import Input, Output, State
 from plotly.graph_objs import Figure
 
-from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.channel_selection_helperfunctions import get_channel_locations_plot
+from helperfunctions.modal_helperfunctions import _toggle_modal
+from helperfunctions.visualization_helperfunctions import get_EEG_plot
 
 import globals
 
@@ -76,3 +77,31 @@ def register_channel_selection_callbacks(app):
         print(selected_channels)
 
         return selected_channels
+
+    # # Update plot when channels to plot are selected
+    # @app.callback(
+    #     Output('EEG-graph', 'figure', allow_duplicate=True),
+    #     Input('selected-channels-dropdown', 'value'),
+    #     [State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+    #     prevent_initial_call=True
+    # )
+    # def _update_plotted_channels(selected_channels, show_annotations_only, use_slider, annotation_label, current_fig):
+    #     """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+
+    #     Args:
+    #         selected_channels (list): List of strings of channels selected for plotting.
+    #         show_annotations_only (bool): Whether or not to only show annotations.
+    #         use_slider (bool): Whether or not to activate view-slider.
+    #         annotation_label (string); Label for new annotations.
+    #         current_fig (plotly.graph_objs.Figure): The current EEG plot.
+
+    #     Returns:
+    #         tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
+    #     """
+    #     if globals.plotting_data:
+
+    #         updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+    #         return updated_fig
+
+    #     else:
+    #         return current_fig

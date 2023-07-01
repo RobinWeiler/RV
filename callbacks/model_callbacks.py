@@ -95,7 +95,7 @@ def register_model_callbacks(app):
                 globals.model_raw.info['bads'] = current_selected_bad_channels
 
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw.copy(), globals.viewing_raw.copy())
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw, globals.viewing_raw)
 
                 # Model annotations
                 if model_annotate:
