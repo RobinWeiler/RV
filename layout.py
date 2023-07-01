@@ -352,6 +352,16 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             )
                         ]),
                         html.Div([
+                            dbc.Checklist(
+                                id='skip-hoverinfo',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Disable hover-info', 'value': 1},
+                                ],
+                                value=[0]
+                            )
+                        ]),
+                        html.Div([
                             dbc.Button(
                                 "Select channels",
                                 id="open-channel-select",

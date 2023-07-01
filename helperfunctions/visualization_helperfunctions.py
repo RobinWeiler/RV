@@ -205,7 +205,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
 
     return fig
 
-def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_annotations_only=False):
+def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False):
     """Generates EEG plots.
 
     Args:
@@ -243,8 +243,9 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
                 marker=dict(color=plotting_data['EEG']['default_channel_colors'][channel_index], size=0.1),
                 name=plotting_data['EEG']['channel_names'][channel_index],
                 customdata=plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'],  # y-data without offset
-                hovertemplate='<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
-                mode='lines+markers'
+                hoverinfo='none' if skip_hoverinfo else 'all',
+                hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
+                mode='lines+markers'  # 'lines+markers'
             )
         )
 
@@ -291,7 +292,8 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
                 name='M{}'.format(model_index),
                 mode='markers',
                 customdata=plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1],
-                hovertemplate='Time=%{x:.2f}, Prediction=%{customdata:.2f}<extra><b>%{fullData.name}</b></extra>'
+                hoverinfo='none' if skip_hoverinfo else 'all',
+                hovertemplate='' if skip_hoverinfo else 'Time=%{x:.2f}, Prediction=%{customdata:.2f}<extra><b>%{fullData.name}</b></extra>'
             )
         )
     
