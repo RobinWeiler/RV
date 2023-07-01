@@ -378,7 +378,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
 
     # Add annotations
     marked_annotations = get_annotations(globals.raw)
-    print(marked_annotations)
+    # print(marked_annotations)
     
     for annotation in marked_annotations:
         # if not ((annotation[0] < globals.x0 and annotation[1] < globals.x0) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):

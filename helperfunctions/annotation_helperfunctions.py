@@ -112,8 +112,7 @@ def merge_intervals(marked_annotations):
 
         # Remove duplicates
         marked_annotations = list(dict.fromkeys(marked_annotations))
-
-        print(marked_annotations)
+        # print(marked_annotations)
 
     return marked_annotations
 

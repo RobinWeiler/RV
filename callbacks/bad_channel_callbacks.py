@@ -82,7 +82,7 @@ def register_bad_channel_callbacks(app):
 
         if globals.plotting_data:
             globals.raw.info['bads'] = current_selected_bad_channels
-            print(current_selected_bad_channels)
+            # print(current_selected_bad_channels)
 
             for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]

@@ -123,7 +123,7 @@ def register_annotation_callbacks(app):
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
                 
                 if show_annotations_only:
-                    print(annotation_index)
+                    # print(annotation_index)
                     globals.current_plot_index = annotation_index
 
                 quick_save(globals.raw)
@@ -137,9 +137,9 @@ def register_annotation_callbacks(app):
     )
     def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, annotation_labels, current_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
-        print(current_annotation_label)
-        print(annotation_labels)
+        # print(trigger)
+        # print(current_annotation_label)
+        # print(annotation_labels)
 
         if 'model-output-files' in trigger:
             for file_name in loaded_files:
@@ -191,8 +191,8 @@ def register_annotation_callbacks(app):
         State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _use_segment_slider(annotation_label, annotation_label_color, current_fig):
-        """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+    def _update_annotations(annotation_label, annotation_label_color, current_fig):
+        """Updates annotations.
 
         Args:
             annotation_label (string); Label for new annotations.
@@ -203,7 +203,7 @@ def register_annotation_callbacks(app):
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
         if globals.plotting_data:
-            print(annotation_label_color)
+            # print(annotation_label_color)
             current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
             
             current_fig['layout']['shapes'] = []
