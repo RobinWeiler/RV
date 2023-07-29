@@ -147,7 +147,7 @@ def register_segments_callbacks(app):
             elif 'right-button' in trigger:
                 globals.current_plot_index += 1
 
-            if show_annotations_only and len(globals.marked_annotations) > globals.current_plot_index:
+            if show_annotations_only and (len(globals.marked_annotations) > globals.current_plot_index):
                 globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
                 globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
@@ -276,10 +276,14 @@ def register_segments_callbacks(app):
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
 
-                if globals.current_plot_index + 1 not in globals.preloaded_plots.keys() and globals.current_plot_index + 1 < num_segments:
+                if globals.current_plot_index + 1 not in globals.preloaded_plots.keys() and (globals.current_plot_index + 1 < num_segments):
                     print('Preloading segments')
-                    new_x0 = globals.x0 + segment_size
-                    new_x1 = globals.x1 + segment_size
+                    if show_annotations_only and (len(globals.marked_annotations) > globals.current_plot_index + 1):
+                        new_x0 = globals.marked_annotations[globals.current_plot_index + 1][0] - 2
+                        new_x1 = globals.marked_annotations[globals.current_plot_index + 1][1] + 2
+                    else:
+                        new_x0 = globals.x0 + segment_size
+                        new_x1 = globals.x1 + segment_size
                     globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
                     print('Next segment preloaded')
 
