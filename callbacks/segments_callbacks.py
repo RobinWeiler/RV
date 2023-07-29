@@ -276,7 +276,7 @@ def register_segments_callbacks(app):
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
 
-                if globals.current_plot_index + 1 not in globals.preloaded_plots and globals.current_plot_index + 1 < num_segments:
+                if globals.current_plot_index + 1 not in globals.preloaded_plots.keys() and globals.current_plot_index + 1 < num_segments:
                     print('Preloading segments')
                     new_x0 = globals.x0 + segment_size
                     new_x1 = globals.x1 + segment_size
