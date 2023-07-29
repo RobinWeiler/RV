@@ -138,7 +138,8 @@ def register_segments_callbacks(app):
 
         if globals.plotting_data and segment_size:
             # Switching to next segment, current segment gets updated in globals.preloaded_plots
-            globals.preloaded_plots[globals.current_plot_index] = current_fig
+            if not show_annotations_only:
+                globals.preloaded_plots[globals.current_plot_index] = current_fig
 
             if 'segment-slider' in trigger:
                 globals.current_plot_index = segment_slider
@@ -240,7 +241,7 @@ def register_segments_callbacks(app):
 
     @app.callback(
         Output('preload-data', 'children'),
-        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), State('show-annotations-only', 'value')],
+        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
         [State('use-slider', 'value'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
@@ -272,18 +273,14 @@ def register_segments_callbacks(app):
                     #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                     #     print(segment_index)
 
-                if 'bad-channels' in trigger or 'segment-size' in trigger or 'show-annotations-only' in trigger:
+                if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger):
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
 
-                if globals.current_plot_index + 1 not in globals.preloaded_plots.keys() and (globals.current_plot_index + 1 < num_segments):
+                if (not show_annotations_only) and (globals.current_plot_index + 1 not in globals.preloaded_plots.keys()) and (globals.current_plot_index + 1 < num_segments):
                     print('Preloading segments')
-                    if show_annotations_only and (len(globals.marked_annotations) > globals.current_plot_index + 1):
-                        new_x0 = globals.marked_annotations[globals.current_plot_index + 1][0] - 2
-                        new_x1 = globals.marked_annotations[globals.current_plot_index + 1][1] + 2
-                    else:
-                        new_x0 = globals.x0 + segment_size
-                        new_x1 = globals.x1 + segment_size
+                    new_x0 = globals.x0 + segment_size
+                    new_x1 = globals.x1 + segment_size
                     globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
                     print('Next segment preloaded')
 
