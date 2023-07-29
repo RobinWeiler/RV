@@ -240,8 +240,8 @@ def register_segments_callbacks(app):
 
     @app.callback(
         Output('preload-data', 'children'),
-        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value')],
-        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value')],
+        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), State('show-annotations-only', 'value')],
+        [State('use-slider', 'value'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
     def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, use_slider, annotation_label):
@@ -257,8 +257,8 @@ def register_segments_callbacks(app):
 
         if globals.plotting_data:
             if segment_size:
-                # num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
-                # # print(num_segments)
+                num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
+                # print(num_segments)
                 
                 # upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
                 # # print(upper_bound)
@@ -272,11 +272,11 @@ def register_segments_callbacks(app):
                     #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                     #     print(segment_index)
 
-                if 'bad-channels' in trigger:
+                if 'bad-channels' in trigger or 'segment-size' in trigger or 'show-annotations-only' in trigger:
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
 
-                if globals.current_plot_index + 1 not in globals.preloaded_plots:
+                if globals.current_plot_index + 1 not in globals.preloaded_plots and globals.current_plot_index + 1 < num_segments:
                     print('Preloading segments')
                     new_x0 = globals.x0 + segment_size
                     new_x1 = globals.x1 + segment_size
