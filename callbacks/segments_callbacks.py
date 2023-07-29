@@ -240,11 +240,11 @@ def register_segments_callbacks(app):
 
     @app.callback(
         Output('preload-data', 'children'),
-        Input('EEG-graph', 'figure'),
+        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value')],
         [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _preload_plots(current_fig, segment_size, show_annotations_only, use_slider, annotation_label):
+    def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, use_slider, annotation_label):
         """Preloads 1 following segment and adds it to globals.preloaded_plots. Triggered when EEG plot has loaded.
 
         Args:
@@ -252,6 +252,9 @@ def register_segments_callbacks(app):
             segment_size (int): Segment size of EEG plot.
             use_slider (bool): Whether or not to activate view-slider.
         """
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        # print(trigger)
+
         if globals.plotting_data:
             if segment_size:
                 # num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
@@ -268,6 +271,10 @@ def register_segments_callbacks(app):
                     #     new_x1 = segment_size + segment_index * segment_size + 0.5
                     #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                     #     print(segment_index)
+
+                if 'bad-channels' in trigger:
+                    print('Deleting preloaded segments')
+                    globals.preloaded_plots.clear()
 
                 if globals.current_plot_index + 1 not in globals.preloaded_plots:
                     print('Preloading segments')
