@@ -65,10 +65,10 @@ def register_model_callbacks(app):
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input("run-model", "value"), Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
-        [State('use-slider', 'value'), State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('bad-channels-dropdown', 'value'), State('EEG-graph', 'figure')],
+        [State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('bad-channels-dropdown', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, annotation_label, show_annotations_only, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, current_selected_bad_channels, current_fig):
         """Updates plot when model settings are changed.
 
         Args:
@@ -78,6 +78,7 @@ def register_model_callbacks(app):
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
             use_slider (bool): Whether or not to activate view-slider.
+            skip_hoverinfo (bool): Whether or not to activate hover-info.
             annotation_label (string); Label for new annotations.
             show_annotations_only (bool): Whether or not to only show annotations.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
@@ -141,7 +142,7 @@ def register_model_callbacks(app):
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                 return updated_fig
 
@@ -149,7 +150,7 @@ def register_model_callbacks(app):
                 if globals.plotting_data['model']:
                     del globals.plotting_data['model'][:-1]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                     return updated_fig
 
@@ -157,7 +158,7 @@ def register_model_callbacks(app):
                 if globals.plotting_data['model']:
                     del globals.plotting_data['model'][-1]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                     return updated_fig
 
@@ -188,7 +189,7 @@ def register_model_callbacks(app):
                     globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                     return updated_fig
                 else:

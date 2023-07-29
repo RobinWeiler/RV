@@ -59,6 +59,7 @@ def register_visualization_callbacks(app):
             Input("scale", "value"),
             Input("channel-offset", "value"),
             Input('use-slider', 'value'),
+            Input('skip-hoverinfo', 'value'),
             Input('show-annotations-only', 'value'),
         ],
         [
@@ -77,7 +78,7 @@ def register_visualization_callbacks(app):
         ]
     )
     def _update_EEG_plot(plot_button,
-                            scale, channel_offset, use_slider, 
+                            scale, channel_offset, use_slider, skip_hoverinfo,
                             show_annotations_only,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
@@ -92,6 +93,7 @@ def register_visualization_callbacks(app):
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
             use_slider (bool): Whether or not to activate view-slider.
+            skip_hoverinfo (bool): Whether or not to activate hover-info.
             run_model_bool (list): List containing 1 if running integrated model is chosen.
             model_annotate (list): List containing 1 if automatic annotation is chosen.
             model_threshold (float): Input desired confidence threshold over which to automatically annotate.
@@ -151,13 +153,19 @@ def register_visualization_callbacks(app):
 
                 globals.plotting_data['EEG']['offset_EEG_data'] = offset_EEG
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                 return updated_fig
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+
+                return updated_fig
+
+        if 'skip-hoverinfo' in trigger:
+            if globals.plotting_data:
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                 return updated_fig
 
@@ -179,7 +187,7 @@ def register_visualization_callbacks(app):
                     else:
                         globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
                 
                 return updated_fig
 
