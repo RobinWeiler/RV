@@ -68,6 +68,9 @@ def register_segments_callbacks(app):
         left_disabled = True
         right_disabled = True
 
+        if not segment_size:
+            segment_size = 100  # hack for if statement below when recording is not segmented
+
         if globals.plotting_data:
             if show_annotations_only or segment_size <= 10:
                 left_disabled = True
