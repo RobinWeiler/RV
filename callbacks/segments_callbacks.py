@@ -241,11 +241,11 @@ def register_segments_callbacks(app):
 
     @app.callback(
         Output('preload-data', 'children'),
-        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
+        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value'), Input('annotation-label-color', 'value')],
         [State('use-slider', 'value'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, use_slider, annotation_label):
+    def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, annotation_color, use_slider, annotation_label):
         """Preloads 1 following segment and adds it to globals.preloaded_plots. Triggered when EEG plot has loaded.
 
         Args:
@@ -273,7 +273,7 @@ def register_segments_callbacks(app):
                     #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                     #     print(segment_index)
 
-                if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger):
+                if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger) or ('annotation-label-color' in trigger):
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
 
