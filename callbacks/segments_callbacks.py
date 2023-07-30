@@ -148,7 +148,7 @@ def register_segments_callbacks(app):
                 globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
             elif 'segment-slider' in trigger:
-                globals.x0 = segment_size * segment_slider if segment_slider != 0 else -0.5
+                globals.x0 = segment_size * segment_slider - 0.5 if segment_slider != 0 else -0.5
                 globals.x1 = segment_size + (segment_size * segment_slider) + 0.5
             elif 'left-button' in trigger:
                 globals.x0 -= segment_size
