@@ -615,7 +615,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     ),
                 ]),
                 html.Div([
-                    dbc.Button("Remove last label", id="remove-annotation-label", className=['button'])
+                    dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
                 ]),
                 # html.Div([
                 #     dbc.Checklist(

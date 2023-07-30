@@ -128,7 +128,7 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
-    # Add new annotation label
+    # Add/remove annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
@@ -138,8 +138,8 @@ def register_annotation_callbacks(app):
     def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, annotation_labels, current_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
-        # print(current_annotation_label)
-        # print(annotation_labels)
+        print(current_annotation_label)
+        print(annotation_labels)
 
         if 'model-output-files' in trigger:
             for file_name in loaded_files:
@@ -152,9 +152,10 @@ def register_annotation_callbacks(app):
                             globals.annotation_label_colors[annotation[2]] = 'red'
 
         elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
-            if current_annotation_label == annotation_labels[-1]['value']:
-                current_annotation_label = annotation_labels[0]['value']
-            annotation_labels.pop()
+            remove_annotation_label = current_annotation_label
+            current_annotation_label = annotation_labels[-1]['value']
+
+            annotation_labels.remove({'label': remove_annotation_label, 'value': remove_annotation_label})
 
         elif 'new-annotation-label' in trigger and new_annotation_label not in globals.annotation_label_colors.keys():
             annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
