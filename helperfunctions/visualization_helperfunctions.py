@@ -1,5 +1,7 @@
 import numpy as np
 
+import mne
+
 from plotly.graph_objs import Figure, Scattergl
 
 from helperfunctions.annotation_helperfunctions import get_annotations
@@ -114,7 +116,13 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     # Calculate offset for y-axis
     offset_EEG = plotting_data['EEG']['EEG_data'].copy() 
     offset_EEG = offset_EEG * plotting_data['EEG']['scaling_factor']
-    
+
+    eog_channels_indices = mne.pick_types(raw.info, eog=True)
+    eog_channels = []
+    for channel_index in eog_channels_indices:
+        eog_channels.append(raw.ch_names[channel_index])
+    # print(eog_channels)
+
     default_channel_colors = []
     highlighted_channel_colors = []
     channel_visibility = []
@@ -128,7 +136,10 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             default_channel_colors.append(c.BAD_CHANNEL_COLOR)
             channel_visibility.append(False)
         else:
-            default_channel_colors.append('black')
+            if plotting_data['EEG']['channel_names'][channel_index] in eog_channels:
+                default_channel_colors.append('green')
+            else:
+                default_channel_colors.append('black')
             channel_visibility.append(True)
 
         model_channel = False
