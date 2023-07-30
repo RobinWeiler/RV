@@ -273,6 +273,12 @@ def register_segments_callbacks(app):
                     #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
                     #     print(segment_index)
 
+                preloaded_segments = list(globals.preloaded_plots.keys())
+                for key in preloaded_segments:
+                    if int(key) > globals.current_plot_index + 1 or int(key) < globals.current_plot_index - 1:
+                        # print('Removing segment {} for preloaded plots'.format(key))
+                        globals.preloaded_plots.pop(key)
+
                 if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger) or ('annotation-label-color' in trigger):
                     print('Deleting preloaded segments')
                     globals.preloaded_plots.clear()
