@@ -11,7 +11,7 @@ def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
         eeg_data (mne.io.Raw, optional): Pass data if preprocessed externally. Will disable file selection. Defaults to None.
         save_file_path (string, optional): Path to save annotated data to when using "Quit" button. Defaults to None.
         parameters_to_load (dict, optional): Dictionary with parameters to fill in upon loading. 
-        Possible keys for parameters_to_load: 'high_pass', 'low_pass', 'reference', 'resampling_rate', 'scale', 'offset', 'segment_size'. Defaults to None.
+        Possible keys for parameters_to_load: 'username', 'high_pass', 'low_pass', 'reference', 'resampling_rate', 'scale', 'offset', 'segment_size'. Defaults to None.
     """
     disable_preprocessing_parameters = False
     disable_file_selection = False

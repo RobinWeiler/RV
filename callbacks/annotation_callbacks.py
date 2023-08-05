@@ -163,6 +163,55 @@ def register_annotation_callbacks(app):
 
         return annotation_labels, '', current_annotation_label
 
+    # Add username to annotation labels
+    @app.callback(
+        [Output('annotation-label', 'options', allow_duplicate=True), Output('annotation-label', 'value', allow_duplicate=True)],
+        Input('username', 'value'),
+        [State('username', 'n_submit'), State('annotation-label', 'options'), State('annotation-label', 'value')],
+        prevent_initial_call=True
+    )
+    def _add_username_to_annotation_label(username, username_changes, annotation_labels, current_annotation_label):
+        # print(username_changes)
+        if username:
+            # print(annotation_labels)
+            new_annotation_labels = annotation_labels.copy()
+            
+            for label_index in range(len(annotation_labels)):
+                if username_changes == 1:
+                    # if username was changed for the first time, add it to the end of all annotation labels
+                    new_annotation_label = annotation_labels[label_index]['label'] + '_{}'.format(username)
+                else:
+                    # if username was changed again, replace previous one in all annotation labels
+                    username_index = annotation_labels[label_index]['label'].rfind('_')
+                    new_annotation_label = annotation_labels[label_index]['label'][:username_index + 1] + username
+
+                new_annotation_labels[label_index] = {'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)}
+
+            if username_changes == 1:
+                new_annotation_label = current_annotation_label + '_{}'.format(username)
+            else:
+                username_index = current_annotation_label.rfind('_')
+                new_annotation_label = current_annotation_label[:username_index + 1] + username
+
+            # print(new_annotation_labels)
+            # print(new_annotation_label)
+
+            # Update color dict
+            # print(globals.annotation_label_colors)
+            annotation_label_color_keys = list(globals.annotation_label_colors.keys())
+            for key in annotation_label_color_keys:
+                if username_changes == 1:
+                    new_key = key + '_{}'.format(username)
+                else:
+                    username_index = key.rfind('_')
+                    new_key = key[:username_index + 1] + username
+                globals.annotation_label_colors[new_key] = globals.annotation_label_colors.pop(key)
+            # print(globals.annotation_label_colors)
+
+            return new_annotation_labels, new_annotation_label
+
+        return annotation_labels, current_annotation_label
+
     # Switch to current annotation-label color
     @app.callback(
         Output('annotation-label-color', 'value'),

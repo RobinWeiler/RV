@@ -11,7 +11,8 @@ def register_loading_callbacks(app):
     # Data-file selection callback
     @app.callback(
         [
-            Output('data-file', 'children'), 
+            Output('data-file', 'children'),
+            Output('username', 'value'),
             Output("high-pass", "value"), Output("low-pass", "value"), Output('reference-dropdown', 'value'),
             Output("resample-rate", "value"), Output('scale', 'value'), Output('channel-offset', 'value'), Output('segment-size', 'value'),
             Output('upload-file', 'disabled')
@@ -21,12 +22,13 @@ def register_loading_callbacks(app):
             Input("low-pass", "value")
         ],
         [
-            State('data-file', 'children'), State("high-pass", "value"), State('reference-dropdown', 'value'),
+            State('data-file', 'children'), State('username', 'value'),
+            State("high-pass", "value"), State('reference-dropdown', 'value'),
             State("scale", "value"), State("channel-offset", "value"), State('segment-size', 'value'),
             State('upload-file', 'disabled')
         ]
     )
-    def _load_file(selected_file_name, low_pass, current_file_name, high_pass, reference,
+    def _load_file(selected_file_name, low_pass, current_file_name, username, high_pass, reference,
                         scale, channel_offset, segment_size,
                         disable_upload):
         """Sets file-name, highpass filter, lowpass filter, and sampling frequency (3 times lowpass-filter parameter) based on loaded data. If external Raw with specified parameters is given they are used instead. Using external Raw disables file selection. Triggers when file is selected.
@@ -50,7 +52,7 @@ def register_loading_callbacks(app):
         if 'low-pass.value' in trigger:
             # Adjust resampling frequency if lowpass-filter has changed
             new_sampling_frequency = 3 * low_pass
-            return current_file_name, high_pass, low_pass, reference, new_sampling_frequency, scale, channel_offset, segment_size, disable_upload
+            return current_file_name, username, high_pass, low_pass, reference, new_sampling_frequency, scale, channel_offset, segment_size, disable_upload
         elif globals.external_raw or selected_file_name:
             if globals.external_raw:
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')
@@ -66,6 +68,7 @@ def register_loading_callbacks(app):
                 
                 file_selection_disabled = False
 
+            loaded_username = None
             loaded_highpass = globals.raw.info['highpass']
             loaded_lowpass = globals.raw.info['lowpass']
             loaded_sfreq = 3 * globals.raw.info['lowpass']
@@ -75,6 +78,8 @@ def register_loading_callbacks(app):
             loaded_segment_size = c.DEFAULT_SEGMENT_SIZE
             
             # overwrite with loaded parameter
+            if 'username' in globals.parameters.keys():
+                loaded_username = globals.parameters['username']
             if 'high_pass' in globals.parameters.keys():
                 loaded_highpass = globals.parameters['high_pass']
             if 'low_pass' in globals.parameters.keys():
@@ -90,6 +95,6 @@ def register_loading_callbacks(app):
             if 'segment_size' in globals.parameters.keys():
                 loaded_segment_size = globals.parameters['segment_size']
 
-            return selected_file_name, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
+            return selected_file_name, loaded_username, loaded_highpass, loaded_lowpass, loaded_reference, loaded_sfreq, loaded_scale, loaded_offset, loaded_segment_size, file_selection_disabled
         else:
-            return None, None, None, None, None, None, None, None, False
+            return None, None, None, None, None, None, None, None, None, False
