@@ -17,6 +17,8 @@ from callbacks.segments_callbacks import register_segments_callbacks
 from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
+import constants as c
+
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
     """Sets up HTML of RV application.
 
@@ -769,48 +771,104 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             centered=True
         ),
 
+        # Preloaded plots
+        html.Div([
+            dcc.Graph(
+                id='EEG-graph-left',
+                figure=Figure(),
+                config={
+                    'modeBarButtonsToAdd':[
+                        'drawrect',
+                        'eraseshape',
+                        'toggleSpikelines'
+                    ],
+                    'modeBarButtonsToRemove':[
+                        'lasso2d',
+                        'autoScale2d',
+                        'hoverClosestCartesian',
+                        'hoverCompareCartesian',
+                    ],
+                    'displayModeBar': True,
+                    # 'doubleClick': 'reset'
+                    'doubleClickDelay': 300,
+                    'displaylogo': False,
+                    'toImageButtonOptions': {
+                        'format': 'png', # one of png, svg, jpeg, webp
+                        'filename': 'EEG_RV',
+                    },
+                    'scrollZoom': True
+                },
+                style=c.HIDDEN_PLOT_STYLE
+            ),
+            dcc.Graph(
+                id='EEG-graph-right',
+                figure=Figure(),
+                config={
+                    'modeBarButtonsToAdd':[
+                        'drawrect',
+                        'eraseshape',
+                        'toggleSpikelines'
+                    ],
+                    'modeBarButtonsToRemove':[
+                        'lasso2d',
+                        'autoScale2d',
+                        'hoverClosestCartesian',
+                        'hoverCompareCartesian',
+                    ],
+                    'displayModeBar': True,
+                    # 'doubleClick': 'reset'
+                    'doubleClickDelay': 300,
+                    'displaylogo': False,
+                    'toImageButtonOptions': {
+                        'format': 'png', # one of png, svg, jpeg, webp
+                        'filename': 'EEG_RV',
+                    },
+                    'scrollZoom': True
+                },
+                style=c.HIDDEN_PLOT_STYLE
+            ),
+        ]),
+
         # EEG graph
-        dcc.Loading(
-            id="loading-icon",
-            children=[
-                dcc.Graph(
-                    id='EEG-graph',
-                    figure=Figure(),
-                    config={
-                        'modeBarButtonsToAdd':[
-                            'drawrect',
-                            'eraseshape',
-                            'toggleSpikelines'
-                        ],
-                        'modeBarButtonsToRemove':[
-                            'lasso2d',
-                            'autoScale2d',
-                            'hoverClosestCartesian',
-                            'hoverCompareCartesian',
-                        ],
-                        'displayModeBar': True,
-                        # 'doubleClick': 'reset'
-                        'doubleClickDelay': 300,
-                        'displaylogo': False,
-                        'toImageButtonOptions': {
-                            'format': 'png', # one of png, svg, jpeg, webp
-                            'filename': 'EEG_RV',
-                        },
-                        'scrollZoom': True
-                    },
-                    style={
-                        'height': '90vh',
-                    },
-                ),
-            ],
-            type='default',
-            # color='red',
-            parent_className='loading_wrapper',
+        # dcc.Loading(
+        #     id="loading-icon",
+        #     children=[
+        dcc.Graph(
+            id='EEG-graph',
+            figure=Figure(),
+            config={
+                'modeBarButtonsToAdd':[
+                    'drawrect',
+                    'eraseshape',
+                    'toggleSpikelines'
+                ],
+                'modeBarButtonsToRemove':[
+                    'lasso2d',
+                    'autoScale2d',
+                    'hoverClosestCartesian',
+                    'hoverCompareCartesian',
+                ],
+                'displayModeBar': True,
+                # 'doubleClick': 'reset'
+                'doubleClickDelay': 300,
+                'displaylogo': False,
+                'toImageButtonOptions': {
+                    'format': 'png', # one of png, svg, jpeg, webp
+                    'filename': 'EEG_RV',
+                },
+                'scrollZoom': True
+            },
+            style=c.ACTIVE_PLOT_STYLE
         ),
+        #     ],
+        #     type='default',
+        #     # color='red',
+        #     parent_className='loading_wrapper',
+        # ),
 
         # Hidden output variables
         html.Pre(id='relayout-data'),
-        html.Pre(id='preload-data'),
+        # html.Pre(id='preload-data'),
         html.Pre(id='chosen-channels'),
         html.Pre(id='chosen-model'),
         html.Pre(id='chosen-model-threshold'),

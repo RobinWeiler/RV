@@ -3,9 +3,12 @@ import math
 import dash
 from dash.dependencies import Input, Output, State
 
+from plotly.graph_objects import Figure
+
 from helperfunctions.visualization_helperfunctions import get_EEG_plot
 
 import globals
+import constants as c
 
 def register_segments_callbacks(app):
 
@@ -112,7 +115,10 @@ def register_segments_callbacks(app):
 
     # Switch plotted segment via segment-slider or arrow buttons
     @app.callback(
-        [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value')],
+        [
+            Output('segment-slider', 'value'),
+            Output('EEG-graph', 'style'), Output('EEG-graph-left', 'style'), Output('EEG-graph-right', 'style')
+        ],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
         [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
@@ -159,19 +165,43 @@ def register_segments_callbacks(app):
                 globals.x0 -= segment_size
                 globals.x1 -= segment_size
 
+                return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE, c.HIDDEN_PLOT_STYLE
+
             elif 'right-button' in trigger:
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
+                return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE
+
+            # if globals.current_plot_index in globals.preloaded_plots.keys():
+            #     print('Loading preloaded plot')
+            #     updated_fig = globals.preloaded_plots[globals.current_plot_index]
+            # else:
+            #     updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+
+            return globals.current_plot_index, c.ACTIVE_PLOT_STYLE, c.HIDDEN_PLOT_STYLE, c.HIDDEN_PLOT_STYLE
+        else:
+            return 0, c.ACTIVE_PLOT_STYLE, c.HIDDEN_PLOT_STYLE, c.HIDDEN_PLOT_STYLE
+
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('EEG-graph', 'style'),
+        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        prevent_initial_call=True
+    )
+    def _load_hidden_plot(current_style, segment_size, show_annotations_only, use_slider, annotation_label, current_fig):
+        print('Here')
+
+        if globals.plotting_data and segment_size:
             if globals.current_plot_index in globals.preloaded_plots.keys():
                 print('Loading preloaded plot')
                 updated_fig = globals.preloaded_plots[globals.current_plot_index]
             else:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
 
-            return updated_fig, globals.current_plot_index
-        else:
-            return current_fig, 0
+            return updated_fig
+
+        return current_fig
 
     # Move view by 10 seconds left or right
     @app.callback(
@@ -240,7 +270,7 @@ def register_segments_callbacks(app):
             return current_fig
 
     @app.callback(
-        Output('preload-data', 'children'),
+        [Output('EEG-graph-left', 'figure'), Output('EEG-graph-right', 'figure')],
         [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value'), Input('annotation-label-color', 'value')],
         [State('use-slider', 'value'), State('annotation-label', 'value')],
         prevent_initial_call=True
@@ -255,6 +285,9 @@ def register_segments_callbacks(app):
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
+
+        left_segment = Figure()
+        right_segment = Figure()
 
         if globals.plotting_data:
             if segment_size:
@@ -291,3 +324,10 @@ def register_segments_callbacks(app):
                     print('Next segment preloaded')
 
                 print(globals.preloaded_plots.keys())
+
+                if globals.current_plot_index > 0:
+                    left_segment = globals.preloaded_plots[globals.current_plot_index - 1]
+                if globals.current_plot_index < num_segments - 1:
+                    right_segment = globals.preloaded_plots[globals.current_plot_index + 1]
+
+        return left_segment, right_segment
