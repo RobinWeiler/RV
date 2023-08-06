@@ -117,13 +117,13 @@ def register_segments_callbacks(app):
     @app.callback(
         [
             Output('segment-slider', 'value'),
-            Output('EEG-graph', 'style'), Output('EEG-graph-left', 'style'), Output('EEG-graph-right', 'style')
+            Output('loading-icon', 'style'), Output('EEG-graph-left', 'style'), Output('EEG-graph-right', 'style')
         ],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
-        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        [State('loading-icon', 'style'), State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, annotation_label, current_fig):
+    def _use_segment_slider(segment_slider, left_button, right_button, current_style, segment_size, show_annotations_only, use_slider, annotation_label, current_fig):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
@@ -165,13 +165,17 @@ def register_segments_callbacks(app):
                 globals.x0 -= segment_size
                 globals.x1 -= segment_size
 
-                return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE, c.HIDDEN_PLOT_STYLE
+                if current_style == c.ACTIVE_PLOT_STYLE:
+                    # if main figure is active, activate left
+                    return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE, c.HIDDEN_PLOT_STYLE
 
             elif 'right-button' in trigger:
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
-                return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE
+                if current_style == c.ACTIVE_PLOT_STYLE:
+                    # if main figure is active, activate right
+                    return globals.current_plot_index, c.HIDDEN_PLOT_STYLE, c.HIDDEN_PLOT_STYLE, c.ACTIVE_PLOT_STYLE
 
             # if globals.current_plot_index in globals.preloaded_plots.keys():
             #     print('Loading preloaded plot')
@@ -185,23 +189,24 @@ def register_segments_callbacks(app):
 
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        Input('EEG-graph', 'style'),
-        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        Input('EEG-graph-right', 'style'),
+        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph-right', 'figure')],
         prevent_initial_call=True
     )
-    def _load_hidden_plot(current_style, segment_size, show_annotations_only, use_slider, annotation_label, current_fig):
-        print('Here')
+    def _load_hidden_plot(current_style_right, segment_size, show_annotations_only, use_slider, annotation_label, current_fig_right):
+        print('Load right segment into main plot')
 
-        if globals.plotting_data and segment_size:
-            if globals.current_plot_index in globals.preloaded_plots.keys():
-                print('Loading preloaded plot')
-                updated_fig = globals.preloaded_plots[globals.current_plot_index]
-            else:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+        return current_fig_right
 
-            return updated_fig
+    @app.callback(
+        Output('loading-icon', 'style', allow_duplicate=True),
+        Input('EEG-graph', 'figure'),
+        prevent_initial_call=True
+    )
+    def _load_hidden_plot(current_fig):
+        print('Showing main plot')
 
-        return current_fig
+        return c.ACTIVE_PLOT_STYLE
 
     # Move view by 10 seconds left or right
     @app.callback(
