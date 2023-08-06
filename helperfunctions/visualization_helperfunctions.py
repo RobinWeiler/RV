@@ -1,6 +1,7 @@
 import numpy as np
 
 from plotly.graph_objs import Figure, Scattergl
+from plotly_resampler import FigureResampler
 
 from helperfunctions.annotation_helperfunctions import get_annotations
 
@@ -196,8 +197,6 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     Returns:
         plotly.graph_objs.Figure: Plot of EEG data.
     """
-    fig = Figure()
-    
     plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     globals.plotting_data = plotting_data.copy()    
     
@@ -218,7 +217,7 @@ def get_EEG_plot(data_to_plot, x0, x1, annotation_label, use_slider=False, show_
     Returns:
         plotly.graph_objs.Figure: Plot of EEG data.
     """
-    fig = Figure()
+    fig = FigureResampler(Figure())
     
     plotting_data = data_to_plot.copy()
 
