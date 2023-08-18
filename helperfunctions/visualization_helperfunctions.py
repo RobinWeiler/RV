@@ -137,7 +137,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             channel_visibility.append(False)
         else:
             if plotting_data['EEG']['channel_names'][channel_index] in eog_channels:
-                default_channel_colors.append('green')
+                default_channel_colors.append('blue')
             else:
                 default_channel_colors.append('black')
             channel_visibility.append(True)
@@ -149,7 +149,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
                     model_channel = True
             
         if model_channel:
-            highlighted_channel_colors.append('blue')
+            highlighted_channel_colors.append('green')
         elif plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
             highlighted_channel_colors.append(c.BAD_CHANNEL_COLOR)
         else:
