@@ -176,6 +176,24 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         ),
                     ])
                 ]),
+
+                # Username input
+                html.Div([
+                    html.Div([
+                        html.Font('Username:', className='header')
+                    ], className='aligned'),
+                    html.Div([
+                        dcc.Input(
+                            id="username",
+                            placeholder="Used for annotation labels",
+                            min=0,
+                            debounce=True,
+                            className='input',
+                            disabled=disable_preprocessing
+                        )
+                    ], className='aligned'),
+                ]),
+
                 html.Hr(),
 
                 # Pre-processing options
@@ -615,7 +633,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     ),
                 ]),
                 html.Div([
-                    dbc.Button("Remove last label", id="remove-annotation-label", className=['button'])
+                    dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
                 ]),
                 # html.Div([
                 #     dbc.Checklist(
