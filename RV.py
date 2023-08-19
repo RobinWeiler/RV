@@ -1,5 +1,4 @@
 from layout import setup_app
-
 import globals
 
 # app = setup_app()
@@ -21,7 +20,7 @@ def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
         print(eeg_data.info)
 
         globals.raw = eeg_data.copy()
-        globals.external_raw = eeg_data.copy()
+        globals.external_raw = True
         globals.external_save_file_path = save_file_path
 
     if parameters_to_load:
@@ -32,6 +31,8 @@ def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
     app = setup_app(disable_file_selection, disable_preprocessing_parameters)
 
     app.run_server(debug=True, mode='external', port=8050)
+    
+    # webbrowser.open("http://localhost:{}".format(8050))
 
 if __name__ == '__main__':
     run_viewer()

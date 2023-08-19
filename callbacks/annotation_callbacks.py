@@ -94,6 +94,8 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
+                print(globals.marked_annotations)
+
             # Annotation was moved/resized
             elif json.dumps(relayoutData).startswith('shapes', 2):
                 # print('Annotation was changed')
@@ -128,7 +130,9 @@ def register_annotation_callbacks(app):
 
                 quick_save(globals.raw)
 
-    # Add/remove annotation label
+                print(globals.marked_annotations)
+
+    # Add new annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],

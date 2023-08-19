@@ -80,17 +80,17 @@ def merge_intervals(marked_annotations):
     Returns:
         list: marked_annotations merged so tuples with overlap are combined.
     """
-    marked_annotations = marked_annotations.copy()
+    merged_annotations = marked_annotations.copy()
 
     merge_happened = True
     # Currently endless loop
     while merge_happened:
         merge_happened = False
 
-        for i, element in enumerate(marked_annotations):
-            # print(marked_annotations)
+        for i, element in enumerate(merged_annotations):
+            # print(merged_annotations)
 
-            for j, compare_element in enumerate(marked_annotations):
+            for j, compare_element in enumerate(merged_annotations):
                 merged_interval = None
 
                 if element == compare_element:
@@ -105,19 +105,16 @@ def merge_intervals(marked_annotations):
                         merged_interval = (compare_element[0], compare_element[1], element[2])
 
                 if merged_interval:
-                    marked_annotations[i] = merged_interval
-                    marked_annotations[j] = merged_interval
+                    merged_annotations[i] = merged_interval
+                    merged_annotations[j] = merged_interval
 
                     merge_happened = True
 
         # Remove duplicates
-        marked_annotations = list(dict.fromkeys(marked_annotations))
+        merged_annotations = list(dict.fromkeys(merged_annotations))
+        # print(merged_annotations)
 
-        # Sort annotations by onset time
-        marked_annotations = sorted(marked_annotations)
-        # print(marked_annotations)
-
-    return marked_annotations
+    return merged_annotations
 
 def confidence_intervals(model_output, low_threshold, high_threshold, timestep):
     """Calculates intervals in model-output between given threshold values.

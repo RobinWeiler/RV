@@ -5,7 +5,8 @@ parameters = {}
 raw = None
 viewing_raw = None
 model_raw = None
-external_raw = None
+
+external_raw = False
 
 marked_annotations = []
 annotation_label_colors = {'bad_artifact': 'red', 'bad_artifact_model': 'red'}
