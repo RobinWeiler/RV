@@ -188,7 +188,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             placeholder="Used for annotation labels",
                             min=0,
                             debounce=True,
-                            className='medium-input',
+                            className='input',
                             disabled=disable_preprocessing
                         )
                     ], className='aligned'),
