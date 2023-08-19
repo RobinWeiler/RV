@@ -183,19 +183,31 @@ def register_annotation_callbacks(app):
             for label_index in range(len(annotation_labels)):
                 if username_changes == 1:
                     # if username was changed for the first time, add it to the end of all annotation labels
-                    new_annotation_label = annotation_labels[label_index]['label'] + '_{}'.format(username)
+                    if annotation_labels[label_index]['label'] != 'bad_artifact_model':
+                        new_annotation_label = annotation_labels[label_index]['label'] + '_{}'.format(username)
+                    else:
+                        new_annotation_label = 'bad_artifact_model'
                 else:
                     # if username was changed again, replace previous one in all annotation labels
-                    username_index = annotation_labels[label_index]['label'].rfind('_')
-                    new_annotation_label = annotation_labels[label_index]['label'][:username_index + 1] + username
+                    if annotation_labels[label_index]['label'] != 'bad_artifact_model':
+                        username_index = annotation_labels[label_index]['label'].rfind('_')
+                        new_annotation_label = annotation_labels[label_index]['label'][:username_index + 1] + username
+                    else:
+                        new_annotation_label = 'bad_artifact_model'
 
                 new_annotation_labels[label_index] = {'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)}
 
             if username_changes == 1:
-                new_annotation_label = current_annotation_label + '_{}'.format(username)
+                if current_annotation_label != 'bad_artifact_model':
+                    new_annotation_label = current_annotation_label + '_{}'.format(username)
+                else: 
+                    new_annotation_label = current_annotation_label
             else:
-                username_index = current_annotation_label.rfind('_')
-                new_annotation_label = current_annotation_label[:username_index + 1] + username
+                if annotation_labels[label_index]['label'] != 'bad_artifact_model':
+                    username_index = current_annotation_label.rfind('_')
+                    new_annotation_label = current_annotation_label[:username_index + 1] + username
+                else: 
+                    new_annotation_label = current_annotation_label
 
             # print(new_annotation_labels)
             # print(new_annotation_label)
@@ -205,10 +217,16 @@ def register_annotation_callbacks(app):
             annotation_label_color_keys = list(globals.annotation_label_colors.keys())
             for key in annotation_label_color_keys:
                 if username_changes == 1:
-                    new_key = key + '_{}'.format(username)
+                    if key != 'bad_artifact_model':
+                        new_key = key + '_{}'.format(username)
+                    else:
+                        new_key = 'bad_artifact_model'
                 else:
-                    username_index = key.rfind('_')
-                    new_key = key[:username_index + 1] + username
+                    if key != 'bad_artifact_model':
+                        username_index = key.rfind('_')
+                        new_key = key[:username_index + 1] + username
+                    else:
+                        new_key = 'bad_artifact_model'
                 globals.annotation_label_colors[new_key] = globals.annotation_label_colors.pop(key)
             # print(globals.annotation_label_colors)
 
