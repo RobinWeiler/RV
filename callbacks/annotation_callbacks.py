@@ -135,11 +135,11 @@ def register_annotation_callbacks(app):
     # Add new annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
-        [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
-        [State('annotation-label', 'options'), State('annotation-label', 'value')],
+        [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
+        [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, annotation_labels, current_annotation_label):
+    def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
         print(current_annotation_label)
@@ -160,6 +160,16 @@ def register_annotation_callbacks(app):
             current_annotation_label = annotation_labels[-1]['value']
 
             annotation_labels.remove({'label': remove_annotation_label, 'value': remove_annotation_label})
+            globals.annotation_label_colors.pop(remove_annotation_label)
+
+        elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
+            rename_annotation_label_index = next((index for (index, d) in enumerate(annotation_labels) if d["label"] == current_annotation_label), None)
+            print(rename_annotation_label_index)
+
+            annotation_labels[rename_annotation_label_index] = {'label': renamed_annotation_label, 'value': renamed_annotation_label}
+            globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
+
+            current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger and new_annotation_label not in globals.annotation_label_colors.keys():
             annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
@@ -297,3 +307,24 @@ def register_annotation_callbacks(app):
                 })
 
         return current_fig
+
+    # Toggle rename annotation labels modal
+    @app.callback(
+        Output("modal-rename-annotation-label", "is_open"),
+        [Input("rename-annotation-label-modal-button", "n_clicks"), Input("cancel-rename-annotation-label-button", "n_clicks"), Input('rename-annotation-label', 'n_clicks')],
+        [State("modal-rename-annotation-label", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_save_modal(open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label, is_open):
+        """Opens or closes rename-annotation-label modal based on relevant button clicks.
+
+        Args:
+            open_rename_annotation_label (int): Num clicks on rename-annotation-label-modal-button button.
+            close_rename_annotation_label (int): Num clicks on cancel-rename-annotation-label-button button.
+            rename_annotation_label (int): Num clicks on rename-annotation-label button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label], is_open)

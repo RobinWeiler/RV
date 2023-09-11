@@ -633,7 +633,12 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     ),
                 ]),
                 html.Div([
-                    dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
+                    html.Div([
+                        dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
+                    ], className='aligned'),
+                    html.Div([
+                        dbc.Button("Rename selected label", id="rename-annotation-label-modal-button", className=['button'])
+                    ], className='aligned'),
                 ]),
                 # html.Div([
                 #     dbc.Checklist(
@@ -649,6 +654,33 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
             )],
             id="modal-annotation-settings",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Rename annotation labels
+        dbc.Modal([
+            dbc.ModalHeader('Rename annotation label'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        dcc.Input(
+                            id="renamed-annotation-label",
+                            placeholder="New annotation label",
+                            debounce=True,
+                            minLength=1
+                        ),
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Save new label", id="rename-annotation-label", className=['button']),
+                            dbc.Button("Cancel", id="cancel-rename-annotation-label-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-rename-annotation-label",
             is_open=False,
             size='lg',
             centered=True
