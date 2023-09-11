@@ -169,6 +169,10 @@ def register_annotation_callbacks(app):
             annotation_labels[rename_annotation_label_index] = {'label': renamed_annotation_label, 'value': renamed_annotation_label}
             globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
 
+            globals.marked_annotations = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.marked_annotations]
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            quick_save(globals.raw)
+
             current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger and new_annotation_label not in globals.annotation_label_colors.keys():

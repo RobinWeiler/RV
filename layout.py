@@ -665,6 +665,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             dbc.ModalBody([
                 html.Div([
                     html.Div([
+                        html.Font('Enter the new annotation label below. All annotations with the current label will be renamed.'),
+                    ]),
+                    html.Div([
                         dcc.Input(
                             id="renamed-annotation-label",
                             placeholder="New annotation label",
