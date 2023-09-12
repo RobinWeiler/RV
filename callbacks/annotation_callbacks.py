@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 
 import numpy as np
 
-from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
+from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw, get_annotations
 from helperfunctions.loading_helperfunctions import parse_annotation_file
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
@@ -135,18 +135,27 @@ def register_annotation_callbacks(app):
     # Add new annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
-        [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
+        [Input('data-file', 'children'), Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
         [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
+    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
-        print(current_annotation_label)
-        print(annotation_labels)
+        # print(current_annotation_label)
+        # print(annotation_labels)
 
-        if 'model-output-files' in trigger:
-            for file_name in loaded_files:
+        if 'data-file' in trigger:
+            if globals.raw:
+                loaded_annotations = get_annotations(globals.raw)
+
+                for annotation in loaded_annotations:
+                    if annotation[2] not in globals.annotation_label_colors.keys():
+                        globals.annotation_label_colors[annotation[2]] = 'red'
+                        annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
+
+        elif 'model-output-files' in trigger:
+            for file_name in loaded_annotation_files:
                 if '.csv' in file_name:
                     loaded_annotations = parse_annotation_file(file_name)
 
@@ -190,10 +199,12 @@ def register_annotation_callbacks(app):
     )
     def _change_username(username):
         print(username)
-        globals.username = username
-        if globals.raw:
+        if globals.raw and globals.username != username:
+            globals.username = username
             globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
             quick_save(globals.raw)
+        else:
+            globals.username = username
 
     # Switch to current annotation-label color
     @app.callback(
