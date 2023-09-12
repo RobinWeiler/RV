@@ -1,4 +1,5 @@
 file_name = ''
+username = None
 external_save_file_path = None
 parameters = {}
 
@@ -9,7 +10,8 @@ model_raw = None
 external_raw = False
 
 marked_annotations = []
-annotation_label_colors = {'bad_artifact': 'red', 'bad_artifact_model': 'red'}
+model_annotation_label = 'bad_artifact_model'
+annotation_label_colors = {'bad_artifact': 'red', model_annotation_label: 'red'}
 
 plotting_data = {}
 

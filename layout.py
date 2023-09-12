@@ -633,7 +633,12 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     ),
                 ]),
                 html.Div([
-                    dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
+                    html.Div([
+                        dbc.Button("Remove selected label", id="remove-annotation-label-modal-button", className=['button'])
+                    ], className='aligned'),
+                    html.Div([
+                        dbc.Button("Rename selected label", id="rename-annotation-label-modal-button", className=['button'])
+                    ], className='aligned'),
                 ]),
                 # html.Div([
                 #     dbc.Checklist(
@@ -649,6 +654,58 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
             )],
             id="modal-annotation-settings",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Remove annotation labels
+        dbc.Modal([
+            dbc.ModalHeader('Caution!'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font('Are you sure you want to remove this annotaion label? All annotations with this label will be deleted.')
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Remove label", id="remove-annotation-label", className=['button']),
+                            dbc.Button("Cancel", id="cancel-remove-annotation-label-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-remove-annotation-label",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Rename annotation labels
+        dbc.Modal([
+            dbc.ModalHeader('Rename annotation label'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font('Enter the new annotation label below. All annotations with the current label will be renamed.'),
+                    ]),
+                    html.Div([
+                        dcc.Input(
+                            id="renamed-annotation-label",
+                            placeholder="New annotation label",
+                            debounce=True,
+                            minLength=1
+                        ),
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Save new label", id="rename-annotation-label", className=['button']),
+                            dbc.Button("Cancel", id="cancel-rename-annotation-label-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-rename-annotation-label",
             is_open=False,
             size='lg',
             centered=True
@@ -839,6 +896,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         # Hidden output variables
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
+        html.Pre(id='username-dummy'),
         html.Pre(id='chosen-channels'),
         html.Pre(id='chosen-model'),
         html.Pre(id='chosen-model-threshold'),

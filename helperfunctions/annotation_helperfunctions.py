@@ -1,7 +1,7 @@
 import mne
 import numpy as np
 
-import constants as c
+import globals
 
 
 def annotations_to_raw(raw, marked_annotations):
@@ -20,7 +20,10 @@ def annotations_to_raw(raw, marked_annotations):
     for annotation in marked_annotations:
         onsets.append(annotation[0])
         durations.append(annotation[1] - annotation[0])
-        descriptions.append(annotation[2])
+        if globals.username:
+            descriptions.append(annotation[2] + '_' + globals.username)
+        else:
+            descriptions.append(annotation[2])
 
     mne_annotations = mne.Annotations(onsets, durations, description=descriptions)
 

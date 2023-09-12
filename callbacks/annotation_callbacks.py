@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 
 import numpy as np
 
-from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw
+from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw, get_annotations
 from helperfunctions.loading_helperfunctions import parse_annotation_file
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
@@ -132,21 +132,30 @@ def register_annotation_callbacks(app):
 
                 print(globals.marked_annotations)
 
-    # Add new annotation label
+    # Add/remove/rename annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
-        [Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks')],
-        [State('annotation-label', 'options'), State('annotation-label', 'value')],
+        [Input('data-file', 'children'), Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
+        [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _add_annotation_label(loaded_files, new_annotation_label, remove_annotations_button, annotation_labels, current_annotation_label):
+    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
-        print(current_annotation_label)
-        print(annotation_labels)
+        # print(current_annotation_label)
+        # print(annotation_labels)
 
-        if 'model-output-files' in trigger:
-            for file_name in loaded_files:
+        if 'data-file' in trigger:
+            if globals.raw:
+                loaded_annotations = get_annotations(globals.raw)
+
+                for annotation in loaded_annotations:
+                    if annotation[2] not in globals.annotation_label_colors.keys():
+                        globals.annotation_label_colors[annotation[2]] = 'red'
+                        annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
+
+        elif 'model-output-files' in trigger:
+            for file_name in loaded_annotation_files:
                 if '.csv' in file_name:
                     loaded_annotations = parse_annotation_file(file_name)
 
@@ -160,6 +169,25 @@ def register_annotation_callbacks(app):
             current_annotation_label = annotation_labels[-1]['value']
 
             annotation_labels.remove({'label': remove_annotation_label, 'value': remove_annotation_label})
+            globals.annotation_label_colors.pop(remove_annotation_label)
+
+            globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != remove_annotation_label]
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            quick_save(globals.raw)
+
+        elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
+            rename_annotation_label_index = next((index for (index, d) in enumerate(annotation_labels) if d["label"] == current_annotation_label), None)
+
+            annotation_labels[rename_annotation_label_index] = {'label': renamed_annotation_label, 'value': renamed_annotation_label}
+            globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
+            if current_annotation_label == globals.model_annotation_label:
+                globals.model_annotation_label = renamed_annotation_label
+
+            globals.marked_annotations = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.marked_annotations]
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            quick_save(globals.raw)
+
+            current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger and new_annotation_label not in globals.annotation_label_colors.keys():
             annotation_labels.append({'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)})
@@ -167,72 +195,20 @@ def register_annotation_callbacks(app):
 
         return annotation_labels, '', current_annotation_label
 
-    # Add username to annotation labels
+    # Change username
     @app.callback(
-        [Output('annotation-label', 'options', allow_duplicate=True), Output('annotation-label', 'value', allow_duplicate=True)],
+        Output('username-dummy', 'children', allow_duplicate=True),
         Input('username', 'value'),
-        [State('username', 'n_submit'), State('annotation-label', 'options'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _add_username_to_annotation_label(username, username_changes, annotation_labels, current_annotation_label):
-        # print(username_changes)
-        if username:
-            # print(annotation_labels)
-            new_annotation_labels = annotation_labels.copy()
-            
-            for label_index in range(len(annotation_labels)):
-                if username_changes == 1:
-                    # if username was changed for the first time, add it to the end of all annotation labels
-                    if annotation_labels[label_index]['label'] != 'bad_artifact_model':
-                        new_annotation_label = annotation_labels[label_index]['label'] + '_{}'.format(username)
-                    else:
-                        new_annotation_label = 'bad_artifact_model'
-                else:
-                    # if username was changed again, replace previous one in all annotation labels
-                    if annotation_labels[label_index]['label'] != 'bad_artifact_model':
-                        username_index = annotation_labels[label_index]['label'].rfind('_')
-                        new_annotation_label = annotation_labels[label_index]['label'][:username_index + 1] + username
-                    else:
-                        new_annotation_label = 'bad_artifact_model'
-
-                new_annotation_labels[label_index] = {'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)}
-
-            if username_changes == 1:
-                if current_annotation_label != 'bad_artifact_model':
-                    new_annotation_label = current_annotation_label + '_{}'.format(username)
-                else: 
-                    new_annotation_label = current_annotation_label
-            else:
-                if annotation_labels[label_index]['label'] != 'bad_artifact_model':
-                    username_index = current_annotation_label.rfind('_')
-                    new_annotation_label = current_annotation_label[:username_index + 1] + username
-                else: 
-                    new_annotation_label = current_annotation_label
-
-            # print(new_annotation_labels)
-            # print(new_annotation_label)
-
-            # Update color dict
-            # print(globals.annotation_label_colors)
-            annotation_label_color_keys = list(globals.annotation_label_colors.keys())
-            for key in annotation_label_color_keys:
-                if username_changes == 1:
-                    if key != 'bad_artifact_model':
-                        new_key = key + '_{}'.format(username)
-                    else:
-                        new_key = 'bad_artifact_model'
-                else:
-                    if key != 'bad_artifact_model':
-                        username_index = key.rfind('_')
-                        new_key = key[:username_index + 1] + username
-                    else:
-                        new_key = 'bad_artifact_model'
-                globals.annotation_label_colors[new_key] = globals.annotation_label_colors.pop(key)
-            # print(globals.annotation_label_colors)
-
-            return new_annotation_labels, new_annotation_label
-
-        return annotation_labels, current_annotation_label
+    def _change_username(username):
+        print(username)
+        if globals.raw and globals.username != username:
+            globals.username = username
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            quick_save(globals.raw)
+        else:
+            globals.username = username
 
     # Switch to current annotation-label color
     @app.callback(
@@ -297,3 +273,45 @@ def register_annotation_callbacks(app):
                 })
 
         return current_fig
+
+    # Toggle rename-annotation-labels modal
+    @app.callback(
+        Output("modal-rename-annotation-label", "is_open"),
+        [Input("rename-annotation-label-modal-button", "n_clicks"), Input("cancel-rename-annotation-label-button", "n_clicks"), Input('rename-annotation-label', 'n_clicks')],
+        [State("modal-rename-annotation-label", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_save_modal(open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label, is_open):
+        """Opens or closes rename-annotation-label modal based on relevant button clicks.
+
+        Args:
+            open_rename_annotation_label (int): Num clicks on rename-annotation-label-modal-button button.
+            close_rename_annotation_label (int): Num clicks on cancel-rename-annotation-label-button button.
+            rename_annotation_label (int): Num clicks on rename-annotation-label button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label], is_open)
+
+    # Toggle remove-annotation-labels modal
+    @app.callback(
+        Output("modal-remove-annotation-label", "is_open"),
+        [Input("remove-annotation-label-modal-button", "n_clicks"), Input("cancel-remove-annotation-label-button", "n_clicks"), Input('remove-annotation-label', 'n_clicks')],
+        [State("modal-remove-annotation-label", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_save_modal(open_remove_annotation_label, close_remove_annotation_label, remove_annotation_label, is_open):
+        """Opens or closes remove-annotation-label modal based on relevant button clicks.
+
+        Args:
+            open_remove_annotation_label (int): Num clicks on remove-annotation-label-modal-button button.
+            close_remove_annotation_label (int): Num clicks on cancel-remove-annotation-label-button button.
+            remove_annotation_label (int): Num clicks on remove-annotation-label button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_remove_annotation_label, close_remove_annotation_label, remove_annotation_label], is_open)
