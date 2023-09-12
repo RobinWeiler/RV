@@ -874,6 +874,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         # Hidden output variables
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
+        html.Pre(id='username-dummy'),
         html.Pre(id='chosen-channels'),
         html.Pre(id='chosen-model'),
         html.Pre(id='chosen-model-threshold'),

@@ -4,8 +4,6 @@ import mne
 
 from plotly.graph_objs import Figure, Scattergl
 
-from helperfunctions.annotation_helperfunctions import get_annotations
-
 import constants as c
 import globals
 
@@ -390,10 +388,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
     )
 
     # Add annotations
-    marked_annotations = get_annotations(globals.raw)
-    # print(marked_annotations)
-    
-    for annotation in marked_annotations:
+    for annotation in globals.marked_annotations:
         # if not ((annotation[0] < globals.x0 and annotation[1] < globals.x0) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
         fig.add_vrect(
             editable=True,

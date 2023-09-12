@@ -182,94 +182,18 @@ def register_annotation_callbacks(app):
 
         return annotation_labels, '', current_annotation_label
 
-    # Add username to annotation labels
+    # Change username
     @app.callback(
-        [Output('annotation-label', 'options', allow_duplicate=True), Output('annotation-label', 'value', allow_duplicate=True)],
+        Output('username-dummy', 'children', allow_duplicate=True),
         Input('username', 'value'),
-        [State('username', 'n_submit'), State('annotation-label', 'options'), State('annotation-label', 'value')],
         prevent_initial_call=True
     )
-    def _add_username_to_annotation_label(username, username_changes, annotation_labels, current_annotation_label):
-        print(username_changes)
+    def _change_username(username):
         print(username)
-        if username:
-            # Rename all marked annotations
-            if globals.marked_annotations:
-                for annotation_index in range(len(globals.marked_annotations)):
-                    annotation = globals.marked_annotations[annotation_index]
-
-                    if not username_changes:
-                        # if username was changed for the first time, add it to the end of all annotation labels
-                        new_annotation_label = annotation[2] + '_{}'.format(username)
-                    else:
-                        # if username was changed again, replace previous one in all annotation labels
-                        username_index = annotation[2].rfind('_')
-                        new_annotation_label = annotation[2][:username_index + 1] + username
-
-                    globals.marked_annotations[annotation_index] = (annotation[0], annotation[1], new_annotation_label)
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
-                quick_save(globals.raw)
-
-            new_annotation_labels = annotation_labels.copy()
-            
-            for label_index in range(len(annotation_labels)):
-                if not username_changes:
-                    # if username was changed for the first time, add it to the end of all annotation labels
-                    new_annotation_label = annotation_labels[label_index]['label'] + '_{}'.format(username)
-                else:
-                    # if username was changed again, replace previous one in all annotation labels
-                    username_index = annotation_labels[label_index]['label'].rfind('_')
-                    new_annotation_label = annotation_labels[label_index]['label'][:username_index + 1] + username
-
-                new_annotation_labels[label_index] = {'label': '{}'.format(new_annotation_label), 'value': '{}'.format(new_annotation_label)}
-
-            if not username_changes:
-                new_annotation_label = current_annotation_label + '_{}'.format(username)
-            else:
-                username_index = current_annotation_label.rfind('_')
-                new_annotation_label = current_annotation_label[:username_index + 1] + username
-
-            # Update color dict
-            # print(globals.annotation_label_colors)
-            annotation_label_color_keys = list(globals.annotation_label_colors.keys())
-            for key in annotation_label_color_keys:
-                if not username_changes:
-                    new_key = key + '_{}'.format(username)
-                else:
-                    username_index = key.rfind('_')
-                    new_key = key[:username_index + 1] + username
-
-                globals.annotation_label_colors[new_key] = globals.annotation_label_colors.pop(key)
-            # print(globals.annotation_label_colors)
-
-            return new_annotation_labels, new_annotation_label
-
-        # if username was removed
-        elif username_changes:
-            # Rename all marked annotations
-            for annotation_index in range(len(globals.marked_annotations)):
-                annotation = globals.marked_annotations[annotation_index]
-                username_index = annotation[2].rfind('_')
-                globals.marked_annotations[annotation_index] = (annotation[0], annotation[1], annotation[2][:username_index])
+        globals.username = username
+        if globals.raw:
             globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
             quick_save(globals.raw)
-            print(globals.marked_annotations)
-
-            for annotation_index, annotation_label in enumerate(annotation_labels):
-                username_index = annotation_label['label'].rfind('_')
-                new_label = annotation_label['label'][:username_index]
-
-                globals.annotation_label_colors[new_label] = globals.annotation_label_colors.pop(annotation_label['label'])
-
-                annotation_labels[annotation_index] = {'label': new_label, 'value': new_label}
-            print(globals.annotation_label_colors)
-
-            username_index = current_annotation_label.rfind('_')
-            current_annotation_label = current_annotation_label[:username_index]
-            
-            return annotation_labels, current_annotation_label
-        else:
-            return annotation_labels, current_annotation_label
 
     # Switch to current annotation-label color
     @app.callback(
