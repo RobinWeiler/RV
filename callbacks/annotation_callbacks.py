@@ -132,7 +132,7 @@ def register_annotation_callbacks(app):
 
                 print(globals.marked_annotations)
 
-    # Add new annotation label
+    # Add/remove/rename annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('data-file', 'children'), Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
@@ -170,6 +170,10 @@ def register_annotation_callbacks(app):
 
             annotation_labels.remove({'label': remove_annotation_label, 'value': remove_annotation_label})
             globals.annotation_label_colors.pop(remove_annotation_label)
+
+            globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != remove_annotation_label]
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            quick_save(globals.raw)
 
         elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
             rename_annotation_label_index = next((index for (index, d) in enumerate(annotation_labels) if d["label"] == current_annotation_label), None)
@@ -270,7 +274,7 @@ def register_annotation_callbacks(app):
 
         return current_fig
 
-    # Toggle rename annotation labels modal
+    # Toggle rename-annotation-labels modal
     @app.callback(
         Output("modal-rename-annotation-label", "is_open"),
         [Input("rename-annotation-label-modal-button", "n_clicks"), Input("cancel-rename-annotation-label-button", "n_clicks"), Input('rename-annotation-label', 'n_clicks')],
@@ -290,3 +294,24 @@ def register_annotation_callbacks(app):
             bool: Whether or not modal should now be open.
         """
         return _toggle_modal([open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label], is_open)
+
+    # Toggle remove-annotation-labels modal
+    @app.callback(
+        Output("modal-remove-annotation-label", "is_open"),
+        [Input("remove-annotation-label-modal-button", "n_clicks"), Input("cancel-remove-annotation-label-button", "n_clicks"), Input('remove-annotation-label', 'n_clicks')],
+        [State("modal-remove-annotation-label", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_save_modal(open_remove_annotation_label, close_remove_annotation_label, remove_annotation_label, is_open):
+        """Opens or closes remove-annotation-label modal based on relevant button clicks.
+
+        Args:
+            open_remove_annotation_label (int): Num clicks on remove-annotation-label-modal-button button.
+            close_remove_annotation_label (int): Num clicks on cancel-remove-annotation-label-button button.
+            remove_annotation_label (int): Num clicks on remove-annotation-label button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_remove_annotation_label, close_remove_annotation_label, remove_annotation_label], is_open)

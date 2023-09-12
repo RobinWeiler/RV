@@ -634,7 +634,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ]),
                 html.Div([
                     html.Div([
-                        dbc.Button("Remove selected label", id="remove-annotation-label", className=['button'])
+                        dbc.Button("Remove selected label", id="remove-annotation-label-modal-button", className=['button'])
                     ], className='aligned'),
                     html.Div([
                         dbc.Button("Rename selected label", id="rename-annotation-label-modal-button", className=['button'])
@@ -654,6 +654,28 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])
             )],
             id="modal-annotation-settings",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
+        # Remove annotation labels
+        dbc.Modal([
+            dbc.ModalHeader('Caution!'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font('Are you sure you want to remove this annotaion label? All annotations with this label will be deleted.')
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Remove label", id="remove-annotation-label", className=['button']),
+                            dbc.Button("Cancel", id="cancel-remove-annotation-label-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-remove-annotation-label",
             is_open=False,
             size='lg',
             centered=True
