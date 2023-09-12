@@ -5,6 +5,7 @@ import numpy as np
 import mne
 
 import constants as c
+import globals
 
 
 def parse_data_file(filename):
@@ -149,12 +150,12 @@ def parse_model_output_file(filename, raw=None):
             model_output = np.loadtxt(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None, c.ANNOTATION_DESCRIPTION
+            return model_output, None, None, globals.model_annotation_label
         elif '.npy' in filename:
             model_output = np.load(file)
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
-            return model_output, None, None, c.ANNOTATION_DESCRIPTION
+            return model_output, None, None, globals.model_annotation_label
         else:
             print('Wrong file type!')
     else:

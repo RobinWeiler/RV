@@ -8,17 +8,20 @@ import torch
 import torch.nn.functional as F
 from torchvision.transforms import transforms
 
+import multiprocessing
+from joblib import Parallel, delayed
+from gpuparallel import GPUParallel
+from gpuparallel import delayed as GPUdelayed
+
 import model.suppfunc.Network as Network
 import model.suppfunc._config as _config
 import model.suppfunc._smoothing as _smoothing
 import model.suppfunc._segmentation as _segmentation
 import model.suppfunc._tf as _tf
 import model.suppfunc._preprocessing as _preprocessing
+
 import constants as c
-import multiprocessing
-from joblib import Parallel, delayed
-from gpuparallel import GPUParallel
-from gpuparallel import delayed as GPUdelayed
+import globals
 
 # Standard 10-20 alphabetic channel names
 STANDARD_10_20 = ['Fp1', 'F7', 'T3', 'T5', 'F3', 'C3', 'P3', 'O1', 'Fp2', 'F8', 'T4', 'T6', 'F4', 'C4',
@@ -268,4 +271,4 @@ def run_model(raw, viewing_raw=None):
     model = load_model()
     model_output = feed_data_to_model(TF_data, segmentsRaw, model)
 
-    return model_output, selected_channel_names, sample_rate, 'bad_artifact_model'
+    return model_output, selected_channel_names, sample_rate, globals.model_annotation_label
