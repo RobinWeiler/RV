@@ -119,8 +119,6 @@ def register_saving_callbacks(app):
         if not save_file_name:
             print('No file name given!')
             save_file_name = 'unnamed_annotations'
-        else:
-            save_file_name = save_file_name + '_annotations'
 
         save_annotations(save_file_name, globals.raw)
 
@@ -141,8 +139,6 @@ def register_saving_callbacks(app):
         if not save_file_name:
             print('No file name given!')
             save_file_name = 'unnamed_bad_channels'
-        else:
-            save_file_name = save_file_name + '_bad_channels'
 
         save_bad_channels(save_file_name, globals.raw)
 
