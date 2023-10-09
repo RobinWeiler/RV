@@ -254,6 +254,33 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.H2('Bad-channel handling'),
                     html.Div([
                         html.Div([
+                            dcc.Upload(
+                                id='upload-bad-channels',
+                                children=html.Div([
+                                    'Drag-and-drop or ',
+                                    html.A('click here to select bad-channel files')
+                                ]),
+                                style={
+                                    'width': '97%',
+                                    'height': '60px',
+                                    'lineHeight': '60px',
+                                    'borderWidth': '1px',
+                                    'borderStyle': 'dashed',
+                                    'borderRadius': '5px',
+                                    'textAlign': 'center',
+                                    'margin': '10px'
+                                },
+                                multiple=True
+                            ),
+                            html.Label([
+                                'Selected files:',
+                                html.Div(id='bad-channel-files')
+                            ]),
+                            # html.Div([
+                            #     dbc.Button("Remove model predictions", id="reset-models", className="button")
+                            # ]),
+                        ]),
+                        html.Div([
                             html.Div([
                                 html.Font('Automatic bad-channel detection: ', className='header'),
                             ], className='aligned'),

@@ -1,6 +1,7 @@
 import dash
 from dash.dependencies import Input, Output, State
 
+from helperfunctions.loading_helperfunctions import parse_bad_channels_file
 import constants as c
 import globals
 
@@ -59,6 +60,42 @@ def register_bad_channel_callbacks(app):
             return current_selected_bad_channels, current_available_channels, current_available_channels
         else:
             return [], [], []
+
+    # Select bad-channel files
+    @app.callback(
+        [Output('bad-channel-files', 'children'), Output('upload-bad-channels', 'filename')],
+        Input('upload-bad-channels', 'filename'),
+        prevent_initial_call=True
+    )
+    def _update_model_output_files(list_selected_file_names):
+        """Retrieves file-names of selected bad-channel files. Triggers when new files are loaded.
+
+        Args:
+            list_selected_file_names (list): List of strings of selected bad-channel file-names.
+
+        Returns:
+            tuple(list, list): Both lists contain strings of selected model-output file-names.
+        """
+        if list_selected_file_names:
+            print('Selected files: {}'.format(list_selected_file_names))
+            return list_selected_file_names, list_selected_file_names
+
+    @app.callback(
+        Output('bad-channels-dropdown', 'value', allow_duplicate=True),
+        Input('bad-channel-files', 'children'),
+        State('bad-channels-dropdown', 'value'),
+        prevent_initial_call=True
+    )
+    def _load_bad_channel_files(loaded_bad_channel_files, current_selected_bad_channels):
+        for file_name in loaded_bad_channel_files:
+            if '.txt' in file_name:
+                loaded_bad_channels = parse_bad_channels_file(file_name)
+
+            current_selected_bad_channels += loaded_bad_channels
+
+        # globals.raw.info['bads'] = current_selected_bad_channels
+
+        return current_selected_bad_channels
 
     # Update plot when bad channels changed
     @app.callback(
