@@ -87,13 +87,25 @@ def register_bad_channel_callbacks(app):
         prevent_initial_call=True
     )
     def _load_bad_channel_files(loaded_bad_channel_files, current_selected_bad_channels):
+        all_loaded_bad_channels = []
+
         for file_name in loaded_bad_channel_files:
             if '.txt' in file_name:
                 loaded_bad_channels = parse_bad_channels_file(file_name)
+                all_loaded_bad_channels.append(loaded_bad_channels)
 
-            current_selected_bad_channels += loaded_bad_channels
+                current_selected_bad_channels += loaded_bad_channels
 
-        # globals.raw.info['bads'] = current_selected_bad_channels
+        disagreed_bad_channels = []
+        if len(all_loaded_bad_channels) > 1:
+            all_bad_channels_set = set([bad_channel for sublist in all_loaded_bad_channels for bad_channel in sublist])
+
+            for sublist in all_loaded_bad_channels:
+                sublist = set(sublist)
+                bad_channels_not_in_inner_list = list(all_bad_channels_set - sublist)
+                disagreed_bad_channels += bad_channels_not_in_inner_list
+
+        globals.disagreed_bad_channels = disagreed_bad_channels
 
         return current_selected_bad_channels
 
@@ -125,9 +137,9 @@ def register_bad_channel_callbacks(app):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
                 
                 if channel_name in current_selected_bad_channels:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR if channel_name not in globals.disagreed_bad_channels else c.BAD_CHANNEL_DISAGREE_COLOR
                     globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR if channel_name not in globals.disagreed_bad_channels else c.BAD_CHANNEL_DISAGREE_COLOR
                 else:
                     globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
                     globals.plotting_data['EEG']['channel_visibility'][channel_index] = True

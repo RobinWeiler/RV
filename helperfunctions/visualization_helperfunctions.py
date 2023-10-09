@@ -131,7 +131,10 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         
         # Channel colors
         if plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
-            default_channel_colors.append(c.BAD_CHANNEL_COLOR)
+            if plotting_data['EEG']['channel_names'][channel_index] not in globals.disagreed_bad_channels:
+                default_channel_colors.append(c.BAD_CHANNEL_COLOR)
+            else:
+                default_channel_colors.append(c.BAD_CHANNEL_DISAGREE_COLOR)
             channel_visibility.append(False)
         else:
             if plotting_data['EEG']['channel_names'][channel_index] in eog_channels:
@@ -149,7 +152,10 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         if model_channel:
             highlighted_channel_colors.append('green')
         elif plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
-            highlighted_channel_colors.append(c.BAD_CHANNEL_COLOR)
+            if plotting_data['EEG']['channel_names'][channel_index] not in globals.disagreed_bad_channels:
+                highlighted_channel_colors.append(c.BAD_CHANNEL_COLOR)
+            else:
+                highlighted_channel_colors.append(c.BAD_CHANNEL_DISAGREE_COLOR)
         else:
             highlighted_channel_colors.append('black')
             
