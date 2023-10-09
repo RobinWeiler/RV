@@ -119,7 +119,7 @@ def parse_annotation_file(filename):
     annotation_descriptions = df['description'].tolist()
     annotation_ends = [x + y for x, y in zip(annotation_onsets, annotation_durations)]
 
-    loaded_annotations = [(np.round(annotation_onsets[i], 3), np.round(annotation_ends[i], 3), annotation_descriptions[i]) for i in range(len(annotation_onsets))]
+    loaded_annotations = [(np.round(annotation_onsets[i], 3), np.round(annotation_ends[i], 3), str(annotation_descriptions[i])) for i in range(len(annotation_onsets))]
 
     return loaded_annotations
 
