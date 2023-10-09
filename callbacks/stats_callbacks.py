@@ -1,5 +1,6 @@
 import collections
 
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 
 from plotly.graph_objs import Figure
@@ -16,44 +17,79 @@ def register_stats_callbacks(app):
 
     # Toggle stats modal
     @app.callback(
-        [
-            Output("modal-stats", "is_open"), Output('file-name', 'children'), 
-            Output('recording-length', 'children'), Output('#noisy-data', 'children'), 
-            Output('#clean-data', 'children'), Output('#clean-intervals', 'children'), 
-            Output('clean-intervals-graph', 'figure')
-        ],
-        [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks"), Input("close-stats", "n_clicks")],
-        [State('data-file', 'children'), State("modal-stats", "is_open")],
+        Output('stats-body', 'children'),
+        [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks")],
+        State('data-file', 'children'),
         prevent_initial_call=True
     )
-    def _toggle_stats_modal(open_stats1, open_stats2, close_stats, loaded_file_name, is_open):
+    def _toggle_stats_modal(open_stats_1, open_stats_2, loaded_file_name):
         """Opens or closes stats modal based on relevant button clicks and loads all statistics.
 
         Args:
             open_stats1 (int): Num clicks on open-stats1 button.
             open_stats2 (int): Num clicks on open-stats2 button.
-            close_stats (int): Num clicks on close-stats button.
             loaded_file_name (string): File-name of selected recording.
-            is_open (bool): Whether or not modal is currently open.
 
         Returns:
-            tuple(bool, string, float, float, float, int, plotly.graph_objs.Figure): Whether or not modal should now be open, file name, recording length, length of annotated data, length of un-annotated data, num un-annotated intervals longer than 2 seconds, histogram of un-annotated interval lengths.
+            tuple(bool, html.Div): Whether or not modal should be open, stats.
         """
         marked_annotations = get_annotations(globals.raw)
 
         recording_length = globals.raw.n_times / globals.raw.info['sfreq']
 
-        amount_noisy_data, amount_clean_data, amount_clean_intervals, clean_interval_lengths = calc_stats(marked_annotations, recording_length)
+        amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_data, amount_annotated_overlap = calc_stats(marked_annotations, recording_length)
 
         graph = get_clean_intervals_graph(clean_interval_lengths, recording_length)
 
         recording_length = round(recording_length, 2)
-        amount_noisy_data = round(amount_noisy_data, 2)
         amount_clean_data = round(amount_clean_data, 2)
+        amount_annotated_data = round(amount_annotated_data, 2)
+        amount_annotated_overlap = round(amount_annotated_overlap, 2)
+        
+        stats = html.Div([
+                    # General info
+                    html.Div([
+                        html.H2('File name:'),
+                        html.Font([loaded_file_name], id='file-name')
+                    ]),
+                    html.Div([
+                        html.H2('Recording length (in seconds):'),
+                        html.Font([recording_length], id='recording-length')
+                    ]),
+                    html.Hr(),
 
-        if open_stats1 or open_stats2 or close_stats:
-            return not is_open, loaded_file_name, recording_length, amount_noisy_data, amount_clean_data, amount_clean_intervals, graph
-        return is_open, loaded_file_name, recording_length, amount_noisy_data, amount_clean_data, amount_clean_intervals, graph
+                    # Clean stats
+                    html.Div([
+                        html.H2('Amount of clean data left (in seconds):'),
+                        html.Font([amount_clean_data], id='#clean-data')
+                    ]),
+                    html.Div([
+                        html.H2('Amount of clean intervals longer than 2 seconds:'),
+                        html.Font([amount_clean_intervals], id='#clean-intervals')
+                    ]),
+                    html.Div([
+                        dcc.Graph(
+                            id='clean-intervals-graph',
+                            figure=graph,
+                            config={
+                                'displayModeBar': False,
+                            },
+                        ),
+                    ]),
+                    html.Hr(),
+
+                    # Annotation stats
+                    html.Div([
+                        html.H2('Total amount of annotated data (in seconds):'),
+                        html.Font([amount_annotated_data], id='#annotated-data')
+                    ]),
+                    html.Div([
+                        html.H2('Amount of overlap between annotations (in seconds):'),
+                        html.Font([amount_annotated_overlap], id='#annotated-overlap')
+                    ]),
+                ]),
+
+        return stats
 
     # Toggle power-spectrum modal
     @app.callback(

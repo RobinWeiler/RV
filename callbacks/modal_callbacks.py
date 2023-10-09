@@ -24,6 +24,27 @@ def register_modal_callbacks(app):
         """
         return _toggle_modal([open_file, close_file, plot_button], is_open)
 
+    # Toggle stats modal
+    @app.callback(
+        Output("modal-stats", "is_open"),
+        [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks"), Input("close-stats", "n_clicks")],
+        [State("modal-stats", "is_open")],
+        prevent_initial_call=True
+    )
+    def _toggle_stats_modal(open_stats, open_stats_2, close_stats, is_open):
+        """Opens or closes stats modal based on relevant button clicks.
+
+        Args:
+            open_stats (int): Num clicks on open-stats button.
+            open_stats_2 (int): Num clicks on open-stats-2 button.
+            close_stats (int): Num clicks on close-stats button.
+            is_open (bool): Whether or not modal is currently open.
+
+        Returns:
+            bool: Whether or not modal should now be open.
+        """
+        return _toggle_modal([open_stats, close_stats, open_stats_2], is_open)
+
     # Toggle help modal
     @app.callback(
         Output("modal-help", "is_open"),
