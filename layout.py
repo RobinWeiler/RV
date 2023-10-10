@@ -376,7 +376,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 options=[
                                     {'label': 'Disable hover-info', 'value': 1},
                                 ],
-                                value=[1]
+                                # value=[1]
                             )
                         ]),
                         html.Div([
