@@ -84,7 +84,7 @@ def register_visualization_callbacks(app):
             plotly.graph_objs.Figure: EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        print('visualization trigger: {}'.format(trigger))
 
         globals.preloaded_plots = {}
 
@@ -175,7 +175,7 @@ def register_visualization_callbacks(app):
 
             globals.marked_annotations = get_annotations(globals.raw)
             
-            globals.raw.info['bads'] = current_selected_bad_channels
+            globals.raw.info['bads'] = []#current_selected_bad_channels
 
             # if run_model_bool:
             globals.model_raw = globals.raw.copy()
@@ -265,7 +265,7 @@ def register_visualization_callbacks(app):
                     print('No annotations found')
                     show_annotations_only = False
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only)
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo)
             
             return fig
 
