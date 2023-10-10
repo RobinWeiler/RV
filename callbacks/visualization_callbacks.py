@@ -265,7 +265,7 @@ def register_visualization_callbacks(app):
                     print('No annotations found')
                     show_annotations_only = False
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only)
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo)
             
             return fig
 

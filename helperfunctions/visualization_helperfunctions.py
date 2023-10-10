@@ -188,7 +188,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False):
     """Generates initial EEG figure.
 
     Args:
@@ -210,7 +210,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
     return fig
 
