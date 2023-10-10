@@ -240,55 +240,55 @@ def register_segments_callbacks(app):
         else:
             return current_fig
 
-    @app.callback(
-        Output('preload-data', 'children'),
-        [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value'), Input('annotation-label-color', 'value')],
-        [State('use-slider', 'value'), State('annotation-label', 'value')],
-        prevent_initial_call=True
-    )
-    def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, annotation_color, use_slider, annotation_label):
-        """Preloads 1 following segment and adds it to globals.preloaded_plots. Triggered when EEG plot has loaded.
+    # @app.callback(
+    #     Output('preload-data', 'children'),
+    #     [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value'), Input('annotation-label-color', 'value')],
+    #     [State('use-slider', 'value'), State('annotation-label', 'value')],
+    #     prevent_initial_call=True
+    # )
+    # def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, annotation_color, use_slider, annotation_label):
+    #     """Preloads 1 following segment and adds it to globals.preloaded_plots. Triggered when EEG plot has loaded.
 
-        Args:
-            fig (plotly.graph_objs.Figure): EEG plot.
-            segment_size (int): Segment size of EEG plot.
-            use_slider (bool): Whether or not to activate view-slider.
-        """
-        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        # print(trigger)
+    #     Args:
+    #         fig (plotly.graph_objs.Figure): EEG plot.
+    #         segment_size (int): Segment size of EEG plot.
+    #         use_slider (bool): Whether or not to activate view-slider.
+    #     """
+    #     trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    #     # print(trigger)
 
-        if globals.plotting_data:
-            if segment_size:
-                num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
-                # print(num_segments)
+    #     if globals.plotting_data:
+    #         if segment_size:
+    #             num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
+    #             # print(num_segments)
                 
-                # upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
-                # # print(upper_bound)
+    #             # upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
+    #             # # print(upper_bound)
 
-                # globals.preloaded_plots[globals.current_plot_index] = fig
+    #             # globals.preloaded_plots[globals.current_plot_index] = fig
 
-                # for segment_index in range(upper_bound):
-                    # if segment_index not in globals.preloaded_plots:
-                    #     new_x0 = segment_index * segment_size - 0.5
-                    #     new_x1 = segment_size + segment_index * segment_size + 0.5
-                    #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
-                    #     print(segment_index)
+    #             # for segment_index in range(upper_bound):
+    #                 # if segment_index not in globals.preloaded_plots:
+    #                 #     new_x0 = segment_index * segment_size - 0.5
+    #                 #     new_x1 = segment_size + segment_index * segment_size + 0.5
+    #                 #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
+    #                 #     print(segment_index)
 
-                preloaded_segments = list(globals.preloaded_plots.keys())
-                for key in preloaded_segments:
-                    if int(key) > globals.current_plot_index + 1 or int(key) < globals.current_plot_index - 1:
-                        # print('Removing segment {} for preloaded plots'.format(key))
-                        globals.preloaded_plots.pop(key)
+    #             preloaded_segments = list(globals.preloaded_plots.keys())
+    #             for key in preloaded_segments:
+    #                 if int(key) > globals.current_plot_index + 1 or int(key) < globals.current_plot_index - 1:
+    #                     # print('Removing segment {} for preloaded plots'.format(key))
+    #                     globals.preloaded_plots.pop(key)
 
-                if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger) or ('annotation-label-color' in trigger):
-                    print('Deleting preloaded segments')
-                    globals.preloaded_plots.clear()
+    #             if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger) or ('annotation-label-color' in trigger):
+    #                 print('Deleting preloaded segments')
+    #                 globals.preloaded_plots.clear()
 
-                if (not show_annotations_only) and (globals.current_plot_index + 1 not in globals.preloaded_plots.keys()) and (globals.current_plot_index + 1 < num_segments):
-                    print('Preloading segments')
-                    new_x0 = globals.x0 + segment_size
-                    new_x1 = globals.x1 + segment_size
-                    globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
-                    print('Next segment preloaded')
+    #             if (not show_annotations_only) and (globals.current_plot_index + 1 not in globals.preloaded_plots.keys()) and (globals.current_plot_index + 1 < num_segments):
+    #                 print('Preloading segments')
+    #                 new_x0 = globals.x0 + segment_size
+    #                 new_x1 = globals.x1 + segment_size
+    #                 globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
+    #                 print('Next segment preloaded')
 
-                print(globals.preloaded_plots.keys())
+    #             print(globals.preloaded_plots.keys())
