@@ -175,7 +175,7 @@ def register_visualization_callbacks(app):
 
             globals.marked_annotations = get_annotations(globals.raw)
             
-            globals.raw.info['bads'] = []#current_selected_bad_channels
+            globals.raw.info['bads'] = current_selected_bad_channels
 
             # if run_model_bool:
             globals.model_raw = globals.raw.copy()

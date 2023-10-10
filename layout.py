@@ -918,7 +918,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     register_loading_callbacks(app)
     # register_saving_callbacks(app)
     # register_annotation_callbacks(app)
-    # register_bad_channel_callbacks(app)
+    register_bad_channel_callbacks(app)
     # register_model_callbacks(app)
     register_segments_callbacks(app)
     # register_stats_callbacks(app)

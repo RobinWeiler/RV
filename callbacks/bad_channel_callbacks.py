@@ -1,5 +1,6 @@
 import dash
 from dash import Input, Output, State, Patch
+from dash.exceptions import PreventUpdate
 
 import constants as c
 import globals
@@ -10,7 +11,7 @@ def register_bad_channel_callbacks(app):
     # Loading bad channels and all channel names into dropdown menu and clicking channel callback
     @app.callback(
         [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options')],
-        Input('data-file', 'children'),  # Input('EEG-graph', 'clickData')],
+        Input('data-file', 'children'),
         [State('bad-channels-dropdown', 'value'), State('bad-channels-dropdown', 'options')],
         prevent_initial_call=True
     )
@@ -19,7 +20,6 @@ def register_bad_channel_callbacks(app):
 
         Args:
             file (string): Current file-name.
-            clickData (dict): Data from latest click event.
             current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
             current_available_channels (list): List of dicts of all available channel names.
 
@@ -62,34 +62,43 @@ def register_bad_channel_callbacks(app):
 
     # Change color of clicked channel
     @app.callback(
-        Output('EEG-graph', 'figure', allow_duplicate=True),
+        [Output('EEG-graph', 'figure', allow_duplicate=True), Output('bad-channels-dropdown', 'value', allow_duplicate=True)],
         Input('EEG-graph', 'clickData'),
-        State('EEG-graph', 'figure'),
+        [State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')],
         prevent_initial_call=True
     )
-    def  _update_bad_channels_plot(clickData, current_fig):
+    def  _update_bad_channels_after_click(clickData, current_fig, current_selected_bad_channels):
         """Updates plot when bad channels changed.
 
         Args:
             clickData (dict): Data from latest click event.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
             plotly.graph_objs.Figure: Updated EEG plot.
         """
-        print('trigger')
+        print('Clicked bad channel')
 
         if globals.plotting_data:
             channel_index = clickData['points'][0]['curveNumber']
             if channel_index < len(globals.plotting_data['EEG']['channel_names']):
-                # channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+                
+                if channel_name not in current_selected_bad_channels:
+                    current_selected_bad_channels.append(channel_name)
 
-                patched_fig = Patch()
-                patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+                    patched_fig = Patch()
+                    patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+                else:
+                    current_selected_bad_channels.remove(channel_name)
 
-                return patched_fig
+                    patched_fig = Patch()
+                    patched_fig['data'][channel_index]['marker']['color'] = 'black'
 
-        return current_fig
+                return patched_fig, current_selected_bad_channels
+        else:
+            raise PreventUpdate
 
     # # Update plot when bad channels changed
     # @app.callback(
