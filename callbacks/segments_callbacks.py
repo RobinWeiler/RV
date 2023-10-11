@@ -88,11 +88,11 @@ def register_segments_callbacks(app):
     # Enable/disable segment-slider
     @app.callback(
         [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks')],
-        Input('EEG-graph', 'figure'),
-        [State('segment-size', 'value'), State('show-annotations-only', 'value')]
+        [Input('EEG-graph', 'figure'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
+        State('segment-slider', 'disabled')
         # prevent_initial_call=True
     )
-    def _update_segment_slider(fig, segment_size, show_annotations_only):
+    def _update_segment_slider(fig, segment_size, show_annotations_only, segment_slider_disabled):
         """Disables/enables segment-slider. Triggered when EEG plot has loaded.
 
         Args:
@@ -103,7 +103,13 @@ def register_segments_callbacks(app):
         Returns:
             tuple(bool, int, int, dict): Whether or not to disable segment-slider, max value, step size, dict of marks.
         """
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        print('checking slider')
+
         if globals.plotting_data and segment_size:
+            if 'EEG-graph' in trigger and not segment_slider_disabled:
+                print('Prevent update')
+                raise PreventUpdate
             if show_annotations_only and len(globals.marked_annotations) > 0:
                 num_segments = int(len(globals.marked_annotations) - 1)
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
