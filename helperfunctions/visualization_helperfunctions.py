@@ -235,7 +235,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
     index_0 = globals.viewing_raw.time_as_index(x0)[0] if x0 > 0 else 0
     index_1 = globals.viewing_raw.time_as_index(x1)[0]
 
-    data_subset, times_subset = globals.viewing_raw[:, index_0:index_1]
+    data_subset, times_subset = globals.viewing_raw[plotting_data['EEG']['channel_names'], index_0:index_1]
     data_subset = data_subset * plotting_data['EEG']['scaling_factor']
 
     if not skip_hoverinfo:
