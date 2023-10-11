@@ -1,5 +1,6 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, Patch
+from dash.exceptions import PreventUpdate
 
 import numpy as np
 
@@ -88,6 +89,7 @@ def register_model_callbacks(app):
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        patched_fig = Patch()
 
         if globals.plotting_data:
             # If re-running model, keep current annotations and bad channels
@@ -147,20 +149,29 @@ def register_model_callbacks(app):
                 return updated_fig
 
             if 'reset-models' in trigger:
-                if globals.plotting_data['model']:
-                    del globals.plotting_data['model'][:-1]
+                print(len(globals.plotting_data['model']))
+                if len(globals.plotting_data['model']) > 0:
+                    patched_fig['data'] = current_fig['data'][:-len(globals.plotting_data['model'])]
+                    
+                    del globals.plotting_data['model'][:]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                    return updated_fig
+                    return patched_fig
+                else:
+                    raise PreventUpdate
 
             if 'run-model' in trigger and not run_model_bool:
-                if globals.plotting_data['model']:
+                if len(globals.plotting_data['model']) > 0:
                     del globals.plotting_data['model'][-1]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    patched_fig['data'] = current_fig['data'][:-1]
 
-                    return updated_fig
+                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+
+                    return patched_fig
+                else:
+                    raise PreventUpdate
 
             if 'model-threshold' in trigger or 'annotate-model' in trigger:
                 all_model_annotations = []
@@ -193,9 +204,9 @@ def register_model_callbacks(app):
 
                     return updated_fig
                 else:
-                    current_fig['layout']['shapes'] = []
+                    patched_fig['layout']['shapes'] = []
                     for annotation in globals.marked_annotations:
-                        current_fig['layout']['shapes'].append({
+                        patched_fig['layout']['shapes'].append({
                             'editable': True,
                             'xref': 'x',
                             'yref': 'y',
@@ -211,6 +222,6 @@ def register_model_callbacks(app):
                             'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
                         })
 
-                    return current_fig
+                    return patched_fig
 
-        return current_fig
+        raise PreventUpdate
