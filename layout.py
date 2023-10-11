@@ -884,7 +884,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         'scrollZoom': True
                     },
                     style={
-                        'height': '90vh',
+                        'height': '95vh',
                     },
                 ),
             ],

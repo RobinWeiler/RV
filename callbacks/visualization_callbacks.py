@@ -21,7 +21,7 @@ def register_visualization_callbacks(app):
 
     # plot callback
     @app.callback(
-        Output('EEG-graph', 'figure'),
+        [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],
         [
             Input('plot-button', 'n_clicks'),
             Input("scale", "value"),
@@ -88,6 +88,11 @@ def register_visualization_callbacks(app):
 
         globals.preloaded_plots = {}
 
+        if not use_slider:
+            fig_style = {'height': '97vh'}
+        else:
+            fig_style = {'height': '90vh'}
+
         if 'scale' in trigger or 'channel-offset' in trigger:
             if globals.plotting_data:
                 if 'scale' in trigger and globals.plotting_data['EEG']['scaling_factor'] != scale:
@@ -123,19 +128,19 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'show-annotations-only' in trigger:
             if globals.plotting_data:
@@ -157,7 +162,7 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
                 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'plot-button' in trigger:
             globals.current_plot_index = 0
@@ -267,7 +272,7 @@ def register_visualization_callbacks(app):
 
             fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo)
             
-            return fig
+            return fig, fig_style
 
         # Default plot when app is opened
         else:
@@ -277,4 +282,4 @@ def register_visualization_callbacks(app):
             fig.update_xaxes(showticklabels=False)
             fig.update_yaxes(showticklabels=False)
             fig.update_traces(hovertemplate=None, hoverinfo='skip')
-            return fig
+            return fig, fig_style
