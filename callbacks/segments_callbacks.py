@@ -1,5 +1,4 @@
 import math
-import time
 
 import dash
 from dash import Input, Output, State, Patch
@@ -175,10 +174,7 @@ def register_segments_callbacks(app):
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
-            t1 = time.time()
             updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
-            t2 = time.time()
-            print(t2-t1)
 
             return updated_fig, globals.current_plot_index
         else:
