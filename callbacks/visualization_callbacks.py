@@ -84,7 +84,7 @@ def register_visualization_callbacks(app):
             plotly.graph_objs.Figure: EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        print('visualization trigger: {}'.format(trigger))
 
         globals.preloaded_plots = {}
 

@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 import mne
@@ -57,25 +59,25 @@ def _get_offset(channel_offset):
         
     return offset_factor
 
-def _get_time(EEG_data, sample_frequency):
-    """Calculates timescale and recording length of given EEG data.
+# def _get_time(EEG_data, sample_frequency):
+#     """Calculates timescale and recording length of given EEG data.
 
-    Args:
-        EEG_data (array): EEG data.
-        sample_frequency (float): Sample frequency of data.
+#     Args:
+#         EEG_data (array): EEG data.
+#         sample_frequency (float): Sample frequency of data.
 
-    Returns:
-        tuple(array, float): Array of all timepoints, recording length.
-    """
-    # Create time-scale for x-axis of visualization
-    timestep = 1 / sample_frequency
+#     Returns:
+#         tuple(array, float): Array of all timepoints, recording length.
+#     """
+#     # Create time-scale for x-axis of visualization
+#     timestep = 1 / sample_frequency
 
-    timescale = [timestep * i for i in range(EEG_data.shape[0])]
+#     timescale = [timestep * i for i in range(EEG_data.shape[0])]
 
-    recording_length = float(timescale[-1] + timestep)
-    print('Length of recording in seconds: {}'.format(recording_length))
+#     recording_length = float(timescale[-1] + timestep)
+#     print('Length of recording in seconds: {}'.format(recording_length))
     
-    return timescale, recording_length
+#     return timescale, recording_length
 
 def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output=[], model_channels=[]):
     """Generates dict holding all relevant data from raw object and model outputs for plotting.
@@ -102,18 +104,19 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     if selected_channel_names:
         check = all(channel in raw.ch_names for channel in selected_channel_names)
         if check:
-            plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data(selected_channel_names))
+            # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data(selected_channel_names))
             plotting_data['EEG']['channel_names'] = selected_channel_names
     else:
         print('Displaying all channels')
-        plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
+        # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
         plotting_data['EEG']['channel_names'] = raw.ch_names
 
-    plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
+    # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
+    plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
 
     # Calculate offset for y-axis
-    offset_EEG = plotting_data['EEG']['EEG_data'].copy() 
-    offset_EEG = offset_EEG * plotting_data['EEG']['scaling_factor']
+    # offset_EEG = plotting_data['EEG']['EEG_data'].copy() 
+    # offset_EEG = offset_EEG * plotting_data['EEG']['scaling_factor']
 
     eog_channels_indices = mne.pick_types(raw.info, eog=True)
     eog_channels = []
@@ -125,9 +128,9 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     highlighted_channel_colors = []
     channel_visibility = []
 
-    for channel_index in range(offset_EEG.shape[1]):
+    for channel_index in range(len(plotting_data['EEG']['channel_names'])):
         # Calculate offset for y-axis
-        offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+        # offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
         
         # Channel colors
         if plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
@@ -153,7 +156,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         else:
             highlighted_channel_colors.append('black')
             
-    plotting_data['EEG']['offset_EEG_data'] = offset_EEG
+    # plotting_data['EEG']['offset_EEG_data'] = offset_EEG
             
     for model_index, model_array in enumerate(model_output):
         default_channel_colors.append(model_array)
@@ -228,35 +231,35 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         plotly.graph_objs.Figure: Plot of EEG data.
     """
     fig = Figure()
-    
-    # plotting_data = data_to_plot.copy()
 
-    index_0 = None
-    index_1 = None
-    
-    for index, timepoint in enumerate(plotting_data['EEG']['timescale']):
-        if timepoint > x0:
-            index_0 = index
-            break
-        
-    for index, timepoint in enumerate(plotting_data['EEG']['timescale']):
-        if timepoint > x1:
-            index_1 = index
-            break
-    
-    for channel_index in range(plotting_data['EEG']['offset_EEG_data'].shape[1]):      
+    index_0 = globals.viewing_raw.time_as_index(x0)[0] if x0 > 0 else 0
+    index_1 = globals.viewing_raw.time_as_index(x1)[0]
+
+    data_subset, times_subset = globals.viewing_raw[plotting_data['EEG']['channel_names'], index_0:index_1]
+    data_subset = data_subset * plotting_data['EEG']['scaling_factor']
+
+    if not skip_hoverinfo:
+        custom_data = data_subset.copy()
+
+    for channel_index in range(len(plotting_data['EEG']['channel_names'])):
+        data_subset[channel_index, :] = data_subset[channel_index, :] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+
+    t1 = time.time()
+    for channel_index in range(data_subset.shape[0]):      
         fig.add_trace(
             Scattergl(
-                x=plotting_data['EEG']['timescale'][index_0:index_1],
-                y=plotting_data['EEG']['offset_EEG_data'][index_0:index_1, channel_index],
+                x=times_subset,  # plotting_data['EEG']['timescale'][index_0:index_1],
+                y=data_subset[channel_index, :],  # plotting_data['EEG']['offset_EEG_data'][index_0:index_1, channel_index],
                 marker=dict(color=plotting_data['EEG']['default_channel_colors'][channel_index], size=0.1),
                 name=plotting_data['EEG']['channel_names'][channel_index],
-                customdata=plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'],  # y-data without offset
+                customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
                 hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
-                mode='lines+markers'  # 'lines+markers'
+                mode='lines+markers'
             )
         )
+    t2 = time.time()
+    print(t2-t1)
 
     default_channel_colors = plotting_data['EEG']['default_channel_colors'].copy()
     highlighted_channel_colors = plotting_data['EEG']['highlighted_channel_colors'].copy()
@@ -276,7 +279,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                 model_index_1 = index
                 break
 
-        trace_number = plotting_data['EEG']['offset_EEG_data'].shape[1] + model_index
+        trace_number = data_subset.shape[0] + model_index
 
         default_channel_colors[trace_number] = plotting_data['EEG']['default_channel_colors'][trace_number][model_index_0:model_index_1]
         highlighted_channel_colors[trace_number] = plotting_data['EEG']['highlighted_channel_colors'][trace_number][model_index_0:model_index_1]
@@ -300,7 +303,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                 ),
                 name='M{}'.format(model_index),
                 mode='markers',
-                customdata=plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1],
+                customdata=plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1] if not skip_hoverinfo else None,
                 hoverinfo='none' if skip_hoverinfo else 'all',
                 hovertemplate='' if skip_hoverinfo else 'Time=%{x:.2f}, Prediction=%{customdata:.2f}<extra><b>%{fullData.name}</b></extra>'
             )

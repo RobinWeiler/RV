@@ -2,7 +2,8 @@ import json
 import re
 
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, Patch
+from dash.exceptions import PreventUpdate
 
 import numpy as np
 
@@ -251,12 +252,13 @@ def register_annotation_callbacks(app):
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
         if globals.plotting_data:
-            # print(annotation_label_color)
-            current_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+            patched_fig = Patch()
+
+            patched_fig['layout']['newshape']['fillcolor'] = annotation_label_color
             
-            current_fig['layout']['shapes'] = []
+            patched_fig['layout']['shapes'] = []
             for annotation in globals.marked_annotations:
-                current_fig['layout']['shapes'].append({
+                patched_fig['layout']['shapes'].append({
                     'editable': True,
                     'xref': 'x',
                     'yref': 'y',
@@ -272,7 +274,8 @@ def register_annotation_callbacks(app):
                     'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
                 })
 
-        return current_fig
+            return patched_fig
+        raise PreventUpdate
 
     # Toggle rename-annotation-labels modal
     @app.callback(
