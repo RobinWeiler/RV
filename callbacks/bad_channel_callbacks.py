@@ -102,12 +102,13 @@ def register_bad_channel_callbacks(app):
         Returns:
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
-        print('trigger')
+        # print('trigger')
+        # print(current_selected_bad_channels)
 
         if globals.plotting_data:
             globals.raw.info['bads'] = current_selected_bad_channels
 
-            patched_fig = Patch()
+            # patched_fig = Patch()
 
             for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
@@ -130,12 +131,12 @@ def register_bad_channel_callbacks(app):
                         if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
                             globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
 
-            # patched_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
-            patched_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
+            current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = globals.plotting_data['EEG']['default_channel_visibility']
+            current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
 
             # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
             # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
-            return patched_fig
+            return current_fig
         else:
             raise PreventUpdate

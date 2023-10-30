@@ -287,8 +287,9 @@ def register_visualization_callbacks(app):
         Args:
             restyle_data (dict): Data from latest restyle event.
         """
+        # print('HERE')
         # print(restyle_data)
-        print(restyle_data[0].keys())
+        # print(restyle_data[0].keys())
 
         # If "Hide/show bad channels" button was pressed
         if 'visible' in restyle_data[0].keys():
