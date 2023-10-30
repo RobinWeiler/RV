@@ -127,6 +127,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     default_channel_colors = []
     highlighted_channel_colors = []
     channel_visibility = []
+    default_channel_visibility = []
 
     for channel_index in range(len(plotting_data['EEG']['channel_names'])):
         # Calculate offset for y-axis
@@ -142,6 +143,8 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
             else:
                 default_channel_colors.append('black')
             channel_visibility.append(True)
+
+        default_channel_visibility.append(True)
 
         model_channel = False
         for model in range(len(model_channels)):
@@ -162,6 +165,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         default_channel_colors.append(model_array)
         highlighted_channel_colors.append(model_array)
         channel_visibility.append(True)
+        default_channel_visibility.append(True)
         
         plotting_data['model'].append({})
         plotting_data['model'][model_index]['model_data'] = model_array
@@ -174,6 +178,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     plotting_data['EEG']['default_channel_colors'] = default_channel_colors
     plotting_data['EEG']['highlighted_channel_colors'] = highlighted_channel_colors
     plotting_data['EEG']['channel_visibility'] = channel_visibility
+    plotting_data['EEG']['default_channel_visibility'] = default_channel_visibility
     
     y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
     y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
@@ -255,7 +260,8 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                 customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
                 hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
-                mode='lines+markers'
+                mode='lines+markers',
+                visible=plotting_data['EEG']['default_channel_visibility'][channel_index]
             )
         )
     t2 = time.time()
@@ -424,7 +430,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                     ),
                     dict(label='Hide/show bad channels',
                         method='restyle',
-                        args2=[{'visible': True}],
+                        args2=[{'visible': plotting_data['EEG']['default_channel_visibility']}],
                         args=[{'visible': plotting_data['EEG']['channel_visibility']}]
                     ),
                     dict(label='Highlight model-channels',
