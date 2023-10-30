@@ -117,15 +117,6 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
 
-                offset_EEG = globals.plotting_data['EEG']['EEG_data'].copy() 
-                offset_EEG = offset_EEG * globals.plotting_data['EEG']['scaling_factor']
-                
-                for channel_index in range(offset_EEG.shape[1]):
-                    # Calculate offset for y-axis
-                    offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((globals.plotting_data['plot']['offset_factor']) * (len(globals.plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
-
-                globals.plotting_data['EEG']['offset_EEG_data'] = offset_EEG
-
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                 return updated_fig, fig_style
