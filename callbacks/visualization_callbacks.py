@@ -42,6 +42,7 @@ def register_visualization_callbacks(app):
             State("run-model", "value"),
             State("annotate-model", "value"),
             State("model-threshold", "value"),
+            State('hide-bad-channels-button', 'n_clicks'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
@@ -53,6 +54,7 @@ def register_visualization_callbacks(app):
                             resample_rate, segment_size,
                             annotation_label,
                             model_output_files, run_model_bool, model_annotate, model_threshold,
+                            hide_bad_channels,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
@@ -117,19 +119,19 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
@@ -151,7 +153,7 @@ def register_visualization_callbacks(app):
                     else:
                         globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
                 
                 return updated_fig, fig_style
 

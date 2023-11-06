@@ -124,49 +124,11 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         eog_channels.append(raw.ch_names[channel_index])
     # print(eog_channels)
 
-    default_channel_colors = []
-    highlighted_channel_colors = []
-    channel_visibility = []
-    default_channel_visibility = []
+    plotting_data['EEG']['eog_channels'] = eog_channels
 
-    for channel_index in range(len(plotting_data['EEG']['channel_names'])):
-        # Calculate offset for y-axis
-        # offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
-        
-        # Channel colors
-        if plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
-            default_channel_colors.append(c.BAD_CHANNEL_COLOR)
-            channel_visibility.append(False)
-        else:
-            if plotting_data['EEG']['channel_names'][channel_index] in eog_channels:
-                default_channel_colors.append('blue')
-            else:
-                default_channel_colors.append('black')
-            channel_visibility.append(True)
-
-        default_channel_visibility.append(True)
-
-        model_channel = False
-        for model in range(len(model_channels)):
-            if model_channels[model]:
-                if plotting_data['EEG']['channel_names'][channel_index] in model_channels[model]:
-                    model_channel = True
-            
-        if model_channel:
-            highlighted_channel_colors.append('green')
-        elif plotting_data['EEG']['channel_names'][channel_index] in raw.info['bads']:
-            highlighted_channel_colors.append(c.BAD_CHANNEL_COLOR)
-        else:
-            highlighted_channel_colors.append('black')
-            
     # plotting_data['EEG']['offset_EEG_data'] = offset_EEG
-            
+
     for model_index, model_array in enumerate(model_output):
-        default_channel_colors.append(model_array)
-        highlighted_channel_colors.append(model_array)
-        channel_visibility.append(True)
-        default_channel_visibility.append(True)
-        
         plotting_data['model'].append({})
         plotting_data['model'][model_index]['model_data'] = model_array
         plotting_data['model'][model_index]['model_channels'] = model_channels[model_index]
@@ -174,29 +136,24 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         plotting_data['model'][model_index]['model_timescale'] = np.linspace(0, plotting_data['EEG']['recording_length'], num=model_array.shape[0])
 
         plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (plotting_data['plot']['offset_factor'])) for i in range(len(plotting_data['model'][model_index]['model_timescale']))]
-    
-    plotting_data['EEG']['default_channel_colors'] = default_channel_colors
-    plotting_data['EEG']['highlighted_channel_colors'] = highlighted_channel_colors
-    plotting_data['EEG']['channel_visibility'] = channel_visibility
-    plotting_data['EEG']['default_channel_visibility'] = default_channel_visibility
-    
+
     y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
     y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
     y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
     y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
-    
+
     plotting_data['plot']['y_ticks'] = y_ticks
 
     y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
     for model_id in range(len(plotting_data['model'])):
         y_tick_labels.append('M{}'.format(model_id))
     y_tick_labels.reverse()
-    
+
     plotting_data['plot']['y_tick_labels'] = y_tick_labels
-            
+
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False):
     """Generates initial EEG figure.
 
     Args:
@@ -218,11 +175,11 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels)
 
     return fig
 
-def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False):
+def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False):
     """Generates EEG plots.
 
     Args:
@@ -250,25 +207,29 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         data_subset[channel_index, :] = data_subset[channel_index, :] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
 
     t1 = time.time()
-    for channel_index in range(data_subset.shape[0]):      
+    for channel_index in range(data_subset.shape[0]):   
+        channel_name = plotting_data['EEG']['channel_names'][channel_index]
+        channel_color = 'black'
+        if channel_name in plotting_data['EEG']['eog_channels']:
+            channel_color = 'blue'
+        if channel_name in globals.raw.info['bads']:
+            channel_color = c.BAD_CHANNEL_COLOR
+
         fig.add_trace(
             Scattergl(
                 x=times_subset,  # plotting_data['EEG']['timescale'][index_0:index_1],
                 y=data_subset[channel_index, :],  # plotting_data['EEG']['offset_EEG_data'][index_0:index_1, channel_index],
-                marker=dict(color=plotting_data['EEG']['default_channel_colors'][channel_index], size=0.1),
-                name=plotting_data['EEG']['channel_names'][channel_index],
+                marker=dict(color=channel_color, size=0.1),
+                name=channel_name,
                 customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
                 hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
                 mode='lines+markers',
-                visible=plotting_data['EEG']['default_channel_visibility'][channel_index]
+                visible=True if channel_name not in globals.raw.info['bads'] or not hide_bad_channels else False
             )
         )
     t2 = time.time()
     print(t2-t1)
-
-    default_channel_colors = plotting_data['EEG']['default_channel_colors'].copy()
-    highlighted_channel_colors = plotting_data['EEG']['highlighted_channel_colors'].copy()
 
     model_index_0 = None
     model_index_1 = None
@@ -287,8 +248,8 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
 
         trace_number = data_subset.shape[0] + model_index
 
-        default_channel_colors[trace_number] = plotting_data['EEG']['default_channel_colors'][trace_number][model_index_0:model_index_1]
-        highlighted_channel_colors[trace_number] = plotting_data['EEG']['highlighted_channel_colors'][trace_number][model_index_0:model_index_1]
+        # default_channel_colors[trace_number] = plotting_data['EEG']['default_channel_colors'][trace_number][model_index_0:model_index_1]
+        # highlighted_channel_colors[trace_number] = plotting_data['EEG']['highlighted_channel_colors'][trace_number][model_index_0:model_index_1]
 
         fig.add_trace(
             Scattergl(
@@ -428,17 +389,17 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                             "yaxis.range[1]": ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET))
                         }]
                     ),
-                    dict(label='Hide/show bad channels',
-                        method='restyle',
-                        args2=[{'visible': plotting_data['EEG']['default_channel_visibility']}],
-                        args=[{'visible': plotting_data['EEG']['channel_visibility']}]
-                    ),
-                    dict(label='Highlight model-channels',
-                        method='restyle',
-                        args2=[{'marker.color': default_channel_colors}],
-                        args=[{'marker.color': highlighted_channel_colors}],
-                        visible=True if plotting_data['model'] else False
-                    ),
+                    # dict(label='Hide/show bad channels',
+                    #     method='restyle',
+                    #     args2=[{'visible': plotting_data['EEG']['default_channel_visibility']}],
+                    #     args=[{'visible': plotting_data['EEG']['channel_visibility']}]
+                    # ),
+                    # dict(label='Highlight model-channels',
+                    #     method='restyle',
+                    #     args2=[{'marker.color': default_channel_colors}],
+                    #     args=[{'marker.color': highlighted_channel_colors}],
+                    #     visible=True if plotting_data['model'] else False
+                    # ),
                 ]),
                 direction = 'left',
                 # active=4,

@@ -67,6 +67,11 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ], className='aligned second'),
             html.Div([
                 dbc.Button(
+                    "Hide/show bad channels",
+                    id="hide-bad-channels-button",
+                    className='button',
+                ),
+                dbc.Button(
                     "Annotation settings",
                     id="open-annotation-settings",
                     className='button',
