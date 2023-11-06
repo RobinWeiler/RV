@@ -70,6 +70,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     "Hide/show bad channels",
                     id="hide-bad-channels-button",
                     className='button',
+                    n_clicks=0
                 ),
                 dbc.Button(
                     "Annotation settings",
