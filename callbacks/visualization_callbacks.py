@@ -79,7 +79,7 @@ def register_visualization_callbacks(app):
             segment_size (int): Input desired segment size for plots.
             annotation_label (string); Label for new annotations.
             model_output_files (list): List of strings of model-output file-names.
-            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
+            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
 

@@ -44,6 +44,12 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             html.Div([
                 html.Div([
                     dbc.Button(
+                        "Highlight model channels",
+                        id="highlight-model-channels-button",
+                        className='button',
+                        n_clicks=0
+                    ),
+                    dbc.Button(
                         "Rerun model",
                         id="rerun-model-button",
                         className='button'
