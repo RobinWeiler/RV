@@ -79,6 +79,7 @@ def register_visualization_callbacks(app):
             segment_size (int): Input desired segment size for plots.
             annotation_label (string); Label for new annotations.
             model_output_files (list): List of strings of model-output file-names.
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
 
@@ -276,31 +277,3 @@ def register_visualization_callbacks(app):
             fig.update_yaxes(showticklabels=False)
             fig.update_traces(hovertemplate=None, hoverinfo='skip')
             return fig, fig_style
-
-    # Keep state of labeled buttons
-    @app.callback(
-        Output('hidden-output', 'children', allow_duplicate=True),
-        Input('EEG-graph', 'restyleData'),
-        prevent_initial_call=True
-    )
-    def _keep_state_labeled_buttons(restyle_data):
-        """Keeps state of labeled buttons across segments.
-
-        Args:
-            restyle_data (dict): Data from latest restyle event.
-        """
-        # print('HERE')
-        # print(restyle_data)
-        # print(restyle_data[0].keys())
-
-        # If "Hide/show bad channels" button was pressed
-        if 'visible' in restyle_data[0].keys():
-            temp = globals.plotting_data['EEG']['channel_visibility']
-            globals.plotting_data['EEG']['channel_visibility'] = globals.plotting_data['EEG']['default_channel_visibility']
-            globals.plotting_data['EEG']['default_channel_visibility'] = temp
-
-        # If "Highlight model-channels" button was pressed
-        if 'marker.color' in restyle_data[0].keys():
-            temp = globals.plotting_data['EEG']['highlighted_channel_colors']
-            globals.plotting_data['EEG']['highlighted_channel_colors'] = globals.plotting_data['EEG']['default_channel_colors']
-            globals.plotting_data['EEG']['default_channel_colors'] = temp

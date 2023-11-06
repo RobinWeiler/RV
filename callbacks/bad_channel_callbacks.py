@@ -167,19 +167,39 @@ def register_bad_channel_callbacks(app):
     #     else:
     #         raise PreventUpdate
 
+    # Enable/disable Hide/show bad channels button
+    @app.callback(
+        Output('hide-bad-channels-button', 'disabled'),
+        Input('bad-channels-dropdown', 'value'),
+        # prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(current_selected_bad_channels):
+        """Disables/enables hide-bad-channels-button. Triggered when selected bad channels change.
+
+        Args:
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
+
+        Returns:
+            bool: Whether or not to disable hide-bad-channels-button button.
+        """
+
+        if len(current_selected_bad_channels) > 0:
+            return False
+        else:
+            return True
+
     # Hide/show bad channels
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('hide-bad-channels-button', 'n_clicks'),
-        [State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')],
+        State('bad-channels-dropdown', 'value'),
         prevent_initial_call=True
     )
-    def  _update_bad_channels_after_click(hide_bad_channels, current_fig, current_selected_bad_channels):
+    def  _use_hide_bad_channels_button(hide_bad_channels, current_selected_bad_channels):
         """Hides bad channels when pressed. Shows all channels when pressed again.
 
         Args:
             hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
-            current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:

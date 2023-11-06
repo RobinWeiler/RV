@@ -140,6 +140,7 @@ def register_segments_callbacks(app):
             show_annotations_only (bool): Whether or not to only show annotations.
             use_slider (bool): Whether or not to activate view-slider.
             skip_hoverinfo (bool): Whether or not to activate hover-info.
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
             annotation_label (string); Label for new annotations.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -233,6 +234,7 @@ def register_segments_callbacks(app):
             show_annotations_only (bool): Whether or not to only show annotations.
             use_slider (bool): Whether or not to activate view-slider.
             skip_hoverinfo (bool): Whether or not to activate hover-info.
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
             annotation_label (string); Label for new annotations.
 
         Returns:

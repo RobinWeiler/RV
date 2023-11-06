@@ -87,6 +87,7 @@ def register_model_callbacks(app):
             skip_hoverinfo (bool): Whether or not to activate hover-info.
             annotation_label (string); Label for new annotations.
             show_annotations_only (bool): Whether or not to only show annotations.
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
