@@ -18,7 +18,8 @@ def calc_stats(annotations, recording_length):
     amount_annotated_data = 0.0
     if annotations:
         amount_annotated_data += (annotations[0][1] - annotations[0][0])
-    current_annotation = annotations[0]
+        current_annotation = annotations[0]
+
     amount_annotated_overlap = 0.0
     for annotation in annotations[1:]:
         annotation_length = annotation[1] - annotation[0]
