@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 
 from helperfunctions.annotation_helperfunctions import confidence_intervals, merge_intervals, annotations_to_raw
-from helperfunctions.visualization_helperfunctions import get_EEG_plot
+from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_list_for_displaying
 from model.run_model import run_model
 
 import globals
@@ -35,7 +35,7 @@ def register_model_callbacks(app):
             return [], None
         elif list_selected_file_names:
             print('Selected files: {}'.format(list_selected_file_names))
-            return list_selected_file_names, list_selected_file_names
+            return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
     # Disable rerun-model button
     @app.callback(

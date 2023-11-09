@@ -38,7 +38,7 @@ def register_visualization_callbacks(app):
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State('segment-size', 'value'),
             State('annotation-label', 'value'),
-            State('model-output-files', 'children'),
+            State('upload-model-output', 'filename'),
             State("run-model", "value"),
             State("annotate-model", "value"),
             State("model-threshold", "value"),

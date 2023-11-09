@@ -2,6 +2,8 @@ import dash
 from dash.dependencies import Input, Output, State
 
 from helperfunctions.loading_helperfunctions import parse_bad_channels_file
+from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
+
 import constants as c
 import globals
 
@@ -63,7 +65,7 @@ def register_bad_channel_callbacks(app):
 
     # Select bad-channel files
     @app.callback(
-        [Output('bad-channel-files', 'children'), Output('upload-bad-channels', 'filename')],
+        Output('bad-channel-files', 'children'),
         Input('upload-bad-channels', 'filename'),
         prevent_initial_call=True
     )
@@ -78,11 +80,13 @@ def register_bad_channel_callbacks(app):
         """
         if list_selected_file_names:
             print('Selected files: {}'.format(list_selected_file_names))
-            return list_selected_file_names, list_selected_file_names
+            return _get_list_for_displaying(list_selected_file_names)
+        else:
+            return []
 
     @app.callback(
         Output('bad-channels-dropdown', 'value', allow_duplicate=True),
-        Input('bad-channel-files', 'children'),
+        Input('upload-bad-channels', 'filename'),
         State('bad-channels-dropdown', 'value'),
         prevent_initial_call=True
     )
