@@ -39,7 +39,7 @@ def register_model_callbacks(app):
             print('Selected files: {}'.format(list_selected_file_names))
             return list_selected_file_names, list_selected_file_names
 
-    # Disable rerun-model button
+    # Disable rerun-model button - comment this out for models that are not deterministic
     @app.callback(
         Output('rerun-model-button', 'disabled'),
         [Input('EEG-graph', 'clickData'), Input('rerun-model-button', 'n_clicks')], 
@@ -62,6 +62,26 @@ def register_model_callbacks(app):
     )
     def _disable_model_threshold(model_annotate):
         return not model_annotate
+
+    # Enable/disable Highlight model channels button
+    @app.callback(
+        Output('highlight-model-channels-button', 'disabled'),
+        Input('EEG-graph', 'figure'),
+        # prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(fig):
+        """Disables/enables higlight-model-channels-button. Triggered when selected bad channels change.
+
+        Args:
+            fig (plotly.graph_objs.Figure): EEG plot.
+
+        Returns:
+            bool: Whether or not to disable higlight-model-channels-button button.
+        """
+        if globals.plotting_data:
+            return not any(globals.plotting_data['model'][model_index]['model_channels'] for model_index in range(len(globals.plotting_data['model'])))
+        else:
+            return True
 
     # Highlight model channels
     @app.callback(

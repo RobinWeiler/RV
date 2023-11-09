@@ -284,7 +284,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         title=dict(
             text=plotting_data['EEG']['file_name'],
             y=0.98,
-            x=0.5 if not plotting_data['model'] else 0.6,
+            x=0.5,  # if not plotting_data['model'] else 0.6,
             xanchor='center',
             yanchor='top'
         ),
