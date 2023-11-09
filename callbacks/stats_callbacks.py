@@ -10,6 +10,7 @@ import numpy as np
 from helperfunctions.annotation_helperfunctions import get_annotations
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.stats_helperfunctions import calc_stats, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot
+from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
 
 import globals
 
@@ -19,16 +20,17 @@ def register_stats_callbacks(app):
     @app.callback(
         Output('stats-body', 'children'),
         [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks")],
-        State('data-file', 'children'),
+        [State('data-file', 'children'), State('bad-channels-dropdown', 'value')],
         prevent_initial_call=True
     )
-    def _toggle_stats_modal(open_stats_1, open_stats_2, loaded_file_name):
+    def _toggle_stats_modal(open_stats_1, open_stats_2, loaded_file_name, current_selected_bad_channels):
         """Opens or closes stats modal based on relevant button clicks and loads all statistics.
 
         Args:
             open_stats1 (int): Num clicks on open-stats1 button.
             open_stats2 (int): Num clicks on open-stats2 button.
             loaded_file_name (string): File-name of selected recording.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
             tuple(bool, html.Div): Whether or not modal should be open, stats.
@@ -86,6 +88,18 @@ def register_stats_callbacks(app):
                     html.Div([
                         html.H2('Amount of overlap between annotations (in seconds):'),
                         html.Font([amount_annotated_overlap], id='#annotated-overlap')
+                    ]),
+                    
+                    html.Hr(),
+
+                    # Bad channel stats
+                    html.Div([
+                        html.H2('All bad channels:'),
+                        html.Font(_get_list_for_displaying(current_selected_bad_channels), id='total-bad-channels')
+                    ]),
+                    html.Div([
+                        html.H2('Disagreed bad channels:'),
+                        html.Font(_get_list_for_displaying(globals.disagreed_bad_channels), id='disagreed-bad-channels')
                     ]),
                 ]),
 
