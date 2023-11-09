@@ -126,12 +126,12 @@ def register_model_callbacks(app):
         [
             State('use-slider', 'value'), State('skip-hoverinfo', 'value'), 
             State('annotation-label', 'value'), State('show-annotations-only', 'value'), 
-            State('hide-bad-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
+            State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
             State('EEG-graph', 'figure')
         ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, hide_bad_channels, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
         """Updates plot when model settings are changed.
 
         Args:
@@ -145,6 +145,7 @@ def register_model_callbacks(app):
             annotation_label (string); Label for new annotations.
             show_annotations_only (bool): Whether or not to only show annotations.
             hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -201,7 +202,7 @@ def register_model_callbacks(app):
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                 return updated_fig
 
@@ -257,7 +258,7 @@ def register_model_callbacks(app):
                     globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0))
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                     return updated_fig
                 else:

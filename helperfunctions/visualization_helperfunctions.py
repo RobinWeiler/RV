@@ -153,7 +153,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates initial EEG figure.
 
     Args:
@@ -175,11 +175,11 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels)
 
     return fig
 
-def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False):
+def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates EEG plots.
 
     Args:
@@ -212,6 +212,11 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         channel_color = 'black'
         if channel_name in plotting_data['EEG']['eog_channels']:
             channel_color = 'blue'
+        if highlight_model_channels:
+            for model_index in range(len(plotting_data['model'])):
+                if channel_name in plotting_data['model'][model_index]['model_channels']:
+                    channel_color = 'green'
+                    break
         if channel_name in globals.raw.info['bads']:
             channel_color = c.BAD_CHANNEL_COLOR
 
@@ -246,7 +251,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                 model_index_1 = index
                 break
 
-        trace_number = data_subset.shape[0] + model_index
+        # trace_number = data_subset.shape[0] + model_index
 
         # default_channel_colors[trace_number] = plotting_data['EEG']['default_channel_colors'][trace_number][model_index_0:model_index_1]
         # highlighted_channel_colors[trace_number] = plotting_data['EEG']['highlighted_channel_colors'][trace_number][model_index_0:model_index_1]
