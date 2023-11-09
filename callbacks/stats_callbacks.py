@@ -35,44 +35,45 @@ def register_stats_callbacks(app):
         Returns:
             tuple(bool, html.Div): Whether or not modal should be open, stats.
         """
-        marked_annotations = get_annotations(globals.raw)
+        if globals.raw:
+            marked_annotations = get_annotations(globals.raw)
 
-        recording_length = globals.raw.n_times / globals.raw.info['sfreq']
+            recording_length = globals.raw.n_times / globals.raw.info['sfreq']
 
-        amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_data, amount_annotated_overlap = calc_stats(marked_annotations, recording_length)
+            amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_data, amount_annotated_overlap = calc_stats(marked_annotations, recording_length)
 
-        graph = get_clean_intervals_graph(clean_interval_lengths, recording_length)
+            graph = get_clean_intervals_graph(clean_interval_lengths, recording_length)
 
-        recording_length = round(recording_length, 2)
-        amount_clean_data = round(amount_clean_data, 2)
-        amount_annotated_data = round(amount_annotated_data, 2)
-        amount_annotated_overlap = round(amount_annotated_overlap, 2)
+            recording_length = round(recording_length, 2)
+            amount_clean_data = round(amount_clean_data, 2)
+            amount_annotated_data = round(amount_annotated_data, 2)
+            amount_annotated_overlap = round(amount_annotated_overlap, 2)
         
         stats = html.Div([
                     # General info
                     html.Div([
                         html.H2('File name:'),
-                        html.Font([loaded_file_name], id='file-name')
+                        html.Font([loaded_file_name if globals.raw else '-'], id='file-name')
                     ]),
                     html.Div([
                         html.H2('Recording length (in seconds):'),
-                        html.Font([recording_length], id='recording-length')
+                        html.Font([recording_length if globals.raw else '-'], id='recording-length')
                     ]),
                     html.Hr(),
 
                     # Clean stats
                     html.Div([
                         html.H2('Amount of clean data left (in seconds):'),
-                        html.Font([amount_clean_data], id='#clean-data')
+                        html.Font([amount_clean_data if globals.raw else '-'], id='#clean-data')
                     ]),
                     html.Div([
                         html.H2('Amount of clean intervals longer than 2 seconds:'),
-                        html.Font([amount_clean_intervals], id='#clean-intervals')
+                        html.Font([amount_clean_intervals if globals.raw else '-'], id='#clean-intervals')
                     ]),
                     html.Div([
                         dcc.Graph(
                             id='clean-intervals-graph',
-                            figure=graph,
+                            figure=graph if globals.raw else Figure(),
                             config={
                                 'displayModeBar': False,
                             },
@@ -83,11 +84,11 @@ def register_stats_callbacks(app):
                     # Annotation stats
                     html.Div([
                         html.H2('Total amount of annotated data (in seconds):'),
-                        html.Font([amount_annotated_data], id='#annotated-data')
+                        html.Font([amount_annotated_data if globals.raw else '-'], id='#annotated-data')
                     ]),
                     html.Div([
                         html.H2('Amount of overlap between annotations (in seconds):'),
-                        html.Font([amount_annotated_overlap], id='#annotated-overlap')
+                        html.Font([amount_annotated_overlap if globals.raw else '-'], id='#annotated-overlap')
                     ]),
                     
                     html.Hr(),
@@ -95,11 +96,11 @@ def register_stats_callbacks(app):
                     # Bad channel stats
                     html.Div([
                         html.H2('All bad channels:'),
-                        html.Font(_get_list_for_displaying(current_selected_bad_channels), id='total-bad-channels')
+                        html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
                     ]),
                     html.Div([
                         html.H2('Disagreed bad channels:'),
-                        html.Font(_get_list_for_displaying(globals.disagreed_bad_channels), id='disagreed-bad-channels')
+                        html.Font(_get_list_for_displaying(globals.disagreed_bad_channels) if globals.disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
                     ]),
                 ]),
 
