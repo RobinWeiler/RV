@@ -656,7 +656,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         id="new-annotation-label",
                         placeholder="New annotation label",
                         debounce=True,
-                        minLength=1
+                        minLength=1,
+                        type='text'
                     ),
                 ]),
                 html.Div([
@@ -741,37 +742,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         # Stats modal
         dbc.Modal([
             dbc.ModalHeader('Statistics'),
-            dbc.ModalBody([
-                html.Div([
-                    html.H2('File name:'),
-                    html.Font(id='file-name')
-                ]),
-                html.Div([
-                    html.H2('Recording length (in seconds):'),
-                    html.Font(id='recording-length')
-                ]),
-                html.Div([
-                    html.H2('Amount of annotated data (in seconds):'),
-                    html.Font(id='#noisy-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean data left (in seconds):'),
-                    html.Font(id='#clean-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean intervals longer than 2 seconds:'),
-                    html.Font(id='#clean-intervals')
-                ]),
-                html.Div([
-                    dcc.Graph(
-                        id='clean-intervals-graph',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': False,
-                        },
-                    ),
-                ]),
-            ]),
+            dbc.ModalBody([], id='stats-body'),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
             )],
