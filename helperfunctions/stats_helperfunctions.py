@@ -1,6 +1,13 @@
+import re
+from scipy.signal import welch
+
 from plotly.graph_objs import Figure, Histogram, Scattergl
 
-from scipy.signal import welch
+def __atoi(text):
+    return int(text) if text.isdigit() else text
+
+def _natural_keys(text):
+    return [ __atoi(c) for c in re.split(r'(\d+)', text) ]
 
 def calc_stats(annotations, recording_length):
     """Calculates statistics surrounding amounts of annotated- and clean data.

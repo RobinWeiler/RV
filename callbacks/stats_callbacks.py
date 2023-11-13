@@ -9,7 +9,7 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import get_annotations
 from helperfunctions.modal_helperfunctions import _toggle_modal
-from helperfunctions.stats_helperfunctions import calc_stats, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot
+from helperfunctions.stats_helperfunctions import calc_stats, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot, _natural_keys
 from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
 
 import globals
@@ -48,7 +48,12 @@ def register_stats_callbacks(app):
             amount_clean_data = round(amount_clean_data, 2)
             amount_annotated_data = round(amount_annotated_data, 2)
             amount_annotated_overlap = round(amount_annotated_overlap, 2)
-        
+
+            if current_selected_bad_channels:
+                current_selected_bad_channels.sort(key=_natural_keys)
+            if globals.disagreed_bad_channels:
+                globals.disagreed_bad_channels.sort(key=_natural_keys)
+
         stats = html.Div([
                     # General info
                     html.Div([
