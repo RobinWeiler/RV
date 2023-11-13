@@ -100,6 +100,8 @@ def register_bad_channel_callbacks(app):
 
                 current_selected_bad_channels += loaded_bad_channels
 
+        current_selected_bad_channels = list(set(current_selected_bad_channels))
+
         disagreed_bad_channels = []
         if len(all_loaded_bad_channels) > 1:
             all_bad_channels_set = set([bad_channel for sublist in all_loaded_bad_channels for bad_channel in sublist])

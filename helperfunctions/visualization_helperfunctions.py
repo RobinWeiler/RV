@@ -9,7 +9,10 @@ import globals
 
 
 def _get_list_for_displaying(example_list):
-    return [element + ', ' if element_index != len(example_list) - 1 else element for element_index, element in enumerate(example_list)]
+    if example_list:
+        return [element + ', ' if element_index != len(example_list) - 1 else element for element_index, element in enumerate(example_list)]
+    else:
+        return []
 
 def _get_scaling(EEG_scale):
     """Calculates scaling factor to multiply data with for given scale.
