@@ -122,10 +122,14 @@ def register_segments_callbacks(app):
     @app.callback(
         [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value')],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
-        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        [
+            State('segment-size', 'value'), State('show-annotations-only', 'value'), 
+            State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
+            State('annotation-label', 'value'), State('EEG-graph', 'figure')
+        ],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, skip_hoverinfo, annotation_label, current_fig):
+    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label, current_fig):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
@@ -136,6 +140,8 @@ def register_segments_callbacks(app):
             show_annotations_only (bool): Whether or not to only show annotations.
             use_slider (bool): Whether or not to activate view-slider.
             skip_hoverinfo (bool): Whether or not to activate hover-info.
+            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
             annotation_label (string); Label for new annotations.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -172,7 +178,7 @@ def register_segments_callbacks(app):
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
-            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
             return updated_fig, globals.current_plot_index
         else:
@@ -182,16 +188,14 @@ def register_segments_callbacks(app):
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input('minus-ten-seconds-button', 'n_clicks'), Input('plus-ten-seconds-button', 'n_clicks')],
-        State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _use_10_seconds_buttons(minus_10_seconds, plus_10_seconds, current_fig):
+    def _use_10_seconds_buttons(minus_10_seconds, plus_10_seconds):
         """Moves viewed segment. Triggered when minus-10-seconds or plus-10-seconds button is clicked.
 
         Args:
             minus_10_seconds (int): Num clicks on minus-10-seconds button.
             plus_10_seconds (int): Num clicks on plus-10-seconds button.
-            current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
             tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
@@ -216,10 +220,14 @@ def register_segments_callbacks(app):
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('segment-size', 'value'),
-        [State('show-annotations-only', 'value'), State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],
+        [
+            State('show-annotations-only', 'value'), State('use-slider', 'value'), 
+            State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
+            State('annotation-label', 'value')
+        ],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_size, show_annotations_only, use_slider, skip_hoverinfo, annotation_label, current_fig):
+    def _use_segment_slider(segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
@@ -227,8 +235,9 @@ def register_segments_callbacks(app):
             show_annotations_only (bool): Whether or not to only show annotations.
             use_slider (bool): Whether or not to activate view-slider.
             skip_hoverinfo (bool): Whether or not to activate hover-info.
+            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
             annotation_label (string); Label for new annotations.
-            current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
         Returns:
             tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
@@ -239,7 +248,7 @@ def register_segments_callbacks(app):
             else:
                 globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
             return updated_fig
 

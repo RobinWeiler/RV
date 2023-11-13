@@ -76,65 +76,71 @@ def register_bad_channel_callbacks(app):
                     current_selected_bad_channels.append(channel_name)
 
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+
+                    # If bad channels are currently hidden
+                    if len(current_selected_bad_channels) > 1:
+                        if not any(channel['visible'] == True and globals.plotting_data['EEG']['channel_names'][index] in current_selected_bad_channels and not globals.plotting_data['EEG']['channel_names'][index] == channel_name for index, channel in enumerate(current_fig['data'])):
+                            patched_fig['data'][channel_index]['visible'] = False
                 else:
                     current_selected_bad_channels.remove(channel_name)
 
                     patched_fig['data'][channel_index]['marker']['color'] = 'black'
 
+                globals.raw.info['bads'] = current_selected_bad_channels
+
                 return patched_fig, current_selected_bad_channels
         else:
             raise PreventUpdate
 
-    # Update plot when bad channels changed
+    # Enable/disable Hide/show bad channels button
     @app.callback(
-        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Output('hide-bad-channels-button', 'disabled'),
         Input('bad-channels-dropdown', 'value'),
-        State('EEG-graph', 'figure'),
-        prevent_initial_call=True
+        # prevent_initial_call=True
     )
-    def _update_bad_channels_plot(current_selected_bad_channels, current_fig):
-        """Updates plot when bad channels changed.
+    def _update_hide_bad_channels_button(current_selected_bad_channels):
+        """Disables/enables hide-bad-channels-button. Triggered when selected bad channels change.
 
         Args:
-            current_selected_bad_channels (list): List containing names of currently selected bad channels.
-            current_fig (plotly.graph_objs.Figure): The current EEG plot.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
-            tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
+            bool: Whether or not to disable hide-bad-channels-button button.
         """
-        print('trigger')
+
+        if len(current_selected_bad_channels) > 0:
+            return False
+        else:
+            return True
+
+    # Hide/show bad channels
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('hide-bad-channels-button', 'n_clicks'),
+        State('bad-channels-dropdown', 'value'),
+        prevent_initial_call=True
+    )
+    def  _use_hide_bad_channels_button(hide_bad_channels, current_selected_bad_channels):
+        """Hides bad channels when pressed. Shows all channels when pressed again.
+
+        Args:
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
+
+        Returns:
+            plotly.graph_objs.Figure: Updated EEG plot.
+        """
 
         if globals.plotting_data:
-            globals.raw.info['bads'] = current_selected_bad_channels
-
             patched_fig = Patch()
 
-            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                
-                if channel_name in current_selected_bad_channels:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR
+            for channel_name in current_selected_bad_channels:
+                channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
+
+                if hide_bad_channels % 2 != 0:
+                    patched_fig['data'][channel_index]['visible'] = False
                 else:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
-
-                # current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
-
-            for model_index in range(len(globals.plotting_data['model'])):
-                if globals.plotting_data['model'][model_index]['model_channels']:
-                    for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                        channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                        if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
-                            globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
-
-            # patched_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
-            patched_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
-
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+                    patched_fig['data'][channel_index]['visible'] = True
 
             return patched_fig
         else:

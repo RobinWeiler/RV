@@ -44,6 +44,12 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             html.Div([
                 html.Div([
                     dbc.Button(
+                        "Highlight model channels",
+                        id="highlight-model-channels-button",
+                        className='button',
+                        n_clicks=0
+                    ),
+                    dbc.Button(
                         "Rerun model",
                         id="rerun-model-button",
                         className='button'
@@ -66,6 +72,12 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                 ], className='aligned-threshold'),
             ], className='aligned second'),
             html.Div([
+                dbc.Button(
+                    "Hide/show bad channels",
+                    id="hide-bad-channels-button",
+                    className='button',
+                    n_clicks=0
+                ),
                 dbc.Button(
                     "Annotation settings",
                     id="open-annotation-settings",
@@ -894,6 +906,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         ),
 
         # Hidden output variables
+        html.Pre(id='hidden-output'),
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
         html.Pre(id='username-dummy'),
