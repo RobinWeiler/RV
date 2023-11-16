@@ -1,5 +1,6 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, Patch
+from dash.exceptions import PreventUpdate
 
 import numpy as np
 
@@ -8,6 +9,7 @@ from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_lis
 from model.run_model import run_model
 
 import globals
+import constants as c
 
 
 def register_model_callbacks(app):
@@ -37,7 +39,7 @@ def register_model_callbacks(app):
             print('Selected files: {}'.format(list_selected_file_names))
             return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
-    # Disable rerun-model button
+    # Disable rerun-model button - comment this out for models that are not deterministic
     @app.callback(
         Output('rerun-model-button', 'disabled'),
         [Input('EEG-graph', 'clickData'), Input('rerun-model-button', 'n_clicks')], 
@@ -61,14 +63,75 @@ def register_model_callbacks(app):
     def _disable_model_threshold(model_annotate):
         return not model_annotate
 
+    # Enable/disable Highlight model channels button
+    @app.callback(
+        Output('highlight-model-channels-button', 'disabled'),
+        Input('EEG-graph', 'figure'),
+        # prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(fig):
+        """Disables/enables higlight-model-channels-button. Triggered when selected bad channels change.
+
+        Args:
+            fig (plotly.graph_objs.Figure): EEG plot.
+
+        Returns:
+            bool: Whether or not to disable higlight-model-channels-button button.
+        """
+        if globals.plotting_data:
+            return not any(globals.plotting_data['model'][model_index]['model_channels'] for model_index in range(len(globals.plotting_data['model'])))
+        else:
+            return True
+
+    # Highlight model channels
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('highlight-model-channels-button', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def  _use_highlight_model_channels_button(highlight_model_channels):
+        """Hides bad channels when pressed. Shows all channels when pressed again.
+
+        Args:
+            highlight_model_channels (int): Num clicks on hide-bad-channels-button button.
+
+        Returns:
+            plotly.graph_objs.Figure: Updated EEG plot.
+        """
+
+        if globals.plotting_data:
+            patched_fig = Patch()
+            for model_index in range(len(globals.plotting_data['model'])):
+                for channel_name in globals.plotting_data['model'][model_index]['model_channels']:
+                    channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
+
+                    if highlight_model_channels % 2 != 0:
+                        patched_fig['data'][channel_index]['marker']['color'] = 'green'
+                    else:
+                        patched_fig['data'][channel_index]['marker']['color'] = 'black'
+
+                        if channel_name in globals.plotting_data['EEG']['eog_channels']:
+                            patched_fig['data'][channel_index]['marker']['color'] = 'blue'
+                        if channel_name in globals.raw.info['bads']:
+                            patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+
+            return patched_fig
+        else:
+            raise PreventUpdate
+
     # Update plot when model settings are changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input("run-model", "value"), Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
-        [State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('bad-channels-dropdown', 'value'), State('EEG-graph', 'figure')],
+        [
+            State('use-slider', 'value'), State('skip-hoverinfo', 'value'), 
+            State('annotation-label', 'value'), State('show-annotations-only', 'value'), 
+            State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
+            State('EEG-graph', 'figure')
+        ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
         """Updates plot when model settings are changed.
 
         Args:
@@ -81,6 +144,8 @@ def register_model_callbacks(app):
             skip_hoverinfo (bool): Whether or not to activate hover-info.
             annotation_label (string); Label for new annotations.
             show_annotations_only (bool): Whether or not to only show annotations.
+            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
 
@@ -88,6 +153,7 @@ def register_model_callbacks(app):
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        patched_fig = Patch()
 
         if globals.plotting_data:
             # If re-running model, keep current annotations and bad channels
@@ -125,42 +191,45 @@ def register_model_callbacks(app):
                 
                 if not globals.plotting_data['model']:
                     globals.plotting_data['model'].append({})
-                    globals.plotting_data['EEG']['default_channel_colors'].append(None)
-                    globals.plotting_data['EEG']['highlighted_channel_colors'].append(None)
-                    globals.plotting_data['EEG']['channel_visibility'].append(True)
 
                 globals.plotting_data['model'][-1]['model_data'] = run_model_output
                 globals.plotting_data['model'][-1]['model_channels'] = run_model_channel_names
                 globals.plotting_data['model'][-1]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=run_model_output.shape[0])
                 globals.plotting_data['model'][-1]['offset_model_data'] = [-((2 + len(globals.plotting_data['model']) - 1) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][-1]['model_timescale']))]
-
-                globals.plotting_data['EEG']['default_channel_colors'][-1] = run_model_output
-                globals.plotting_data['EEG']['highlighted_channel_colors'][-1] = run_model_output
                 
                 # current_fig['data'][-1]['marker']['color'] = run_model_output
                 
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                 return updated_fig
 
             if 'reset-models' in trigger:
-                if globals.plotting_data['model']:
-                    del globals.plotting_data['model'][:-1]
+                print(len(globals.plotting_data['model']))
+                if len(globals.plotting_data['model']) > 0:
+                    patched_fig['data'] = current_fig['data'][:-len(globals.plotting_data['model'])]
+                    
+                    del globals.plotting_data['model'][:]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                    return updated_fig
+                    return patched_fig
+                else:
+                    raise PreventUpdate
 
             if 'run-model' in trigger and not run_model_bool:
-                if globals.plotting_data['model']:
+                if len(globals.plotting_data['model']) > 0:
                     del globals.plotting_data['model'][-1]
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    patched_fig['data'] = current_fig['data'][:-1]
 
-                    return updated_fig
+                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+
+                    return patched_fig
+                else:
+                    raise PreventUpdate
 
             if 'model-threshold' in trigger or 'annotate-model' in trigger:
                 all_model_annotations = []
@@ -189,13 +258,13 @@ def register_model_callbacks(app):
                     globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                     return updated_fig
                 else:
-                    current_fig['layout']['shapes'] = []
+                    patched_fig['layout']['shapes'] = []
                     for annotation in globals.marked_annotations:
-                        current_fig['layout']['shapes'].append({
+                        patched_fig['layout']['shapes'].append({
                             'editable': True,
                             'xref': 'x',
                             'yref': 'y',
@@ -211,6 +280,6 @@ def register_model_callbacks(app):
                             'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
                         })
 
-                    return current_fig
+                    return patched_fig
 
-        return current_fig
+        raise PreventUpdate

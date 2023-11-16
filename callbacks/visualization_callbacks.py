@@ -21,7 +21,7 @@ def register_visualization_callbacks(app):
 
     # plot callback
     @app.callback(
-        Output('EEG-graph', 'figure'),
+        [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],
         [
             Input('plot-button', 'n_clicks'),
             Input("scale", "value"),
@@ -42,6 +42,8 @@ def register_visualization_callbacks(app):
             State("run-model", "value"),
             State("annotate-model", "value"),
             State("model-threshold", "value"),
+            State('hide-bad-channels-button', 'n_clicks'),
+            State('highlight-model-channels-button', 'n_clicks'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
         ]
     )
@@ -53,6 +55,7 @@ def register_visualization_callbacks(app):
                             resample_rate, segment_size,
                             annotation_label,
                             model_output_files, run_model_bool, model_annotate, model_threshold,
+                            hide_bad_channels, highlight_model_channels,
                             current_fig, current_selected_bad_channels):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
@@ -77,6 +80,8 @@ def register_visualization_callbacks(app):
             segment_size (int): Input desired segment size for plots.
             annotation_label (string); Label for new annotations.
             model_output_files (list): List of strings of model-output file-names.
+            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
             current_selected_bad_channels (list): List containing names of currently selected bad channels.
 
@@ -84,9 +89,14 @@ def register_visualization_callbacks(app):
             plotly.graph_objs.Figure: EEG plot.
         """
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        print('visualization trigger: {}'.format(trigger))
 
         globals.preloaded_plots = {}
+
+        if not use_slider:
+            fig_style = {'height': '97vh'}
+        else:
+            fig_style = {'height': '90vh'}
 
         if 'scale' in trigger or 'channel-offset' in trigger:
             if globals.plotting_data:
@@ -112,30 +122,21 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
 
-                offset_EEG = globals.plotting_data['EEG']['EEG_data'].copy() 
-                offset_EEG = offset_EEG * globals.plotting_data['EEG']['scaling_factor']
-                
-                for channel_index in range(offset_EEG.shape[1]):
-                    # Calculate offset for y-axis
-                    offset_EEG[:, channel_index] = offset_EEG[:, channel_index] + ((globals.plotting_data['plot']['offset_factor']) * (len(globals.plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
-                globals.plotting_data['EEG']['offset_EEG_data'] = offset_EEG
-
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
-
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'show-annotations-only' in trigger:
             if globals.plotting_data:
@@ -155,9 +156,9 @@ def register_visualization_callbacks(app):
                     else:
                         globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
                 
-                return updated_fig
+                return updated_fig, fig_style
 
         if 'plot-button' in trigger:
             globals.current_plot_index = 0
@@ -265,9 +266,9 @@ def register_visualization_callbacks(app):
                     print('No annotations found')
                     show_annotations_only = False
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only)
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
             
-            return fig
+            return fig, fig_style
 
         # Default plot when app is opened
         else:
@@ -277,4 +278,4 @@ def register_visualization_callbacks(app):
             fig.update_xaxes(showticklabels=False)
             fig.update_yaxes(showticklabels=False)
             fig.update_traces(hovertemplate=None, hoverinfo='skip')
-            return fig
+            return fig, fig_style

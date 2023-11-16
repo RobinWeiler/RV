@@ -1,5 +1,6 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, Patch
+from dash.exceptions import PreventUpdate
 
 from helperfunctions.loading_helperfunctions import parse_bad_channels_file
 from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
@@ -13,16 +14,15 @@ def register_bad_channel_callbacks(app):
     # Loading bad channels and all channel names into dropdown menu and clicking channel callback
     @app.callback(
         [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options')],
-        [Input('data-file', 'children'), Input('EEG-graph', 'clickData')],
+        Input('data-file', 'children'),
         [State('bad-channels-dropdown', 'value'), State('bad-channels-dropdown', 'options')],
         prevent_initial_call=True
     )
-    def _update_bad_channel_dropdown(file, clickData, current_selected_bad_channels, current_available_channels):
+    def _update_bad_channel_dropdown(file, current_selected_bad_channels, current_available_channels):
         """Loads channel names into bad-channels-dropdown and selected-channels-dropdown. Triggers when new file is loaded and when a trace is clicked on to mark it as bad.
 
         Args:
             file (string): Current file-name.
-            clickData (dict): Data from latest click event.
             current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
             current_available_channels (list): List of dicts of all available channel names.
 
@@ -31,7 +31,7 @@ def register_bad_channel_callbacks(app):
         """
         
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        # print(trigger)
+        print(trigger)
 
         if 'data-file' in trigger and globals.raw:
             print('Loading bad channel dropdown menu...')
@@ -45,21 +45,6 @@ def register_bad_channel_callbacks(app):
             bad_channels = globals.raw.info['bads']
 
             return bad_channels, dropdown_channel_names, dropdown_channel_names
-        elif 'clickData' in trigger:
-            # print('Clicked point: {}'.format(clickData))
-        
-            channel_index = clickData['points'][0]['curveNumber']
-            if channel_index >= len(globals.plotting_data['EEG']['channel_names']):
-                return current_selected_bad_channels, current_available_channels, current_available_channels
-
-            channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-            
-            if channel_name not in current_selected_bad_channels:
-                current_selected_bad_channels.append(channel_name)
-            else:
-                current_selected_bad_channels.remove(channel_name)
-            
-            return current_selected_bad_channels, current_available_channels, current_available_channels
         else:
             return [], [], []
 
@@ -117,53 +102,101 @@ def register_bad_channel_callbacks(app):
 
     # Update plot when bad channels changed
     @app.callback(
-        Output('EEG-graph', 'figure', allow_duplicate=True),
-        Input('bad-channels-dropdown', 'value'),
-        State('EEG-graph', 'figure'),
+        [Output('EEG-graph', 'figure', allow_duplicate=True), Output('bad-channels-dropdown', 'value', allow_duplicate=True)],
+        Input('EEG-graph', 'clickData'),
+        [State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(current_selected_bad_channels, current_fig):
+    def  _update_bad_channels_after_click(clickData, current_fig, current_selected_bad_channels):
         """Updates plot when bad channels changed.
 
         Args:
-            current_selected_bad_channels (list): List containing names of currently selected bad channels.
+            clickData (dict): Data from latest click event.
             current_fig (plotly.graph_objs.Figure): The current EEG plot.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
-            tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
+            plotly.graph_objs.Figure: Updated EEG plot.
         """
-        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
+        print('Clicked bad channel')
 
         if globals.plotting_data:
-            globals.raw.info['bads'] = current_selected_bad_channels
-            # print(current_selected_bad_channels)
-
-            for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+            channel_index = clickData['points'][0]['curveNumber']
+            if channel_index < len(globals.plotting_data['EEG']['channel_names']):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
+
+                patched_fig = Patch()
                 
-                if channel_name in current_selected_bad_channels:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR if channel_name not in globals.disagreed_bad_channels else c.BAD_CHANNEL_DISAGREE_COLOR
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = False
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = c.BAD_CHANNEL_COLOR if channel_name not in globals.disagreed_bad_channels else c.BAD_CHANNEL_DISAGREE_COLOR
+                if channel_name not in current_selected_bad_channels:
+                    current_selected_bad_channels.append(channel_name)
+
+                    patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+
+                    # If bad channels are currently hidden
+                    if len(current_selected_bad_channels) > 1:
+                        if not any(channel['visible'] == True and globals.plotting_data['EEG']['channel_names'][index] in current_selected_bad_channels and not globals.plotting_data['EEG']['channel_names'][index] == channel_name for index, channel in enumerate(current_fig['data'])):
+                            patched_fig['data'][channel_index]['visible'] = False
                 else:
-                    globals.plotting_data['EEG']['default_channel_colors'][channel_index] = 'black'
-                    globals.plotting_data['EEG']['channel_visibility'][channel_index] = True
-                    globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'black'
+                    current_selected_bad_channels.remove(channel_name)
 
-                current_fig['data'][channel_index]['marker']['color'] = globals.plotting_data['EEG']['default_channel_colors'][channel_index]
+                    patched_fig['data'][channel_index]['marker']['color'] = 'black'
 
-            for model_index in range(len(globals.plotting_data['model'])):
-                if globals.plotting_data['model'][model_index]['model_channels']:
-                    for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
-                        channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
-                        if channel_name in globals.plotting_data['model'][model_index]['model_channels']:
-                            globals.plotting_data['EEG']['highlighted_channel_colors'][channel_index] = 'blue'
+                globals.raw.info['bads'] = current_selected_bad_channels
 
-            # current_fig['layout']['updatemenus'][0]['buttons'][2]['args2'][0]['visible'] = True
-            current_fig['layout']['updatemenus'][0]['buttons'][2]['args'][0]['visible'] = globals.plotting_data['EEG']['channel_visibility']
+                return patched_fig, current_selected_bad_channels
+        else:
+            raise PreventUpdate
 
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
-            # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
+    # Enable/disable Hide/show bad channels button
+    @app.callback(
+        Output('hide-bad-channels-button', 'disabled'),
+        Input('bad-channels-dropdown', 'value'),
+        # prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(current_selected_bad_channels):
+        """Disables/enables hide-bad-channels-button. Triggered when selected bad channels change.
 
-        return current_fig
+        Args:
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
+
+        Returns:
+            bool: Whether or not to disable hide-bad-channels-button button.
+        """
+
+        if len(current_selected_bad_channels) > 0:
+            return False
+        else:
+            return True
+
+    # Hide/show bad channels
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('hide-bad-channels-button', 'n_clicks'),
+        State('bad-channels-dropdown', 'value'),
+        prevent_initial_call=True
+    )
+    def  _use_hide_bad_channels_button(hide_bad_channels, current_selected_bad_channels):
+        """Hides bad channels when pressed. Shows all channels when pressed again.
+
+        Args:
+            hide_bad_channels (dict): Num clicks on hide-bad-channels-button button.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
+
+        Returns:
+            plotly.graph_objs.Figure: Updated EEG plot.
+        """
+
+        if globals.plotting_data:
+            patched_fig = Patch()
+
+            for channel_name in current_selected_bad_channels:
+                channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
+
+                if hide_bad_channels % 2 != 0:
+                    patched_fig['data'][channel_index]['visible'] = False
+                else:
+                    patched_fig['data'][channel_index]['visible'] = True
+
+            return patched_fig
+        else:
+            raise PreventUpdate
