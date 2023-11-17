@@ -23,13 +23,13 @@ def register_stats_callbacks(app):
         [State('data-file', 'children'), State('bad-channels-dropdown', 'value')],
         prevent_initial_call=True
     )
-    def _toggle_stats_modal(open_stats_1, open_stats_2, loaded_file_name, current_selected_bad_channels):
+    def _toggle_stats_modal(open_stats_1, open_stats_2, file_name, current_selected_bad_channels):
         """Opens or closes stats modal based on relevant button clicks and loads all statistics.
 
         Args:
             open_stats1 (int): Num clicks on open-stats1 button.
             open_stats2 (int): Num clicks on open-stats2 button.
-            loaded_file_name (string): File-name of selected recording.
+            file_name (string): File-name of selected recording.
             current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
@@ -49,16 +49,41 @@ def register_stats_callbacks(app):
             amount_annotated_data = round(amount_annotated_data, 2)
             amount_annotated_overlap = round(amount_annotated_overlap, 2)
 
-            if current_selected_bad_channels:
-                current_selected_bad_channels.sort(key=_natural_keys)
-            if globals.disagreed_bad_channels:
-                globals.disagreed_bad_channels.sort(key=_natural_keys)
+        # Bad channel stats
+        if current_selected_bad_channels:
+            current_selected_bad_channels.sort(key=_natural_keys)
+        bad_channel_stats = html.Div([
+            html.Div([
+                html.H2('All bad channels:'),
+                html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
+            ]),
+        ])
+
+        if globals.disagreed_bad_channels:
+            globals.disagreed_bad_channels.sort(key=_natural_keys)
+        if len(globals.bad_channels) > 1:
+            bad_channel_stats.children.append(
+                html.Div([
+                    html.H2('Disagreed bad channels:'),
+                    html.Font(_get_list_for_displaying(globals.disagreed_bad_channels) if globals.disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
+                ]),
+            )
+
+            for annotator, bad_channels in globals.bad_channels.items():
+                if bad_channels:
+                    bad_channels.sort(key=_natural_keys)
+                bad_channel_stats.children.append(
+                    html.Div([
+                        html.H2('Bad channels - {}'.format(annotator if annotator != file_name else 'current session')),
+                        html.Font(_get_list_for_displaying(bad_channels) if bad_channels else ['-'], id='{}-bad-channels'.format(annotator))
+                    ]),
+                )
 
         stats = html.Div([
                     # General info
                     html.Div([
                         html.H2('File name:'),
-                        html.Font([loaded_file_name if globals.raw else '-'], id='file-name')
+                        html.Font([file_name if globals.raw else '-'], id='file-name')
                     ]),
                     html.Div([
                         html.H2('Recording length (in seconds):'),
@@ -98,15 +123,7 @@ def register_stats_callbacks(app):
                     
                     html.Hr(),
 
-                    # Bad channel stats
-                    html.Div([
-                        html.H2('All bad channels:'),
-                        html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
-                    ]),
-                    html.Div([
-                        html.H2('Disagreed bad channels:'),
-                        html.Font(_get_list_for_displaying(globals.disagreed_bad_channels) if globals.disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
-                    ]),
+                    bad_channel_stats
                 ]),
 
         return stats
