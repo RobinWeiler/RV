@@ -51,10 +51,11 @@ def register_annotation_callbacks(app):
             relayoutData (dict): Data from latest relayout event.
             annotation_label (string); Label for new annotations.
         """
-        # print(relayoutData)
+        print(relayoutData)
         if relayoutData:
             # Annotation added/removed
             if 'shapes' in relayoutData:
+                print(relayoutData)
                 # globals.marked_annotations[:] = []
 
                 if relayoutData['shapes']:
@@ -68,28 +69,34 @@ def register_annotation_callbacks(app):
 
                     check_remove = []
                     for shape in relayoutData['shapes']:
-                        x0 = np.round(shape['x0'], 3)
-                        x1 = np.round(shape['x1'], 3)
+                        # print(shape)
+                        if shape['type'] == 'rect':
+                            x0 = np.round(shape['x0'], 3)
+                            x1 = np.round(shape['x1'], 3)
 
-                        if x0 < x1:
-                            annotation_start = x0
-                            annotation_end = x1
-                        else:
-                            annotation_start = x1
-                            annotation_end = x0
-                        
-                        check_remove.append((annotation_start, annotation_end))
+                            if x0 < x1:
+                                annotation_start = x0
+                                annotation_end = x1
+                            else:
+                                annotation_start = x1
+                                annotation_end = x0
+                            
+                            check_remove.append((annotation_start, annotation_end))
 
-                        if (annotation_start, annotation_end) not in check_add:
-                            # print('new annotation {}'.format((annotation_start, annotation_end, annotation_label)))
-                            globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
+                            if (annotation_start, annotation_end) not in check_add:
+                                # print('new annotation {}'.format((annotation_start, annotation_end, annotation_label)))
+                                globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
 
                     for annotation in globals.marked_annotations:
                         if (annotation[0], annotation[1]) not in check_remove:
                             # print('remove annotation {}'.format((annotation[0], annotation[1], annotation[2])))
                             globals.marked_annotations.remove((annotation[0], annotation[1], annotation[2]))
 
-                globals.marked_annotations = merge_intervals(globals.marked_annotations)
+                    globals.marked_annotations = merge_intervals(globals.marked_annotations)
+
+                # Only annotation was removed
+                else:
+                    globals.marked_annotations = []
 
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
 
