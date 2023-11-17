@@ -11,29 +11,23 @@ import globals
 
 def register_bad_channel_callbacks(app):
 
-    # Loading bad channels and all channel names into dropdown menu and clicking channel callback
+    # Loading bad channels and all channel names into dropdown menu callback
     @app.callback(
         [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options')],
         Input('data-file', 'children'),
-        [State('bad-channels-dropdown', 'value'), State('bad-channels-dropdown', 'options')],
         prevent_initial_call=True
     )
-    def _update_bad_channel_dropdown(file, current_selected_bad_channels, current_available_channels):
+    def _update_bad_channel_dropdown(file):
         """Loads channel names into bad-channels-dropdown and selected-channels-dropdown. Triggers when new file is loaded and when a trace is clicked on to mark it as bad.
 
         Args:
             file (string): Current file-name.
-            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
-            current_available_channels (list): List of dicts of all available channel names.
 
         Returns:
             tuple(list, list, list): First list contains strings of selected bad-channel names. Second and third list contain dicts of all channel names.
         """
-        
-        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
 
-        if 'data-file' in trigger and globals.raw:
+        if globals.raw:
             print('Loading bad channel dropdown menu...')
 
             all_channel_names = globals.raw.ch_names
@@ -42,13 +36,23 @@ def register_bad_channel_callbacks(app):
             for channel in all_channel_names:
                 dropdown_channel_names.append({'label': channel, 'value': channel})
 
-            bad_channels = globals.raw.info['bads']
+            loaded_bad_channels = globals.raw.info['bads']
+            globals.bad_channels[file] = loaded_bad_channels
 
-            return bad_channels, dropdown_channel_names, dropdown_channel_names
+            if 'bad_channels' in globals.parameters.keys():
+                all_loaded_bad_channels = globals.parameters['bad_channels']
+                
+                for annotator, bad_channels in all_loaded_bad_channels.items():
+                    globals.bad_channels[annotator] = bad_channels
+                    loaded_bad_channels += bad_channels
+
+            loaded_bad_channels = list(set(loaded_bad_channels))
+
+            return loaded_bad_channels, dropdown_channel_names, dropdown_channel_names
         else:
             return [], [], []
 
-    # Select bad-channel files
+    # Select bad-channel files callback
     @app.callback(
         Output('bad-channel-files', 'children'),
         Input('upload-bad-channels', 'filename'),
@@ -69,6 +73,7 @@ def register_bad_channel_callbacks(app):
         else:
             return []
 
+    # Add loaded bad channels to dropdown menu callback
     @app.callback(
         Output('bad-channels-dropdown', 'value', allow_duplicate=True),
         Input('upload-bad-channels', 'filename'),
@@ -83,20 +88,10 @@ def register_bad_channel_callbacks(app):
                 loaded_bad_channels = parse_bad_channels_file(file_name)
                 all_loaded_bad_channels.append(loaded_bad_channels)
 
+                globals.bad_channels[file_name] = loaded_bad_channels
                 current_selected_bad_channels += loaded_bad_channels
 
         current_selected_bad_channels = list(set(current_selected_bad_channels))
-
-        disagreed_bad_channels = []
-        if len(all_loaded_bad_channels) > 1:
-            all_bad_channels_set = set([bad_channel for sublist in all_loaded_bad_channels for bad_channel in sublist])
-
-            for sublist in all_loaded_bad_channels:
-                sublist = set(sublist)
-                bad_channels_not_in_inner_list = list(all_bad_channels_set - sublist)
-                disagreed_bad_channels += bad_channels_not_in_inner_list
-
-        globals.disagreed_bad_channels = disagreed_bad_channels
 
         return current_selected_bad_channels
 
@@ -104,10 +99,10 @@ def register_bad_channel_callbacks(app):
     @app.callback(
         [Output('EEG-graph', 'figure', allow_duplicate=True), Output('bad-channels-dropdown', 'value', allow_duplicate=True)],
         Input('EEG-graph', 'clickData'),
-        [State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')],
+        [State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value'), State('data-file', 'children'),],
         prevent_initial_call=True
     )
-    def  _update_bad_channels_after_click(clickData, current_fig, current_selected_bad_channels):
+    def  _update_bad_channels_after_click(clickData, current_fig, current_selected_bad_channels, file_name):
         """Updates plot when bad channels changed.
 
         Args:
@@ -118,7 +113,8 @@ def register_bad_channel_callbacks(app):
         Returns:
             plotly.graph_objs.Figure: Updated EEG plot.
         """
-        print('Clicked bad channel')
+        # print('Clicked bad channel')
+        # print(globals.bad_channels)
 
         if globals.plotting_data:
             channel_index = clickData['points'][0]['curveNumber']
@@ -129,8 +125,12 @@ def register_bad_channel_callbacks(app):
                 
                 if channel_name not in current_selected_bad_channels:
                     current_selected_bad_channels.append(channel_name)
+                    globals.bad_channels[file_name].append(channel_name)
 
-                    patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
+                    if not all(channel_name in annotation for annotation in globals.bad_channels.values()):
+                        patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_DISAGREE_COLOR
+                    else:
+                        patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
 
                     # If bad channels are currently hidden
                     if len(current_selected_bad_channels) > 1:
@@ -167,6 +167,27 @@ def register_bad_channel_callbacks(app):
             return False
         else:
             return True
+
+    # Update disagreed bad channels callback
+    @app.callback(
+        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Input('bad-channels-dropdown', 'value'),
+        prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(current_selected_bad_channels):
+        # If there are at least 2 lists of bad channels
+        if len([annotation for annotation in globals.bad_channels if annotation]) > 1:
+            disagreed_bad_channels = []
+
+            for bad_channel in current_selected_bad_channels:
+                # If a bad channel does not appear in all lists
+                if sum(bad_channel in annotation for annotation in globals.bad_channels.values()) < len([annotation for annotation in globals.bad_channels.values() if annotation]):
+                    disagreed_bad_channels.append(bad_channel)
+
+            globals.disagreed_bad_channels += disagreed_bad_channels
+            # print(globals.disagreed_bad_channels)
+
+        raise PreventUpdate
 
     # Hide/show bad channels
     @app.callback(
