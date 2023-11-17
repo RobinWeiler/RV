@@ -122,8 +122,9 @@ def register_model_callbacks(app):
     # Update plot when model settings are changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        [Input("run-model", "value"), Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
+        [Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
         [
+            State("run-model", "value"),
             State('use-slider', 'value'), State('skip-hoverinfo', 'value'), 
             State('annotation-label', 'value'), State('show-annotations-only', 'value'), 
             State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
@@ -131,7 +132,7 @@ def register_model_callbacks(app):
         ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, skip_hoverinfo, annotation_label, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
         """Updates plot when model settings are changed.
 
         Args:
@@ -157,7 +158,7 @@ def register_model_callbacks(app):
 
         if globals.plotting_data:
             # If re-running model, keep current annotations and bad channels
-            if ('rerun-model-button' in trigger or 'run-model' in trigger) and run_model_bool:
+            if 'rerun-model-button' in trigger and run_model_bool:
 
                 globals.model_raw.info['bads'] = current_selected_bad_channels
 
@@ -219,17 +220,17 @@ def register_model_callbacks(app):
                 else:
                     raise PreventUpdate
 
-            if 'run-model' in trigger and not run_model_bool:
-                if len(globals.plotting_data['model']) > 0:
-                    del globals.plotting_data['model'][-1]
+            # if 'run-model' in trigger and not run_model_bool:
+            #     if len(globals.plotting_data['model']) > 0:
+            #         del globals.plotting_data['model'][-1]
 
-                    patched_fig['data'] = current_fig['data'][:-1]
+            #         patched_fig['data'] = current_fig['data'][:-1]
 
-                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+            #         # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
-                    return patched_fig
-                else:
-                    raise PreventUpdate
+            #         return patched_fig
+            #     else:
+            #         raise PreventUpdate
 
             if 'model-threshold' in trigger or 'annotate-model' in trigger:
                 all_model_annotations = []
