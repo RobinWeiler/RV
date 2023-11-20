@@ -208,10 +208,14 @@ def register_model_callbacks(app):
                 return updated_fig
 
             if 'reset-models' in trigger:
-                print(len(globals.plotting_data['model']))
                 if len(globals.plotting_data['model']) > 0:
                     patched_fig['data'] = current_fig['data'][:-len(globals.plotting_data['model'])]
-                    
+                    patched_fig['layout']['yaxis']['tickvals'] = current_fig['layout']['yaxis']['tickvals'][len(globals.plotting_data['model']):]
+                    patched_fig['layout']['yaxis']['ticktext'] = current_fig['layout']['yaxis']['ticktext'][len(globals.plotting_data['model']):]
+                    patched_fig['layout']['yaxis']['range'] = ((-2 * (c.DEFAULT_Y_AXIS_OFFSET)), ((len(globals.plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET)))
+
+                    globals.plotting_data['plot']['y_ticks'] = globals.plotting_data['plot']['y_ticks'][len(globals.plotting_data['model']):]
+                    globals.plotting_data['plot']['y_tick_labels'] = globals.plotting_data['plot']['y_tick_labels'][len(globals.plotting_data['model']):]
                     del globals.plotting_data['model'][:]
 
                     # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)

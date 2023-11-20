@@ -153,8 +153,8 @@ def register_segments_callbacks(app):
 
         if globals.plotting_data and segment_size:
             # Switching to next segment, current segment gets updated in globals.preloaded_plots
-            if not show_annotations_only:
-                globals.preloaded_plots[globals.current_plot_index] = current_fig
+            # if not show_annotations_only:
+            #     globals.preloaded_plots[globals.current_plot_index] = current_fig
 
             if 'segment-slider' in trigger:
                 globals.current_plot_index = segment_slider
