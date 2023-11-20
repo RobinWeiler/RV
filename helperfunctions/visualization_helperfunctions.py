@@ -4,6 +4,7 @@ import numpy as np
 
 import mne
 
+from dash import Patch
 from plotly.graph_objs import Figure, Scattergl
 
 import constants as c
@@ -152,6 +153,33 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     plotting_data['plot']['y_tick_labels'] = y_tick_labels
 
     return plotting_data
+
+def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip_hoverinfo=False, use_slider=False, show_annotations_only=False):
+    patched_fig = Patch()
+    
+    # Get data of new segment
+    index_0 = raw.time_as_index(x0)[0] if x0 > 0 else 0
+    index_1 = raw.time_as_index(x1)[0]
+
+    data_subset, times_subset = raw[channels, index_0:index_1]
+    data_subset = data_subset * scaling_factor
+
+    if not skip_hoverinfo:
+        custom_data = data_subset.copy()
+
+    # Update plot
+    for channel_index in range(len(channels)):
+        data_subset[channel_index, :] = data_subset[channel_index, :] + (offset_factor * (len(channels) - 1 - channel_index))  # First channel goes to top of the plot
+
+        patched_fig['data'][channel_index]['x'] = times_subset
+        patched_fig['data'][channel_index]['y'] = data_subset[channel_index, :]
+
+        if not skip_hoverinfo:
+            patched_fig['data'][channel_index]['customdata'] = custom_data[channel_index] if not skip_hoverinfo else None
+
+        patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
+        
+    return patched_fig
 
 def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates initial EEG figure.

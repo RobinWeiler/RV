@@ -4,9 +4,10 @@ import dash
 from dash import Input, Output, State, Patch
 from dash.exceptions import PreventUpdate
 
-from helperfunctions.visualization_helperfunctions import get_EEG_plot
+from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_next_segment
 
 import globals
+import constants as c
 
 def register_segments_callbacks(app):
 
@@ -178,9 +179,13 @@ def register_segments_callbacks(app):
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
-            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only)
 
-            return updated_fig, globals.current_plot_index
+            return patched_fig, globals.current_plot_index
+
+            # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+
+            # return updated_fig, globals.current_plot_index
         else:
             raise PreventUpdate
 
@@ -227,8 +232,8 @@ def register_segments_callbacks(app):
         ],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
-        """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
+    def _update_segment_size(segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
+        """Updates size of viewed segment. Triggered when new value for segment-size is given.
 
         Args:
             segment_size (int): Segment size of EEG plot.
@@ -248,9 +253,11 @@ def register_segments_callbacks(app):
             else:
                 globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-            updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only)
 
-            return updated_fig
+            # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+
+            return patched_fig
 
         else:
             raise PreventUpdate
