@@ -106,7 +106,7 @@ def register_model_callbacks(app):
                     channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
                     if highlight_model_channels % 2 != 0:
-                        patched_fig['data'][channel_index]['marker']['color'] = 'green'
+                        patched_fig['data'][channel_index]['marker']['color'] = c.MODEL_CHANNEL_COLOR
                     else:
                         patched_fig['data'][channel_index]['marker']['color'] = 'black'
 

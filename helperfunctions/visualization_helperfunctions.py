@@ -221,7 +221,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         if highlight_model_channels:
             for model_index in range(len(plotting_data['model'])):
                 if channel_name in plotting_data['model'][model_index]['model_channels']:
-                    channel_color = 'green'
+                    channel_color = c.MODEL_CHANNEL_COLOR
                     break
         if channel_name in globals.raw.info['bads']:
             if channel_name in globals.disagreed_bad_channels:
