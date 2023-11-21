@@ -54,7 +54,7 @@ def register_stats_callbacks(app):
             current_selected_bad_channels.sort(key=_natural_keys)
         bad_channel_stats = html.Div([
             html.Div([
-                html.H2('All bad channels:'),
+                html.H2('Current bad channels:'),
                 html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
             ]),
         ])
