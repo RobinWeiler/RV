@@ -138,6 +138,8 @@ def register_bad_channel_callbacks(app):
                             patched_fig['data'][channel_index]['visible'] = False
                 else:
                     current_selected_bad_channels.remove(channel_name)
+                    if channel_name in globals.bad_channels[file_name]:
+                        globals.bad_channels[file_name].remove(channel_name)
 
                     patched_fig['data'][channel_index]['marker']['color'] = 'black'
 
@@ -170,7 +172,7 @@ def register_bad_channel_callbacks(app):
 
     # Update disagreed bad channels callback
     @app.callback(
-        Output('EEG-graph', 'figure', allow_duplicate=True),
+        Output('hidden-output', 'children', allow_duplicate=True),
         Input('bad-channels-dropdown', 'value'),
         prevent_initial_call=True
     )
@@ -184,10 +186,8 @@ def register_bad_channel_callbacks(app):
                 if sum(bad_channel in annotation for annotation in globals.bad_channels.values()) < len([annotation for annotation in globals.bad_channels.values() if annotation]):
                     disagreed_bad_channels.append(bad_channel)
 
-            globals.disagreed_bad_channels += disagreed_bad_channels
+            globals.disagreed_bad_channels = list(set(disagreed_bad_channels))
             # print(globals.disagreed_bad_channels)
-
-        raise PreventUpdate
 
     # Hide/show bad channels
     @app.callback(
