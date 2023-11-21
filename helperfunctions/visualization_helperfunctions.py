@@ -116,6 +116,15 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         print('Displaying all channels')
         # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
         plotting_data['EEG']['channel_names'] = raw.ch_names
+        
+        if len(plotting_data['EEG']['channel_names']) == 129:
+            channel_order = []
+            for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
+                channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
+            channel_order.append('Cz')
+
+            raw.reorder_channels(channel_order)
+            plotting_data['EEG']['channel_names'] = raw.ch_names
 
     # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
     plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
