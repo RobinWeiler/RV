@@ -3,8 +3,9 @@ import os
 import pandas as pd
 
 from helperfunctions.annotation_helperfunctions import get_annotations_dict
+from helperfunctions.stats_helperfunctions import _natural_keys
+
 import constants as c
-import globals
 
 
 def save_to(save_file_name, extension, raw):
@@ -129,6 +130,7 @@ def save_bad_channels(save_file_name, raw):
     # print('Saving data to {}'.format(new_file_path))
     
     bad_channels = raw.info['bads']
+    bad_channels.sort(key=_natural_keys)
 
     print('Saving bad channels to {}'.format(new_file_path))
     
