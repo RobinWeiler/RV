@@ -183,7 +183,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, reorder_channels=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False, reorder_channels=False):
     """Generates initial EEG figure.
 
     Args:
@@ -205,11 +205,11 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels, reorder_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels, reorder_channels)
 
     return fig
 
-def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
+def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False, reorder_channels=False):
     """Generates EEG plots.
 
     Args:
@@ -388,7 +388,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         showgrid=False,
         zeroline=False,
         fixedrange=False,
-        range=((-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)), ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET)))  # Start y-axis range to cut off peaks
+        range=((-(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET), (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not reorder_channels else len(c.CHANNEL_TO_REGION_128) * 2))))  # Start y-axis range to cut off peaks
     )
     fig.update_xaxes(
         # title_text='Time (in seconds)'
@@ -427,7 +427,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                         method="relayout", 
                         args=[{
                             "yaxis.range[0]": (-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)),
-                            "yaxis.range[1]": ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET))
+                            "yaxis.range[1]": (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not reorder_channels else len(c.CHANNEL_TO_REGION_128) * 2)))
                         }]
                     ),
                     # dict(label='Hide/show bad channels',
