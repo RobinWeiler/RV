@@ -119,7 +119,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         
         if len(plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
             channel_order = []
-            for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
+            for region in c.CHANNEL_TO_REGION_128.keys():
                 channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
             channel_order.append('Cz')
 
@@ -159,8 +159,8 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     region_offset = np.zeros(len(plotting_data['EEG']['channel_names']), dtype=np.int64)
     
-    if len(plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
-        region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
+    if reorder_channels:
+        region_names = list(c.CHANNEL_TO_REGION_128.keys())
         region_names.reverse()
         counter = 1  # Cz in position 0
 
@@ -242,6 +242,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
     t1 = time.time()
     for channel_index in range(data_subset.shape[0]):   
         channel_name = plotting_data['EEG']['channel_names'][channel_index]
+
         channel_color = 'black'
         if channel_name in plotting_data['EEG']['eog_channels']:
             channel_color = 'blue'
@@ -256,12 +257,19 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             else:
                 channel_color = c.BAD_CHANNEL_COLOR
 
+        region_name = None
+        if reorder_channels and not channel_name == 'Cz':
+            for region, channels in c.CHANNEL_TO_REGION_128.items():
+                if int(channel_name[1:]) in channels:
+                    region_name = region
+                    break
+
         fig.add_trace(
             Scattergl(
                 x=times_subset,  # plotting_data['EEG']['timescale'][index_0:index_1],
                 y=data_subset[channel_index, :],  # plotting_data['EEG']['offset_EEG_data'][index_0:index_1, channel_index],
                 marker=dict(color=channel_color, size=0.1),
-                name=channel_name,
+                name=channel_name if not region_name else channel_name + ' ' + region_name,
                 customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
                 hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (in μV)=%{customdata:.3f}' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time (in seconds)=%{x:.2f}, Amplitude (scaled)=%{customdata:.3f}' + '<extra></extra>',
