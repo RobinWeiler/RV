@@ -121,7 +121,22 @@ def register_visualization_callbacks(app):
                     y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
                     y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
 
-                    globals.plotting_data['plot']['y_ticks'] = y_ticks
+                    region_offset = np.zeros(len(globals.plotting_data['EEG']['channel_names']), dtype=np.int64)
+                    
+                    if len(globals.plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
+                        region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
+                        region_names.reverse()
+                        counter = 1  # Cz in position 0
+
+                        for index, region in enumerate(region_names):
+                            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
+                                region_offset[counter] = index * globals.plotting_data['plot']['offset_factor'] * 2
+                                counter += 1
+
+                        # region_offset = np.flip(region_offset)
+
+                    y_ticks += region_offset
+                    globals.plotting_data['plot']['y_ticks'] = np.flip(y_ticks)
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
