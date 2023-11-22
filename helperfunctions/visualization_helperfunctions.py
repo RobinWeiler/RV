@@ -85,7 +85,7 @@ def _get_offset(channel_offset):
     
 #     return timescale, recording_length
 
-def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output=[], model_channels=[]):
+def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output=[], model_channels=[], reorder_channels=False):
     """Generates dict holding all relevant data from raw object and model outputs for plotting.
 
     Args:
@@ -117,14 +117,14 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
         plotting_data['EEG']['channel_names'] = raw.ch_names
         
-        # if len(plotting_data['EEG']['channel_names']) == 129:
-        #     channel_order = []
-        #     for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
-        #         channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
-        #     channel_order.append('Cz')
+        if len(plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
+            channel_order = []
+            for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
+                channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
+            channel_order.append('Cz')
 
-        #     raw.reorder_channels(channel_order)
-        #     plotting_data['EEG']['channel_names'] = raw.ch_names
+            raw.reorder_channels(channel_order)
+            plotting_data['EEG']['channel_names'] = raw.ch_names
 
     # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
     plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
@@ -159,17 +159,17 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     region_offset = np.zeros(len(plotting_data['EEG']['channel_names']), dtype=np.int64)
     
-    # if len(plotting_data['EEG']['channel_names']) == 129:
-    #     region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
-    #     region_names.reverse()
-    #     counter = 1  # Cz in position 0
+    if len(plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
+        region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
+        region_names.reverse()
+        counter = 1  # Cz in position 0
 
-    #     for index, region in enumerate(region_names):
-    #         for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
-    #             region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
-    #             counter += 1
+        for index, region in enumerate(region_names):
+            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
+                region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
+                counter += 1
 
-    #     # region_offset = np.flip(region_offset)
+        # region_offset = np.flip(region_offset)
 
     y_ticks += region_offset
     plotting_data['plot']['y_ticks'] = np.flip(y_ticks)
@@ -183,7 +183,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     return plotting_data
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, reorder_channels=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates initial EEG figure.
 
     Args:
@@ -202,7 +202,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     """
     fig = Figure()
     
-    globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
+    globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels, reorder_channels)
     # globals.plotting_data = plotting_data.copy()    
     
     fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels)
