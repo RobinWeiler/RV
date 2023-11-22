@@ -177,7 +177,7 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         if not skip_hoverinfo:
             patched_fig['data'][channel_index]['customdata'] = custom_data[channel_index] if not skip_hoverinfo else None
 
-        patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
+    patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
         
     return patched_fig
 
