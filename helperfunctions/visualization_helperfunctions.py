@@ -117,14 +117,14 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
         plotting_data['EEG']['channel_names'] = raw.ch_names
         
-        if len(plotting_data['EEG']['channel_names']) == 129:
-            channel_order = []
-            for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
-                channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
-            channel_order.append('Cz')
+        # if len(plotting_data['EEG']['channel_names']) == 129:
+        #     channel_order = []
+        #     for region in ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']:
+        #         channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
+        #     channel_order.append('Cz')
 
-            raw.reorder_channels(channel_order)
-            plotting_data['EEG']['channel_names'] = raw.ch_names
+        #     raw.reorder_channels(channel_order)
+        #     plotting_data['EEG']['channel_names'] = raw.ch_names
 
     # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
     plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
@@ -157,12 +157,27 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
     y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
 
-    plotting_data['plot']['y_ticks'] = y_ticks
+    region_offset = np.zeros(len(plotting_data['EEG']['channel_names']), dtype=np.int64)
+    
+    # if len(plotting_data['EEG']['channel_names']) == 129:
+    #     region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
+    #     region_names.reverse()
+    #     counter = 1  # Cz in position 0
+
+    #     for index, region in enumerate(region_names):
+    #         for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
+    #             region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
+    #             counter += 1
+
+    #     # region_offset = np.flip(region_offset)
+
+    y_ticks += region_offset
+    plotting_data['plot']['y_ticks'] = np.flip(y_ticks)
 
     y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
     for model_id in range(len(plotting_data['model'])):
         y_tick_labels.append('M{}'.format(model_id))
-    y_tick_labels.reverse()
+    # y_tick_labels.reverse()
 
     plotting_data['plot']['y_tick_labels'] = y_tick_labels
 
@@ -218,8 +233,11 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
     if not skip_hoverinfo:
         custom_data = data_subset.copy()
 
-    for channel_index in range(len(plotting_data['EEG']['channel_names'])):
-        data_subset[channel_index, :] = data_subset[channel_index, :] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+    # for channel_index in range(len(plotting_data['EEG']['channel_names'])):
+    #     # data_subset[channel_index, :] = data_subset[channel_index, :] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
+    #     data_subset[channel_index, :] = data_subset[channel_index, :] + plotting_data['plot']['y_ticks'][channel_index]
+
+    data_subset += plotting_data['plot']['y_ticks'].reshape(-1, 1)
 
     t1 = time.time()
     for channel_index in range(data_subset.shape[0]):   
