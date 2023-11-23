@@ -39,106 +39,52 @@ def register_annotation_callbacks(app):
 
     # Annotation through dragging mouse across intervals callback
     @app.callback(
-        Output('relayout-data', 'children'),
+        [Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True), Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)],
         Input('EEG-graph', 'relayoutData'),
-        [State('annotation-label', 'value'), State('show-annotations-only', 'value')],
+        [State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData, annotation_label, show_annotations_only):
+    def _make_annotation(relayoutData, annotation_label, show_annotations_only, current_fig):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
             relayoutData (dict): Data from latest relayout event.
             annotation_label (string); Label for new annotations.
         """
-        print(relayoutData)
+        # print(relayoutData)
         if relayoutData:
-            # Annotation added/removed
-            if 'shapes' in relayoutData:
-                print(relayoutData)
-                # globals.marked_annotations[:] = []
+            # Annotation was added/removed/moved/resized
+            if any('shapes' in key for key in relayoutData.keys()):
+                globals.marked_annotations[:] = []
 
-                if relayoutData['shapes']:
-                    # For debugging
-                    # print(relayoutData['shapes'][-1]['x0'])
-                    # print(relayoutData['shapes'][-1]['x1'])
-                    
-                    check_add = []
-                    for annotation in globals.marked_annotations:
-                        check_add.append((annotation[0], annotation[1]))
+                for shape in current_fig['layout']['shapes']:
+                    if shape['type'] == 'rect':
+                        x0 = np.round(shape['x0'], 3)
+                        x1 = np.round(shape['x1'], 3)
 
-                    check_remove = []
-                    for shape in relayoutData['shapes']:
-                        # print(shape)
-                        if shape['type'] == 'rect':
-                            x0 = np.round(shape['x0'], 3)
-                            x1 = np.round(shape['x1'], 3)
-
-                            if x0 < x1:
-                                annotation_start = x0
-                                annotation_end = x1
-                            else:
-                                annotation_start = x1
-                                annotation_end = x0
-                            
-                            check_remove.append((annotation_start, annotation_end))
-
-                            if (annotation_start, annotation_end) not in check_add:
-                                # print('new annotation {}'.format((annotation_start, annotation_end, annotation_label)))
-                                globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
-
-                    for annotation in globals.marked_annotations:
-                        if (annotation[0], annotation[1]) not in check_remove:
-                            # print('remove annotation {}'.format((annotation[0], annotation[1], annotation[2])))
-                            globals.marked_annotations.remove((annotation[0], annotation[1], annotation[2]))
-
-                    globals.marked_annotations = merge_intervals(globals.marked_annotations)
-
-                # Only annotation was removed
-                else:
-                    globals.marked_annotations = []
-
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
-
-                quick_save(globals.raw)
-
-                print(globals.marked_annotations)
-
-            # Annotation was moved/resized
-            elif json.dumps(relayoutData).startswith('shapes', 2):
-                # print('Annotation was changed')
-                for key in relayoutData.keys():
-                    if key.endswith('x0'):
-                        x0_key = key
-                        # print(x0_key)
-                        annotation_index = int(re.findall(r'\d+', x0_key)[0])  # returns index of changed shape
-                        # print(annotation_index)
-                    if key.endswith('x1'):
-                        x1_key = key
-
-                x0 = np.round(relayoutData[x0_key], 3)
-                x1 = np.round(relayoutData[x1_key], 3)
-
-                if x0 < x1:
-                    annotation_start = x0
-                    annotation_end = x1
-                else:
-                    annotation_start = x1
-                    annotation_end = x0
-
-                globals.marked_annotations[annotation_index] = (annotation_start, annotation_end, globals.marked_annotations[annotation_index][2])
+                        if x0 < x1:
+                            annotation_start = x0
+                            annotation_end = x1
+                        else:
+                            annotation_start = x1
+                            annotation_end = x0
+                        
+                        globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
 
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
-                
-                if show_annotations_only:
-                    # print(annotation_index)
-                    globals.current_plot_index = annotation_index
 
                 quick_save(globals.raw)
-
                 print(globals.marked_annotations)
+
+                if show_annotations_only and len(globals.marked_annotations) > 0:
+                    num_segments = int(len(globals.marked_annotations) - 1)
+                    marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
+
+                    return num_segments, 1, marks, globals.current_plot_index
+
+        raise PreventUpdate
 
     # Add/remove/rename annotation label
     @app.callback(
@@ -150,8 +96,6 @@ def register_annotation_callbacks(app):
     def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
-        # print(current_annotation_label)
-        # print(annotation_labels)
 
         if 'data-file' in trigger:
             if globals.raw:
