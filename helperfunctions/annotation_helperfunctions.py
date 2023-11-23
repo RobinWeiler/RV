@@ -75,7 +75,7 @@ def get_annotations_dict(raw):
     return marked_annotations_dict
 
 def merge_intervals(marked_annotations):
-    """Returns merged version of given annotations.
+    """Returns merged and sorted (by onset) version of given annotations.
 
     Args:
         marked_annotations (list): List of tuples(x0, x1) of annotations.
@@ -116,6 +116,7 @@ def merge_intervals(marked_annotations):
         # Remove duplicates
         merged_annotations = list(dict.fromkeys(merged_annotations))
         # print(merged_annotations)
+        merged_annotations = sorted(merged_annotations, key=lambda x: x[0])
 
     return merged_annotations
 
