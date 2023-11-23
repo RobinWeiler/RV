@@ -82,6 +82,9 @@ def register_annotation_callbacks(app):
                     num_segments = int(len(globals.marked_annotations) - 1)
                     marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
 
+                    if globals.current_plot_index >= num_segments:
+                        globals.current_plot_index = num_segments
+
                     return num_segments, 1, marks, globals.current_plot_index
 
         raise PreventUpdate
