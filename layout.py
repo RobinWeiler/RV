@@ -288,9 +288,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 'Selected files:',
                                 html.Div(id='bad-channel-files')
                             ]),
-                            # html.Div([
-                            #     dbc.Button("Remove model predictions", id="reset-models", className="button")
-                            # ]),
+                        ]),
+                        html.Div([
+                            dbc.Button("Remove bad-channel files", id="reset-bad-channels", className="button")
                         ]),
                         html.Div([
                             html.Div([

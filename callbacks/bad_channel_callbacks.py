@@ -54,24 +54,28 @@ def register_bad_channel_callbacks(app):
 
     # Select bad-channel files callback
     @app.callback(
-        Output('bad-channel-files', 'children'),
-        Input('upload-bad-channels', 'filename'),
+        [Output('bad-channel-files', 'children'), Output('upload-bad-channels', 'filename')],
+        [Input('upload-bad-channels', 'filename'), Input('reset-bad-channels', 'n_clicks')],
         prevent_initial_call=True
     )
-    def _update_model_output_files(list_selected_file_names):
-        """Retrieves file-names of selected bad-channel files. Triggers when new files are loaded.
+    def _update_bad_channel_files(list_selected_file_names, reset_bad_channels):
+        """Retrieves file-names of selected bad-channel files. Triggers when new files are loaded or reset-bad-channels button is clicked. The latter removes selected files.
 
         Args:
             list_selected_file_names (list): List of strings of selected bad-channel file-names.
+            reset_bad_channels (int): Num clicks on reset-bad-channels button.
 
         Returns:
             tuple(list, list): Both lists contain strings of selected model-output file-names.
         """
-        if list_selected_file_names:
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+        if 'reset-bad-channels' in trigger:
+            print('Resetting loaded bad-channels')
+            return [], None
+        elif list_selected_file_names:
             print('Selected files: {}'.format(list_selected_file_names))
-            return _get_list_for_displaying(list_selected_file_names)
-        else:
-            return []
+            return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
     # Add loaded bad channels to dropdown menu callback
     @app.callback(
@@ -81,17 +85,20 @@ def register_bad_channel_callbacks(app):
         prevent_initial_call=True
     )
     def _load_bad_channel_files(loaded_bad_channel_files, current_selected_bad_channels):
-        all_loaded_bad_channels = []
+        if loaded_bad_channel_files:
+            for file_name in loaded_bad_channel_files:
+                if '.txt' in file_name:
+                    loaded_bad_channels = parse_bad_channels_file(file_name)
 
-        for file_name in loaded_bad_channel_files:
-            if '.txt' in file_name:
-                loaded_bad_channels = parse_bad_channels_file(file_name)
-                all_loaded_bad_channels.append(loaded_bad_channels)
+                    globals.bad_channels[file_name] = loaded_bad_channels
+                    current_selected_bad_channels += loaded_bad_channels
 
-                globals.bad_channels[file_name] = loaded_bad_channels
-                current_selected_bad_channels += loaded_bad_channels
+            current_selected_bad_channels = list(set(current_selected_bad_channels))
 
-        current_selected_bad_channels = list(set(current_selected_bad_channels))
+        else:
+            current_selected_bad_channels = globals.bad_channels[globals.file_name]
+
+        globals.raw.info['bads'] = current_selected_bad_channels
 
         return current_selected_bad_channels
 
