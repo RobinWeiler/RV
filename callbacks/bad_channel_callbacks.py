@@ -26,6 +26,7 @@ def register_bad_channel_callbacks(app):
         Returns:
             tuple(list, list, list): First list contains strings of selected bad-channel names. Second and third list contain dicts of all channel names.
         """
+        globals.bad_channels = {}
 
         if globals.raw:
             print('Loading bad channel dropdown menu...')
