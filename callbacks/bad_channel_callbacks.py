@@ -13,12 +13,12 @@ def register_bad_channel_callbacks(app):
 
     # Loading bad channels and all channel names into dropdown menu callback
     @app.callback(
-        [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options')],
+        [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options'), Output('bad-channel-files', 'children', allow_duplicate=True)],
         Input('data-file', 'children'),
         prevent_initial_call=True
     )
     def _update_bad_channel_dropdown(file):
-        """Loads channel names into bad-channels-dropdown and selected-channels-dropdown. Triggers when new file is loaded and when a trace is clicked on to mark it as bad.
+        """Loads channel names into bad-channels-dropdown and selected-channels-dropdown. Triggers when new file is loaded .
 
         Args:
             file (string): Current file-name.
@@ -48,9 +48,9 @@ def register_bad_channel_callbacks(app):
 
             loaded_bad_channels = list(set(loaded_bad_channels))
 
-            return loaded_bad_channels, dropdown_channel_names, dropdown_channel_names
+            return loaded_bad_channels, dropdown_channel_names, dropdown_channel_names, []
         else:
-            return [], [], []
+            return [], [], [], []
 
     # Select bad-channel files callback
     @app.callback(
