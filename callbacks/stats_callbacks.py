@@ -59,13 +59,20 @@ def register_stats_callbacks(app):
             ]),
         ])
 
-        if globals.disagreed_bad_channels:
-            globals.disagreed_bad_channels.sort(key=_natural_keys)
         if len(globals.bad_channels) > 1:
+            if globals.disagreed_bad_channels:
+                globals.disagreed_bad_channels.sort(key=_natural_keys)
+            stat_disagreed_bad_channels = globals.disagreed_bad_channels.copy()
+
+            for bad_channel in globals.disagreed_bad_channels:
+                # Don't include agreed bad channels absent in current session
+                if bad_channel not in globals.bad_channels[globals.file_name] and all(bad_channel in annotation for annotator, annotation in globals.bad_channels.items() if annotation and annotator != globals.file_name):
+                    stat_disagreed_bad_channels.remove(bad_channel) 
+
             bad_channel_stats.children.append(
                 html.Div([
                     html.H2('Disagreed bad channels:'),
-                    html.Font(_get_list_for_displaying(globals.disagreed_bad_channels) if globals.disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
+                    html.Font(_get_list_for_displaying(stat_disagreed_bad_channels) if stat_disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
                 ]),
             )
 
