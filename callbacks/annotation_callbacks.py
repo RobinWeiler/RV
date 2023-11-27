@@ -156,14 +156,15 @@ def register_annotation_callbacks(app):
                         annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
 
         elif 'upload-model-output' in trigger:
-            for file_name in loaded_annotation_files:
-                if '.csv' in file_name:
-                    loaded_annotations = parse_annotation_file(file_name)
+            if loaded_annotation_files:
+                for file_name in loaded_annotation_files:
+                    if '.csv' in file_name:
+                        loaded_annotations = parse_annotation_file(file_name)
 
-                    for annotation in loaded_annotations:
-                        if annotation[2] not in globals.annotation_label_colors.keys():
-                            annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
-                            globals.annotation_label_colors[annotation[2]] = 'red'
+                        for annotation in loaded_annotations:
+                            if annotation[2] not in globals.annotation_label_colors.keys():
+                                annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
+                                globals.annotation_label_colors[annotation[2]] = 'red'
 
         elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
             remove_annotation_label = current_annotation_label
