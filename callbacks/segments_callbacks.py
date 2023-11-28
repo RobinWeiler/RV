@@ -106,12 +106,15 @@ def register_segments_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
         if globals.plotting_data and segment_size:
-            num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
-
-            if 'EEG-graph' in trigger and num_segments == current_num_segments:
-                raise PreventUpdate
             if show_annotations_only and len(globals.marked_annotations) > 0:
                 num_segments = int(len(globals.marked_annotations) - 1)
+            else:
+                num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
+
+            if 'EEG-graph' in trigger and num_segments == current_num_segments:
+                print('no update')
+                raise PreventUpdate
+            if show_annotations_only and len(globals.marked_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
                 marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
