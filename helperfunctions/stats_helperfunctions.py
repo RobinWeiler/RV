@@ -9,7 +9,7 @@ def __atoi(text):
 def _natural_keys(text):
     return [ __atoi(c) for c in re.split(r'(\d+)', text) ]
 
-def calc_stats(annotations, recording_length):
+def _calc_stats(annotations, recording_length):
     """Calculates statistics surrounding amounts of annotated- and clean data.
 
     Args:
