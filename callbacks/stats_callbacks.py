@@ -41,7 +41,7 @@ def register_stats_callbacks(app):
 
             recording_length = globals.raw.n_times / globals.raw.info['sfreq']
 
-            total_amount_clean_data, total_amount_clean_intervals, total_clean_interval_lengths, total_amount_annotated_data, total_amount_annotated_overlap = _calc_stats(all_marked_annotations, recording_length)
+            total_amount_annotated_data, total_amount_clean_data, total_amount_clean_intervals, total_clean_interval_lengths, total_amount_annotated_overlap = _calc_stats(all_marked_annotations, recording_length, interval_length=2)
 
             graph = get_clean_intervals_graph(total_clean_interval_lengths, recording_length)
 
@@ -52,6 +52,8 @@ def register_stats_callbacks(app):
 
         # Annotation stats
         annotation_stats = html.Div([
+            html.H1('Annotations'),
+
             html.Div([
                 html.H2('Total amount of annotated data (in seconds):'),
                 html.Font([total_amount_annotated_data if globals.raw else '-'], id='#annotated-data')
@@ -62,29 +64,31 @@ def register_stats_callbacks(app):
             ]),
         ])
 
-        for annotation_option in annotation_labels:
-            print(annotation_option['label'])
-            corresponding_annotations = [annotation for annotation in all_marked_annotations if annotation[2] == annotation_option['label']]
-            print(corresponding_annotations)
-            _, _, _, amount_annotated_data, _ = _calc_stats(corresponding_annotations, recording_length)
-            amount_annotated_data = round(amount_annotated_data, 2)
+        if globals.raw:
+            for annotation_option in annotation_labels:
+                corresponding_annotations = [annotation for annotation in all_marked_annotations if annotation[2] == annotation_option['label']]
 
-            annotation_stats.children.append(
-                html.Div([
-                    html.H2('Amount of annotated data (in seconds) of {}:'.format(annotation_option['label'])),
-                    html.Font([amount_annotated_data], id='#annotated-data-{}'.format(annotation_option['label']))
-                ]),
-                # html.Div([
-                #     html.H2('Amount of clean intervals longer than 2 seconds of {}:'.format(annotation_option['label'])),
-                #     html.Font([amount_clean_intervals], id='#clean-intervals-{}'.format(annotation_option['label']))
-                # ])
-            )
+                amount_annotated_data, _, _, _, _ = _calc_stats(corresponding_annotations, recording_length, interval_length=2)
+                amount_annotated_data = round(amount_annotated_data, 2)
+
+                annotation_stats.children.append(
+                    html.Div([
+                        html.H2('Amount of annotated data (in seconds) of {}:'.format(annotation_option['label'])),
+                        html.Font([amount_annotated_data], id='#annotated-data-{}'.format(annotation_option['label']))
+                    ]),
+                    # html.Div([
+                    #     html.H2('Amount of clean intervals longer than 2 seconds of {}:'.format(annotation_option['label'])),
+                    #     html.Font([amount_clean_intervals], id='#clean-intervals-{}'.format(annotation_option['label']))
+                    # ])
+                )
             
 
         # Bad channel stats
         if current_selected_bad_channels:
             current_selected_bad_channels.sort(key=_natural_keys)
         bad_channel_stats = html.Div([
+            html.H1('Bad channels'),
+
             html.Div([
                 html.H2('Current bad channels:'),
                 html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
@@ -121,33 +125,43 @@ def register_stats_callbacks(app):
         stats = html.Div([
                     # General info
                     html.Div([
-                        html.H2('File name:'),
-                        html.Font([file_name if globals.raw else '-'], id='file-name')
+                        html.H1('General'),
+
+                        html.Div([
+                            html.H2('File name:'),
+                            html.Font([file_name if globals.raw else '-'], id='file-name')
+                        ]),
+                        html.Div([
+                            html.H2('Recording length (in seconds):'),
+                            html.Font([recording_length if globals.raw else '-'], id='recording-length')
+                        ]),
                     ]),
-                    html.Div([
-                        html.H2('Recording length (in seconds):'),
-                        html.Font([recording_length if globals.raw else '-'], id='recording-length')
-                    ]),
+
                     html.Hr(),
 
                     # Clean stats
                     html.Div([
-                        html.H2('Total amount of clean data left (in seconds):'),
-                        html.Font([total_amount_clean_data if globals.raw else '-'], id='#clean-data')
+                        html.H1('Clean data'),
+
+                        html.Div([
+                            html.H2('Total amount of clean data left (in seconds):'),
+                            html.Font([total_amount_clean_data if globals.raw else '-'], id='#clean-data')
+                        ]),
+                        html.Div([
+                            html.H2('Total amount of clean intervals longer than 2 seconds:'),
+                            html.Font([total_amount_clean_intervals if globals.raw else '-'], id='#clean-intervals')
+                        ]),
+                        html.Div([
+                            dcc.Graph(
+                                id='clean-intervals-graph',
+                                figure=graph if globals.raw else Figure(),
+                                config={
+                                    'displayModeBar': False,
+                                },
+                            ),
+                        ]),
                     ]),
-                    html.Div([
-                        html.H2('Total amount of clean intervals longer than 2 seconds:'),
-                        html.Font([total_amount_clean_intervals if globals.raw else '-'], id='#clean-intervals')
-                    ]),
-                    html.Div([
-                        dcc.Graph(
-                            id='clean-intervals-graph',
-                            figure=graph if globals.raw else Figure(),
-                            config={
-                                'displayModeBar': False,
-                            },
-                        ),
-                    ]),
+
                     html.Hr(),
 
                     annotation_stats,
