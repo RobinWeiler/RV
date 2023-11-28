@@ -87,12 +87,12 @@ def register_segments_callbacks(app):
 
     # Enable/disable segment-slider
     @app.callback(
-        [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks')],
+        [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks'), Output('segment-slider', 'value')],
         [Input('EEG-graph', 'figure'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
-        State('segment-slider', 'disabled')
+        [State('segment-slider', 'disabled'), State('segment-slider', 'max')]
         # prevent_initial_call=True
     )
-    def _update_segment_slider(fig, segment_size, show_annotations_only, segment_slider_disabled):
+    def _update_segment_slider(fig, segment_size, show_annotations_only, segment_slider_disabled, current_num_segments):
         """Disables/enables segment-slider. Triggered when EEG plot has loaded.
 
         Args:
@@ -106,22 +106,23 @@ def register_segments_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
         if globals.plotting_data and segment_size:
-            if 'EEG-graph' in trigger and not segment_slider_disabled:
+            num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
+
+            if 'EEG-graph' in trigger and num_segments == current_num_segments:
                 raise PreventUpdate
             if show_annotations_only and len(globals.marked_annotations) > 0:
                 num_segments = int(len(globals.marked_annotations) - 1)
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
-                num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
                 marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
 
-            return False, num_segments, 1, marks
+            return False, num_segments, 1, marks, 0
         else:
-            return True, 1, 1, {0: '0', 1: '1'}
+            return True, 1, 1, {0: '0', 1: '1'}, 0
 
     # Switch plotted segment via segment-slider or arrow buttons
     @app.callback(
-        [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value')],
+        [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
         [
             State('segment-size', 'value'), State('show-annotations-only', 'value'), 
