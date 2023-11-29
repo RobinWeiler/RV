@@ -39,12 +39,20 @@ def register_annotation_callbacks(app):
 
     # Annotation through dragging mouse across intervals callback
     @app.callback(
-        [Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True), Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)],
+        [
+            Output('EEG-graph', 'figure', allow_duplicate=True),
+            Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True),
+            Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)
+        ],
         Input('EEG-graph', 'relayoutData'),
-        [State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure')],
+        [
+            State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure'),
+            State('segment-slider', 'max'), State('segment-slider', 'step'),
+            State('segment-slider', 'marks'), State('segment-slider', 'value')
+        ],
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData, annotation_label, show_annotations_only, current_fig):
+    def _make_annotation(relayoutData, annotation_label, show_annotations_only, current_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
@@ -56,11 +64,17 @@ def register_annotation_callbacks(app):
             # Annotation was added/removed/moved/resized
             if any('shapes' in key for key in relayoutData.keys()):
                 globals.marked_annotations[:] = []
+                # current_annotations = []
 
                 for shape in current_fig['layout']['shapes']:
+                    print(shape)
                     if shape['type'] == 'rect':
                         x0 = np.round(shape['x0'], 3)
                         x1 = np.round(shape['x1'], 3)
+                        if 'label' in shape.keys():
+                            label = shape['label']['text']
+                        else:
+                            label = shape['name']
 
                         if x0 < x1:
                             annotation_start = x0
@@ -69,14 +83,67 @@ def register_annotation_callbacks(app):
                             annotation_start = x1
                             annotation_end = x0
                         
-                        globals.marked_annotations.append((annotation_start, annotation_end, annotation_label))
+                        globals.marked_annotations.append((annotation_start, annotation_end, label))
+                        # current_annotations.append((annotation_start, annotation_end))
+
+                # patched_fig['layout']['shapes'] = new_shapes
+
+                # previous_annotations = [(annotation[0], annotation[1]) for annotation in globals.marked_annotations]
+                # print('current')
+                # print(current_annotations)
+                # print('before')
+                # print(previous_annotations)
+
+                # new_annotation = [annotation for annotation in current_annotations if annotation not in previous_annotations] if len(current_annotations) > len(previous_annotations) else None
+                # print('new')
+                # print(new_annotation)
+                # removed_annotation = [annotation for annotation in previous_annotations if annotation not in current_annotations] if len(current_annotations) < len(previous_annotations) else None
+                # print('removed')
+                # print(removed_annotation)
+                
+                # if len(current_annotations) == len(previous_annotations):
+                #     print('Annotation was moved/resized')
+                #     removed_annotation = [annotation for annotation in previous_annotations if annotation not in current_annotations]
+                #     print('removed')
+                #     print(removed_annotation)
+                #     annotation_label = [annotation[2] for annotation in globals.marked_annotations if annotation[0] == removed_annotation[0][0] and annotation[1] == removed_annotation[0][1]][0]
+                #     new_annotation = [annotation for annotation in current_annotations if annotation not in previous_annotations]
+
+                # if new_annotation:
+                #     print('New annotation added')
+                #     globals.marked_annotations.append((new_annotation[0][0], new_annotation[0][1], annotation_label))
+                # if removed_annotation:
+                #     print('Old annotation removed')
+                #     globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[0] != removed_annotation[0][0] or annotation[1] != removed_annotation[0][1]]
+                # # else:
+                # #     print('Undefined')
 
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
+                print(globals.marked_annotations)
+
+                patched_fig = Patch()
+                patched_fig['layout']['shapes'] = []
+                for annotation in globals.marked_annotations:
+                    patched_fig['layout']['shapes'].append({
+                        'editable': True,
+                        'xref': 'x',
+                        'yref': 'y',
+                        'layer': 'below',
+                        'opacity': 0.6,
+                        'line': {'width': 0},
+                        'fillcolor': globals.annotation_label_colors[annotation[2]],
+                        'fillrule': 'evenodd',
+                        'type': 'rect',
+                        'x0': annotation[0],
+                        'y0': current_fig['layout']['yaxis']['range'][0],  # len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                        'x1': annotation[1],
+                        'y1': current_fig['layout']['yaxis']['range'][1],  # -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor'],
+                        # 'label': {'text': annotation[2], 'font': {'size': 1}},
+                        'name': annotation[2]
+                    })
 
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
-
                 quick_save(globals.raw)
-                print(globals.marked_annotations)
 
                 if show_annotations_only and len(globals.marked_annotations) > 0:
                     num_segments = int(len(globals.marked_annotations) - 1)
@@ -85,7 +152,9 @@ def register_annotation_callbacks(app):
                     if globals.current_plot_index >= num_segments:
                         globals.current_plot_index = num_segments
 
-                    return num_segments, 1, marks, globals.current_plot_index
+                    return patched_fig, num_segments, 1, marks, globals.current_plot_index
+                else:
+                    return patched_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value
 
         raise PreventUpdate
 
@@ -209,6 +278,8 @@ def register_annotation_callbacks(app):
             patched_fig = Patch()
 
             patched_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+            patched_fig['layout']['newshape']['label']['text'] = annotation_label
+            # patched_fig['layout']['newshape']['legendgroup'] = annotation_label
             
             patched_fig['layout']['shapes'] = []
             for annotation in globals.marked_annotations:
@@ -223,9 +294,11 @@ def register_annotation_callbacks(app):
                     'fillrule': 'evenodd',
                     'type': 'rect',
                     'x0': annotation[0],
-                    'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                    'y0': current_fig['layout']['yaxis']['range'][0],  # len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
                     'x1': annotation[1],
-                    'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                    'y1': current_fig['layout']['yaxis']['range'][1],  # -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor'],
+                    # 'label': {'text': annotation[2], 'font': {'size': 1}},
+                    'name': annotation[2]
                 })
 
             return patched_fig
