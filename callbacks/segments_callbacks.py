@@ -112,7 +112,7 @@ def register_segments_callbacks(app):
                 num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
 
             if 'EEG-graph' in trigger and num_segments == current_num_segments:
-                print('no update')
+                # print('no update')
                 raise PreventUpdate
             if show_annotations_only and len(globals.marked_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
@@ -162,7 +162,11 @@ def register_segments_callbacks(app):
             #     globals.preloaded_plots[globals.current_plot_index] = current_fig
 
             if 'segment-slider' in trigger:
-                globals.current_plot_index = segment_slider
+                if globals.current_plot_index == segment_slider and not show_annotations_only:
+                    # print('no update')
+                    raise PreventUpdate
+                else:
+                    globals.current_plot_index = segment_slider
             elif 'left-button' in trigger:
                 globals.current_plot_index -= 1
             elif 'right-button' in trigger:
