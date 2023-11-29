@@ -67,7 +67,7 @@ def register_annotation_callbacks(app):
                 # current_annotations = []
 
                 for shape in current_fig['layout']['shapes']:
-                    print(shape)
+                    # print(shape)
                     if shape['type'] == 'rect':
                         x0 = np.round(shape['x0'], 3)
                         x1 = np.round(shape['x1'], 3)
