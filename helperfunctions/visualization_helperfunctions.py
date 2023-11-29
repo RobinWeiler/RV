@@ -355,7 +355,13 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             opacity=0.6,
             drawdirection='vertical',
             layer='below',
-            line_width=0
+            line_width=0,
+            label={'text': annotation_label, 'textposition': 'top center', 'font': {'size': 24, 'color': 'white'}},
+            # name=annotation_label,
+            # showlegend=True,
+            # legend='legend',
+            # legendgroup=annotation_label,
+            # legendgrouptitle={'text':annotation_label}
         ),
     )
 
@@ -401,7 +407,8 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red',
             opacity=0.6,
             layer='below',
-            line_width=0
+            line_width=0,
+            name=annotation[2]
         )
    
     fig.update_layout(
