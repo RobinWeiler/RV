@@ -82,7 +82,10 @@ def register_annotation_callbacks(app):
                         else:
                             annotation_start = x1
                             annotation_end = x0
-                        
+
+                        if annotation_start < 0:
+                            annotation_start = 0
+
                         globals.marked_annotations.append((annotation_start, annotation_end, label))
                         # current_annotations.append((annotation_start, annotation_end))
 
