@@ -50,6 +50,8 @@ def get_annotations(raw):
     marked_annotations = []
     for annotation_index in range(len(annotation_starts)):
         annotation_ends[annotation_index] = np.round(annotation_ends[annotation_index], 3)
+        if not annotation_starts[annotation_index] + 0.01 < annotation_ends[annotation_index]:
+            continue
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index], annotation_descriptions[annotation_index]))
 
