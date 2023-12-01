@@ -60,48 +60,96 @@ def _get_clean_intervals(annotations, recording_length, interval_length=2):
 
         return clean_interval_lengths, amount_clean_intervals
 
-def _get_annotated_overlap(annotations):
-    if not annotations:
-        return 0.0
+def _get_annotated_overlap(annotations1, annotations2):
+    if not annotations1 or not annotations2:
+        return None
     else:
-        annotations.sort(key=lambda x: x[0])
+        annotations1.sort(key=lambda x: x[0])
+        annotations2.sort(key=lambda x: x[0])
 
-        amount_annotated_overlap = 0.0
-        current_annotation = annotations[0]
+        amount_annotated_overlap = 0
 
-        for annotation in annotations[1:]:
+        annotated_segments1 = []
+        annotated_segments2 = []
+
+        for annotation in annotations1:
             start_time, end_time, _ = annotation
-            current_start, current_end, _ = current_annotation
-            
-            # Check for overlap between the current annotation and the next annotation
-            overlap_start = max(current_start, start_time)
-            overlap_end = min(current_end, end_time)
-            
-            # If there is overlap, add it to the total overlap time
-            if overlap_start < overlap_end:
-                amount_annotated_overlap += overlap_end - overlap_start
-            
-            # Update the current annotation if needed
-            if end_time > current_end:
-                current_annotation = annotation
+            start_time, end_time = round(start_time, 1), round(end_time, 1)
+
+            while start_time + 0.1 <= end_time:
+                annotated_segments1.append(start_time)
+                start_time += 0.1
+                start_time = round(start_time, 1)
+
+        for annotation in annotations2:
+            start_time, end_time, _ = annotation
+            start_time, end_time = round(start_time, 1), round(end_time, 1)
+
+            while start_time + 0.1 <= end_time:
+                annotated_segments2.append(start_time)
+                start_time += 0.1
+                start_time = round(start_time, 1)
+
+        # print(annotated_segments1)
+        # print(len(annotated_segments1))
+        # print(annotated_segments2)
+        # print(len(annotated_segments2))
+
+        common_segments = set(annotated_segments1) & set(annotated_segments2)
+        # print(common_segments)
+        # print(len(common_segments))
+
+        unique_segments = set(annotated_segments1) ^ set(annotated_segments2)
+        # print(unique_segments)
+        # print(len(unique_segments))
+
+        amount_annotated_overlap = (len(common_segments) / (len(common_segments) + len(unique_segments))) * 100
+        amount_annotated_overlap = round(amount_annotated_overlap, 2)
 
         return amount_annotated_overlap
 
-def _calc_stats(annotations, recording_length, interval_length=2):
-    """Calculates statistics surrounding amounts of annotated- and clean data.
+# def _get_annotated_overlap(annotations):
+#     if not annotations:
+#         return 0.0
+#     else:
+#         annotations.sort(key=lambda x: x[0])
 
-    Args:
-        annotations (list): List of tuples(x0, x1) of annotations.
-        recording_length (float): Length of recording (in seconds).
+#         amount_annotated_overlap = 0.0
+#         current_annotation = annotations[0]
 
-    Returns:
-        tuple(float, float, int, list): Amount of annotated data (in seconds), amount of un-annotated data (in seconds), num un-annotated intervals longer than 2 seconds, list of all lengths of un-annotated intervals (in seconds).
-    """
-    amount_annotated_data, amount_clean_data = _get_amount_annotated_clean_data(annotations, recording_length)
-    clean_interval_lengths, amount_clean_intervals = _get_clean_intervals(annotations, recording_length, interval_length=interval_length)
-    amount_annotated_overlap = _get_annotated_overlap(annotations)
+#         for annotation in annotations[1:]:
+#             start_time, end_time, _ = annotation
+#             current_start, current_end, _ = current_annotation
+            
+#             # Check for overlap between the current annotation and the next annotation
+#             overlap_start = max(current_start, start_time)
+#             overlap_end = min(current_end, end_time)
+            
+#             # If there is overlap, add it to the total overlap time
+#             if overlap_start < overlap_end:
+#                 amount_annotated_overlap += overlap_end - overlap_start
+            
+#             # Update the current annotation if needed
+#             if end_time > current_end:
+#                 current_annotation = annotation
 
-    return amount_annotated_data, amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_overlap
+#         return amount_annotated_overlap
+
+# def _calc_stats(annotations, recording_length, interval_length=2):
+#     """Calculates statistics surrounding amounts of annotated- and clean data.
+
+#     Args:
+#         annotations (list): List of tuples(x0, x1) of annotations.
+#         recording_length (float): Length of recording (in seconds).
+
+#     Returns:
+#         tuple(float, float, int, list): Amount of annotated data (in seconds), amount of un-annotated data (in seconds), num un-annotated intervals longer than 2 seconds, list of all lengths of un-annotated intervals (in seconds).
+#     """
+#     amount_annotated_data, amount_clean_data = _get_amount_annotated_clean_data(annotations, recording_length)
+#     clean_interval_lengths, amount_clean_intervals = _get_clean_intervals(annotations, recording_length, interval_length=interval_length)
+#     amount_annotated_overlap = _get_annotated_overlap(annotations)
+
+#     return amount_annotated_data, amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_overlap
 
 def get_clean_intervals_graph(clean_interval_lengths, recording_length):
     """Generates histogram of given un-annotated interval lengths.
