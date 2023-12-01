@@ -85,6 +85,8 @@ def register_annotation_callbacks(app):
 
                         if annotation_start < 0:
                             annotation_start = 0
+                        if annotation_end > globals.plotting_data['EEG']['recording_length']:
+                            annotation_end = globals.plotting_data['EEG']['recording_length']
 
                         globals.marked_annotations.append((annotation_start, annotation_end, label))
                         # current_annotations.append((annotation_start, annotation_end))
