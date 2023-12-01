@@ -200,6 +200,13 @@ def register_visualization_callbacks(app):
 
             print(globals.viewing_raw.info)
 
+            if 'annotations' in globals.parameters.keys():
+                loaded_annotations = globals.parameters['annotations']
+                merged_annotations = merge_intervals(globals.marked_annotations + loaded_annotations)
+                globals.marked_annotations = merged_annotations
+                annotations_to_raw(globals.raw, globals.marked_annotations)
+                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+
             model_output = []
             model_channel_names = []
             model_sample_rate = []
@@ -209,7 +216,6 @@ def register_visualization_callbacks(app):
                     if '.csv' in model_name:
                         loaded_annotations = parse_annotation_file(model_name)
                         merged_annotations = merge_intervals(globals.marked_annotations + loaded_annotations)
-
                         globals.marked_annotations = merged_annotations
                         annotations_to_raw(globals.raw, globals.marked_annotations)
                         annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
