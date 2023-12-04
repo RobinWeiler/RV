@@ -203,6 +203,9 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
             patched_fig['data'][len(channels) + model_index]['customdata'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
 
     patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
+
+    patched_fig['layout']['updatemenus'][0]['buttons'][0]['args'][0]['xaxis.range[0]'] = x0
+    patched_fig['layout']['updatemenus'][0]['buttons'][0]['args'][0]['xaxis.range[1]'] = x1 if (not use_slider or show_annotations_only) else x0 + 11
         
     return patched_fig
 
