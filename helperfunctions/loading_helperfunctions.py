@@ -123,6 +123,31 @@ def parse_annotation_file(filename):
 
     return loaded_annotations
 
+def parse_bad_channels_file(filename):
+    data_file = os.path.join(c.DATA_DIRECTORY, filename)
+    save_file = os.path.join(c.SAVE_FILES_DIRECTORY, filename)
+
+    if os.path.exists(data_file):
+        print('Found data-file')
+        file = data_file
+    elif os.path.exists(save_file):
+        print('Found save-file')
+        file = save_file
+    else:
+        print('Error: Could not find file. Make sure file is located in {} or {} directory.'.format(c.DATA_DIRECTORY, c.SAVE_FILES_DIRECTORY))
+
+    with open(file, 'r') as file:
+        line = file.readline().rstrip(',')
+        strings = line.split(',')
+
+    # Remove leading/trailing whitespace from each string
+    bad_channels = [s.strip() for s in strings]
+
+    # Filter out empty strings
+    bad_channels = [s for s in bad_channels if s]
+
+    return bad_channels
+
 def parse_model_output_file(filename, raw=None):
     """Loads model-output from given file-name. Currently supported file-formats are .txt, and .npy.
 

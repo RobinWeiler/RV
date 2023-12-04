@@ -166,7 +166,7 @@ def register_annotation_callbacks(app):
     # Add/remove/rename annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
-        [Input('data-file', 'children'), Input('model-output-files', 'children'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
+        [Input('data-file', 'children'), Input('upload-model-output', 'filename'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
         [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value')],
         prevent_initial_call=True
     )
@@ -183,15 +183,16 @@ def register_annotation_callbacks(app):
                         globals.annotation_label_colors[annotation[2]] = 'red'
                         annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
 
-        elif 'model-output-files' in trigger:
-            for file_name in loaded_annotation_files:
-                if '.csv' in file_name:
-                    loaded_annotations = parse_annotation_file(file_name)
+        elif 'upload-model-output' in trigger:
+            if loaded_annotation_files:
+                for file_name in loaded_annotation_files:
+                    if '.csv' in file_name:
+                        loaded_annotations = parse_annotation_file(file_name)
 
-                    for annotation in loaded_annotations:
-                        if annotation[2] not in globals.annotation_label_colors.keys():
-                            annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
-                            globals.annotation_label_colors[annotation[2]] = 'red'
+                        for annotation in loaded_annotations:
+                            if annotation[2] not in globals.annotation_label_colors.keys():
+                                annotation_labels.append({'label': '{}'.format(annotation[2]), 'value': '{}'.format(annotation[2])})
+                                globals.annotation_label_colors[annotation[2]] = 'red'
 
         elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
             remove_annotation_label = current_annotation_label

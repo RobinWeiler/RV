@@ -1,5 +1,6 @@
 import collections
 
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 
 from plotly.graph_objs import Figure
@@ -8,7 +9,8 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import get_annotations
 from helperfunctions.modal_helperfunctions import _toggle_modal
-from helperfunctions.stats_helperfunctions import calc_stats, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot
+from helperfunctions.stats_helperfunctions import calc_stats, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot, _natural_keys
+from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
 
 import globals
 
@@ -16,44 +18,122 @@ def register_stats_callbacks(app):
 
     # Toggle stats modal
     @app.callback(
-        [
-            Output("modal-stats", "is_open"), Output('file-name', 'children'), 
-            Output('recording-length', 'children'), Output('#noisy-data', 'children'), 
-            Output('#clean-data', 'children'), Output('#clean-intervals', 'children'), 
-            Output('clean-intervals-graph', 'figure')
-        ],
-        [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks"), Input("close-stats", "n_clicks")],
-        [State('data-file', 'children'), State("modal-stats", "is_open")],
+        Output('stats-body', 'children'),
+        [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks")],
+        [State('data-file', 'children'), State('bad-channels-dropdown', 'value')],
         prevent_initial_call=True
     )
-    def _toggle_stats_modal(open_stats1, open_stats2, close_stats, loaded_file_name, is_open):
+    def _toggle_stats_modal(open_stats_1, open_stats_2, file_name, current_selected_bad_channels):
         """Opens or closes stats modal based on relevant button clicks and loads all statistics.
 
         Args:
             open_stats1 (int): Num clicks on open-stats1 button.
             open_stats2 (int): Num clicks on open-stats2 button.
-            close_stats (int): Num clicks on close-stats button.
-            loaded_file_name (string): File-name of selected recording.
-            is_open (bool): Whether or not modal is currently open.
+            file_name (string): File-name of selected recording.
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
 
         Returns:
-            tuple(bool, string, float, float, float, int, plotly.graph_objs.Figure): Whether or not modal should now be open, file name, recording length, length of annotated data, length of un-annotated data, num un-annotated intervals longer than 2 seconds, histogram of un-annotated interval lengths.
+            tuple(bool, html.Div): Whether or not modal should be open, stats.
         """
-        marked_annotations = get_annotations(globals.raw)
+        if globals.raw:
+            marked_annotations = get_annotations(globals.raw)
 
-        recording_length = globals.raw.n_times / globals.raw.info['sfreq']
+            recording_length = globals.raw.n_times / globals.raw.info['sfreq']
 
-        amount_noisy_data, amount_clean_data, amount_clean_intervals, clean_interval_lengths = calc_stats(marked_annotations, recording_length)
+            amount_clean_data, amount_clean_intervals, clean_interval_lengths, amount_annotated_data, amount_annotated_overlap = calc_stats(marked_annotations, recording_length)
 
-        graph = get_clean_intervals_graph(clean_interval_lengths, recording_length)
+            graph = get_clean_intervals_graph(clean_interval_lengths, recording_length)
 
-        recording_length = round(recording_length, 2)
-        amount_noisy_data = round(amount_noisy_data, 2)
-        amount_clean_data = round(amount_clean_data, 2)
+            recording_length = round(recording_length, 2)
+            amount_clean_data = round(amount_clean_data, 2)
+            amount_annotated_data = round(amount_annotated_data, 2)
+            amount_annotated_overlap = round(amount_annotated_overlap, 2)
 
-        if open_stats1 or open_stats2 or close_stats:
-            return not is_open, loaded_file_name, recording_length, amount_noisy_data, amount_clean_data, amount_clean_intervals, graph
-        return is_open, loaded_file_name, recording_length, amount_noisy_data, amount_clean_data, amount_clean_intervals, graph
+        # Bad channel stats
+        if current_selected_bad_channels:
+            current_selected_bad_channels.sort(key=_natural_keys)
+        bad_channel_stats = html.Div([
+            html.Div([
+                html.H2('Current bad channels:'),
+                html.Font(_get_list_for_displaying(current_selected_bad_channels) if current_selected_bad_channels else ['-'], id='total-bad-channels')
+            ]),
+        ])
+
+        if len(globals.bad_channels) > 1:
+            if globals.disagreed_bad_channels:
+                globals.disagreed_bad_channels.sort(key=_natural_keys)
+            stat_disagreed_bad_channels = globals.disagreed_bad_channels.copy()
+
+            for bad_channel in globals.disagreed_bad_channels:
+                # Don't include agreed bad channels absent in current session
+                if bad_channel not in globals.bad_channels['current session'] and all(bad_channel in annotation for annotator, annotation in globals.bad_channels.items() if annotation and annotator != 'current session'):
+                    stat_disagreed_bad_channels.remove(bad_channel) 
+
+            bad_channel_stats.children.append(
+                html.Div([
+                    html.H2('Disagreed bad channels:'),
+                    html.Font(_get_list_for_displaying(stat_disagreed_bad_channels) if stat_disagreed_bad_channels else ['-'], id='disagreed-bad-channels')
+                ]),
+            )
+
+            for annotator, bad_channels in globals.bad_channels.items():
+                if bad_channels:
+                    bad_channels.sort(key=_natural_keys)
+                bad_channel_stats.children.append(
+                    html.Div([
+                        html.H2('Bad channels - {}'.format(annotator)),
+                        html.Font(_get_list_for_displaying(bad_channels) if bad_channels else ['-'], id='{}-bad-channels'.format(annotator))
+                    ]),
+                )
+
+        stats = html.Div([
+                    # General info
+                    html.Div([
+                        html.H2('File name:'),
+                        html.Font([file_name if globals.raw else '-'], id='file-name')
+                    ]),
+                    html.Div([
+                        html.H2('Recording length (in seconds):'),
+                        html.Font([recording_length if globals.raw else '-'], id='recording-length')
+                    ]),
+                    html.Hr(),
+
+                    # Clean stats
+                    html.Div([
+                        html.H2('Amount of clean data left (in seconds):'),
+                        html.Font([amount_clean_data if globals.raw else '-'], id='#clean-data')
+                    ]),
+                    html.Div([
+                        html.H2('Amount of clean intervals longer than 2 seconds:'),
+                        html.Font([amount_clean_intervals if globals.raw else '-'], id='#clean-intervals')
+                    ]),
+                    html.Div([
+                        dcc.Graph(
+                            id='clean-intervals-graph',
+                            figure=graph if globals.raw else Figure(),
+                            config={
+                                'displayModeBar': False,
+                            },
+                        ),
+                    ]),
+                    html.Hr(),
+
+                    # Annotation stats
+                    html.Div([
+                        html.H2('Total amount of annotated data (in seconds):'),
+                        html.Font([amount_annotated_data if globals.raw else '-'], id='#annotated-data')
+                    ]),
+                    html.Div([
+                        html.H2('Amount of overlap between annotations (in seconds):'),
+                        html.Font([amount_annotated_overlap if globals.raw else '-'], id='#annotated-overlap')
+                    ]),
+                    
+                    html.Hr(),
+
+                    bad_channel_stats
+                ]),
+
+        return stats
 
     # Toggle power-spectrum modal
     @app.callback(

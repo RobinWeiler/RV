@@ -11,6 +11,12 @@ import constants as c
 import globals
 
 
+def _get_list_for_displaying(example_list):
+    if example_list:
+        return [element + ', ' if element_index != len(example_list) - 1 else element for element_index, element in enumerate(example_list)]
+    else:
+        return []
+
 def _get_scaling(EEG_scale):
     """Calculates scaling factor to multiply data with for given scale.
 
@@ -243,10 +249,13 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         if highlight_model_channels:
             for model_index in range(len(plotting_data['model'])):
                 if channel_name in plotting_data['model'][model_index]['model_channels']:
-                    channel_color = 'green'
+                    channel_color = c.MODEL_CHANNEL_COLOR
                     break
         if channel_name in globals.raw.info['bads']:
-            channel_color = c.BAD_CHANNEL_COLOR
+            if channel_name in globals.disagreed_bad_channels:
+                channel_color = c.BAD_CHANNEL_DISAGREE_COLOR
+            else:
+                channel_color = c.BAD_CHANNEL_COLOR
 
         fig.add_trace(
             Scattergl(

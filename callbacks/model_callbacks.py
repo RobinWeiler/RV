@@ -5,7 +5,7 @@ from dash.exceptions import PreventUpdate
 import numpy as np
 
 from helperfunctions.annotation_helperfunctions import confidence_intervals, merge_intervals, annotations_to_raw
-from helperfunctions.visualization_helperfunctions import get_EEG_plot
+from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_list_for_displaying
 from model.run_model import run_model
 
 import globals
@@ -37,7 +37,7 @@ def register_model_callbacks(app):
             return [], None
         elif list_selected_file_names:
             print('Selected files: {}'.format(list_selected_file_names))
-            return list_selected_file_names, list_selected_file_names
+            return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
     # Disable rerun-model button - comment this out for models that are not deterministic
     @app.callback(
@@ -106,7 +106,7 @@ def register_model_callbacks(app):
                     channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
                     if highlight_model_channels % 2 != 0:
-                        patched_fig['data'][channel_index]['marker']['color'] = 'green'
+                        patched_fig['data'][channel_index]['marker']['color'] = c.MODEL_CHANNEL_COLOR
                     else:
                         patched_fig['data'][channel_index]['marker']['color'] = 'black'
 

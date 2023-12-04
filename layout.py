@@ -266,6 +266,33 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.H2('Bad-channel handling'),
                     html.Div([
                         html.Div([
+                            dcc.Upload(
+                                id='upload-bad-channels',
+                                children=html.Div([
+                                    'Drag-and-drop or ',
+                                    html.A('click here to select bad-channel files')
+                                ]),
+                                style={
+                                    'width': '97%',
+                                    'height': '60px',
+                                    'lineHeight': '60px',
+                                    'borderWidth': '1px',
+                                    'borderStyle': 'dashed',
+                                    'borderRadius': '5px',
+                                    'textAlign': 'center',
+                                    'margin': '10px'
+                                },
+                                multiple=True
+                            ),
+                            html.Label([
+                                'Selected files:',
+                                html.Div(id='bad-channel-files')
+                            ]),
+                        ]),
+                        html.Div([
+                            dbc.Button("Remove bad-channel files", id="reset-bad-channels", className="button")
+                        ]),
+                        html.Div([
                             html.Div([
                                 html.Font('Automatic bad-channel detection: ', className='header'),
                             ], className='aligned'),
@@ -641,7 +668,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         id="new-annotation-label",
                         placeholder="New annotation label",
                         debounce=True,
-                        minLength=1
+                        minLength=1,
+                        type='text'
                     ),
                 ]),
                 html.Div([
@@ -726,37 +754,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         # Stats modal
         dbc.Modal([
             dbc.ModalHeader('Statistics'),
-            dbc.ModalBody([
-                html.Div([
-                    html.H2('File name:'),
-                    html.Font(id='file-name')
-                ]),
-                html.Div([
-                    html.H2('Recording length (in seconds):'),
-                    html.Font(id='recording-length')
-                ]),
-                html.Div([
-                    html.H2('Amount of annotated data (in seconds):'),
-                    html.Font(id='#noisy-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean data left (in seconds):'),
-                    html.Font(id='#clean-data')
-                ]),
-                html.Div([
-                    html.H2('Amount of clean intervals longer than 2 seconds:'),
-                    html.Font(id='#clean-intervals')
-                ]),
-                html.Div([
-                    dcc.Graph(
-                        id='clean-intervals-graph',
-                        figure=Figure(),
-                        config={
-                            'displayModeBar': False,
-                        },
-                    ),
-                ]),
-            ]),
+            dbc.ModalBody([], id='stats-body'),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-stats", className=["close-button", 'button'])
             )],
