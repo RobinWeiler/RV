@@ -173,7 +173,7 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
     if not skip_hoverinfo:
         custom_data = data_subset.copy()
 
-    # Update plot
+    # Update EEG traces
     for channel_index in range(len(channels)):
         data_subset[channel_index, :] = data_subset[channel_index, :] + (offset_factor * (len(channels) - 1 - channel_index))  # First channel goes to top of the plot
 
@@ -181,7 +181,26 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         patched_fig['data'][channel_index]['y'] = data_subset[channel_index, :]
 
         if not skip_hoverinfo:
-            patched_fig['data'][channel_index]['customdata'] = custom_data[channel_index] if not skip_hoverinfo else None
+            patched_fig['data'][channel_index]['customdata'] = custom_data[channel_index]
+
+    # Update model predictions
+    for model_index in range(len(globals.plotting_data['model'])):
+        for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
+            if timepoint > x0:
+                model_index_0 = index
+                break
+            
+        for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
+            if timepoint > x1:
+                model_index_1 = index
+                break
+
+        patched_fig['data'][len(channels) + model_index]['x'] = globals.plotting_data['model'][model_index]['model_timescale'][model_index_0:model_index_1]
+        patched_fig['data'][len(channels) + model_index]['y'] = globals.plotting_data['model'][model_index]['offset_model_data'][model_index_0:model_index_1]
+        patched_fig['data'][len(channels) + model_index]['marker']['color'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
+
+        if not skip_hoverinfo:
+            patched_fig['data'][len(channels) + model_index]['customdata'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
 
     patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
         
