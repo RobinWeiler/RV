@@ -220,7 +220,7 @@ def register_visualization_callbacks(app):
                         annotations_to_raw(globals.raw, globals.marked_annotations)
                         annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
                     else:
-                        temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.raw)
+                        temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.viewing_raw)
                         model_output.append(temp_model_output)
                         model_channel_names.append(temp_channel_names)
                         model_sample_rate.append(temp_sample_rate)
