@@ -38,7 +38,7 @@ def get_annotations(raw):
         raw (mne.io.Raw): Raw object to retrieve annotations from.
 
     Returns:
-        list: List of tuples(x0, x1) of annotations.
+        list: List of tuples(start, end, description) of annotations.
     """
     annotation_starts = raw.annotations.onset
     annotation_ends = annotation_starts + raw.annotations.duration
