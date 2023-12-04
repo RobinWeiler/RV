@@ -26,7 +26,7 @@ def register_bad_channel_callbacks(app):
         Returns:
             tuple(list, list, list): First list contains strings of selected bad-channel names. Second and third list contain dicts of all channel names.
         """
-        globals.bad_channels = {}
+        globals.bad_channels = {'current session': []}
 
         if globals.raw:
             print('Loading bad channel dropdown menu...')
@@ -130,11 +130,11 @@ def register_bad_channel_callbacks(app):
                 
                 if channel_name not in current_selected_bad_channels:
                     current_selected_bad_channels.append(channel_name)
-                    globals.bad_channels[file_name].append(channel_name)
+                    globals.bad_channels['current session'].append(channel_name)
                 else:
                     current_selected_bad_channels.remove(channel_name)
-                    if channel_name in globals.bad_channels[file_name]:
-                        globals.bad_channels[file_name].remove(channel_name)
+                    if channel_name in globals.bad_channels['current session']:
+                        globals.bad_channels['current session'].remove(channel_name)
 
                 # globals.raw.info['bads'] = current_selected_bad_channels
 
@@ -170,7 +170,7 @@ def register_bad_channel_callbacks(app):
             for channel_name in new_bad_channels:
                 channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
-                if not all(channel_name in annotation for annotation in globals.bad_channels.values()):
+                if not all(channel_name in annotation for annotation in globals.bad_channels.values() if annotation):
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_DISAGREE_COLOR
                 else:
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
@@ -219,17 +219,18 @@ def register_bad_channel_callbacks(app):
         Input('bad-channels-dropdown', 'value'),
         prevent_initial_call=True
     )
-    def _update_hide_bad_channels_button(current_selected_bad_channels):
+    def _update_disagreed_bad_channels(current_selected_bad_channels):
         # If there are at least 2 lists of bad channels
         if len([annotation for annotation in globals.bad_channels if annotation]) > 1:
             disagreed_bad_channels = []
 
             for bad_channel in current_selected_bad_channels:
                 # If a bad channel does not appear in all lists
-                if sum(bad_channel in annotation for annotation in globals.bad_channels.values()) < len([annotation for annotation in globals.bad_channels.values() if annotation]):
+                if sum(bad_channel in annotation for annotation in globals.bad_channels.values() if annotation) < len([annotation for annotation in globals.bad_channels.values() if annotation]):
                     disagreed_bad_channels.append(bad_channel)
 
             globals.disagreed_bad_channels = list(set(disagreed_bad_channels))
+            # print('Disagreeing:')
             # print(globals.disagreed_bad_channels)
 
     # Hide/show bad channels

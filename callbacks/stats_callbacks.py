@@ -66,7 +66,7 @@ def register_stats_callbacks(app):
 
             for bad_channel in globals.disagreed_bad_channels:
                 # Don't include agreed bad channels absent in current session
-                if bad_channel not in globals.bad_channels[globals.file_name] and all(bad_channel in annotation for annotator, annotation in globals.bad_channels.items() if annotation and annotator != globals.file_name):
+                if bad_channel not in globals.bad_channels['current session'] and all(bad_channel in annotation for annotator, annotation in globals.bad_channels.items() if annotation and annotator != 'current session'):
                     stat_disagreed_bad_channels.remove(bad_channel) 
 
             bad_channel_stats.children.append(
@@ -81,7 +81,7 @@ def register_stats_callbacks(app):
                     bad_channels.sort(key=_natural_keys)
                 bad_channel_stats.children.append(
                     html.Div([
-                        html.H2('Bad channels - {}'.format(annotator if annotator != file_name else 'current session')),
+                        html.H2('Bad channels - {}'.format(annotator)),
                         html.Font(_get_list_for_displaying(bad_channels) if bad_channels else ['-'], id='{}-bad-channels'.format(annotator))
                     ]),
                 )

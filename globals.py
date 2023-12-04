@@ -12,7 +12,7 @@ marked_annotations = []
 model_annotation_label = 'bad_artifact_model'
 annotation_label_colors = {'bad_artifact': 'red', model_annotation_label: 'red'}
 
-bad_channels = {}
+bad_channels = {'current session': []}
 disagreed_bad_channels = []
 
 plotting_data = {}
