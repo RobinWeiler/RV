@@ -178,6 +178,9 @@ def register_annotation_callbacks(app):
             if globals.raw:
                 loaded_annotations = get_annotations(globals.raw)
 
+                if 'annotations' in globals.parameters.keys():
+                    loaded_annotations += globals.parameters['annotations']
+
                 for annotation in loaded_annotations:
                     if annotation[2] not in globals.annotation_label_colors.keys():
                         globals.annotation_label_colors[annotation[2]] = 'red'

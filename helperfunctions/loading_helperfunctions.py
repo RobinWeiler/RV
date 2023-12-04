@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 import numpy as np
+import torch
 import mne
 
 import constants as c
@@ -181,8 +182,13 @@ def parse_model_output_file(filename, raw=None):
             assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
 
             return model_output, None, None, globals.model_annotation_label
+        elif '.pt' in filename:
+            model_output = torch.load(file)
+            assert model_output.shape[0] == raw.__len__(), 'Loaded predictions do not contain 1 prediction per timepoint in the raw EEG data.'
+
+            return model_output, None, None, globals.model_annotation_label
         else:
-            print('Wrong file type!')
+            print('Unsupported file type! Currently supported are .txt, .npy, and .pt')
     else:
         print('Make sure to load the accompanying EEG data first')
         return None, None, None, None

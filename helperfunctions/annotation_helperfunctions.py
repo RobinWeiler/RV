@@ -38,7 +38,7 @@ def get_annotations(raw):
         raw (mne.io.Raw): Raw object to retrieve annotations from.
 
     Returns:
-        list: List of tuples(x0, x1) of annotations.
+        list: List of tuples(start, end, description) of annotations.
     """
     annotation_starts = raw.annotations.onset
     annotation_ends = annotation_starts + raw.annotations.duration
@@ -50,6 +50,8 @@ def get_annotations(raw):
     marked_annotations = []
     for annotation_index in range(len(annotation_starts)):
         annotation_ends[annotation_index] = np.round(annotation_ends[annotation_index], 3)
+        if not annotation_starts[annotation_index] + 0.01 < annotation_ends[annotation_index]:
+            continue
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index], annotation_descriptions[annotation_index]))
 
