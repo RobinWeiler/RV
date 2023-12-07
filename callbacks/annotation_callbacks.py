@@ -286,7 +286,10 @@ def register_annotation_callbacks(app):
         if globals.plotting_data:
             patched_fig = Patch()
 
-            patched_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+            if annotation_label_color != 'hide':
+                patched_fig['layout']['newshape']['fillcolor'] = annotation_label_color
+            else:
+                patched_fig['layout']['newshape']['visible'] = False
             patched_fig['layout']['newshape']['label']['text'] = annotation_label
             # patched_fig['layout']['newshape']['legendgroup'] = annotation_label
             
@@ -299,7 +302,7 @@ def register_annotation_callbacks(app):
                     'layer': 'below',
                     'opacity': 0.6,
                     'line': {'width': 0},
-                    'fillcolor': globals.annotation_label_colors[annotation[2]],
+                    'fillcolor': globals.annotation_label_colors[annotation[2]] if globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
                     'fillrule': 'evenodd',
                     'type': 'rect',
                     'x0': annotation[0],
@@ -307,7 +310,8 @@ def register_annotation_callbacks(app):
                     'x1': annotation[1],
                     'y1': current_fig['layout']['yaxis']['range'][1],  # -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor'],
                     # 'label': {'text': annotation[2], 'font': {'size': 1}},
-                    'name': annotation[2]
+                    'name': annotation[2],
+                    'visible': True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
                 })
 
             return patched_fig

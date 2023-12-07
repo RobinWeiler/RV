@@ -650,6 +650,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         dcc.Dropdown(
                             id='annotation-label-color',
                             options=[
+                                {'label': 'hide', 'value': 'hide'},
                                 {'label': 'red', 'value': 'red'},
                                 {'label': 'green', 'value': 'green'},
                                 {'label': 'blue', 'value': 'blue'},
