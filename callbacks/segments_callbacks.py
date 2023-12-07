@@ -89,10 +89,10 @@ def register_segments_callbacks(app):
     @app.callback(
         [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks'), Output('segment-slider', 'value')],
         [Input('EEG-graph', 'figure'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
-        [State('segment-slider', 'disabled'), State('segment-slider', 'max')]
+        [State('segment-slider', 'disabled'), State('segment-slider', 'max'), State('segment-slider', 'value')]
         # prevent_initial_call=True
     )
-    def _update_segment_slider(fig, segment_size, show_annotations_only, segment_slider_disabled, current_num_segments):
+    def _update_segment_slider(fig, segment_size, show_annotations_only, segment_slider_disabled, current_num_segments, current_segment):
         """Disables/enables segment-slider. Triggered when EEG plot has loaded.
 
         Args:
@@ -115,12 +115,18 @@ def register_segments_callbacks(app):
             if 'EEG-graph' in trigger and num_segments == current_num_segments:
                 # print('no update')
                 raise PreventUpdate
+
+            if current_segment <= num_segments:
+                new_segment = current_segment
+            else:
+                new_segment = 0
+
             if show_annotations_only and len(visible_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
                 marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
 
-            return False, num_segments, 1, marks, 0
+            return False, num_segments, 1, marks, new_segment
         else:
             return True, 1, 1, {0: '0', 1: '1'}, 0
 
