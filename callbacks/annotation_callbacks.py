@@ -71,7 +71,7 @@ def register_annotation_callbacks(app):
                     if shape['type'] == 'rect':
                         x0 = np.round(shape['x0'], 3)
                         x1 = np.round(shape['x1'], 3)
-                        if 'label' in shape.keys():
+                        if 'label' in shape.keys() and shape['label']['text']:
                             label = shape['label']['text']
                         else:
                             label = shape['name']
