@@ -71,10 +71,10 @@ def register_annotation_callbacks(app):
                     if shape['type'] == 'rect':
                         x0 = np.round(shape['x0'], 3)
                         x1 = np.round(shape['x1'], 3)
-                        if 'label' in shape.keys() and shape['label']['text']:
-                            label = shape['label']['text']
-                        else:
-                            label = shape['name']
+                        # if 'label' in shape.keys() and shape['label']['text']:
+                        #     label = shape['label']['text']
+                        # else:
+                        label = shape['name']
 
                         if x0 < x1:
                             annotation_start = x0
@@ -291,6 +291,7 @@ def register_annotation_callbacks(app):
             else:
                 patched_fig['layout']['newshape']['visible'] = False
             patched_fig['layout']['newshape']['label']['text'] = annotation_label
+            patched_fig['layout']['newshape']['name'] = annotation_label
             # patched_fig['layout']['newshape']['legendgroup'] = annotation_label
             
             patched_fig['layout']['shapes'] = []
