@@ -36,7 +36,7 @@ def register_segments_callbacks(app):
             if show_annotations_only:
                 if globals.current_plot_index > 0:
                     left_disabled = False
-                if globals.current_plot_index + 1 < len(globals.marked_annotations):
+                if globals.current_plot_index + 1 < len([annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']):
                     right_disabled = False
             elif segment_size:
                 if globals.x0 == -0.5 and not globals.x1 > globals.plotting_data['EEG']['recording_length']:
@@ -106,15 +106,16 @@ def register_segments_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
         if globals.plotting_data and segment_size:
-            if show_annotations_only and len(globals.marked_annotations) > 0:
-                num_segments = int(len(globals.marked_annotations) - 1)
+            visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+            if show_annotations_only and len(visible_annotations) > 0:
+                num_segments = int(len(visible_annotations) - 1)
             else:
                 num_segments = int(globals.plotting_data['EEG']['recording_length'] // segment_size)
 
             if 'EEG-graph' in trigger and num_segments == current_num_segments:
                 # print('no update')
                 raise PreventUpdate
-            if show_annotations_only and len(globals.marked_annotations) > 0:
+            if show_annotations_only and len(visible_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
                 marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
@@ -172,9 +173,11 @@ def register_segments_callbacks(app):
             elif 'right-button' in trigger:
                 globals.current_plot_index += 1
 
-            if show_annotations_only and (len(globals.marked_annotations) > globals.current_plot_index):
-                globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
-                globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
+            if show_annotations_only:
+                visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+                if len(visible_annotations):
+                    globals.x0 = visible_annotations[globals.current_plot_index][0] - 2
+                    globals.x1 = visible_annotations[globals.current_plot_index][1] + 2
 
             elif 'segment-slider' in trigger:
                 globals.x0 = segment_size * segment_slider - 0.5 if segment_slider != 0 else -0.5
