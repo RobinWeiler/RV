@@ -55,8 +55,8 @@ def register_stats_callbacks(app):
             html.H1('Annotations'),
 
             html.Div([
-                html.H2('Total amount of annotated data (in seconds):'),
-                html.Font(total_amount_annotated_data if globals.raw else '-', id='#annotated-data')
+                html.H2('Total amount of annotated data:'),
+                html.Font('{} seconds'.format(total_amount_annotated_data) if globals.raw else '-', id='#annotated-data')
             ]),
         ])
 
@@ -68,11 +68,13 @@ def register_stats_callbacks(app):
 
                 amount_annotated_data, _ = _get_amount_annotated_clean_data(corresponding_annotations, recording_length)
                 amount_annotated_data = round(amount_annotated_data, 2)
+                amount_annotated_data_percentage = (amount_annotated_data / recording_length) * 100
+                amount_annotated_data_percentage = round(amount_annotated_data_percentage, 2)
 
                 annotation_stats.children.append(
                     html.Div([
-                        html.H2('Amount of annotated data (in seconds) of {}:'.format(annotation_option['label'])),
-                        html.Font(amount_annotated_data, id='#annotated-data-{}'.format(annotation_option['label']))
+                        html.H2('Amount of annotated data of {}:'.format(annotation_option['label'])),
+                        html.Font('{} seconds ({} % of recording)'.format(amount_annotated_data, amount_annotated_data_percentage), id='#annotated-data-{}'.format(annotation_option['label']))
                     ]),
                 )
 
@@ -154,8 +156,8 @@ def register_stats_callbacks(app):
                         html.H1('Clean data'),
 
                         html.Div([
-                            html.H2('Total amount of clean data left (in seconds):'),
-                            html.Font(total_amount_clean_data if globals.raw else '-', id='#clean-data')
+                            html.H2('Total amount of clean data left:'),
+                            html.Font('{} seconds'.format(total_amount_clean_data) if globals.raw else '-', id='#clean-data')
                         ]),
                         html.Div([
                             html.H2('Total amount of clean intervals longer than 2 seconds:'),
