@@ -39,11 +39,7 @@ def register_annotation_callbacks(app):
 
     # Annotation through dragging mouse across intervals callback
     @app.callback(
-        [
-            Output('EEG-graph', 'figure', allow_duplicate=True),
-            Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True),
-            Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)
-        ],
+        Output('hidden-output', 'n_clicks'),
         Input('EEG-graph', 'relayoutData'),
         [
             State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure'),
@@ -126,42 +122,47 @@ def register_annotation_callbacks(app):
                 globals.marked_annotations = merge_intervals(globals.marked_annotations)
                 print(globals.marked_annotations)
 
-                patched_fig = Patch()
-                patched_fig['layout']['shapes'] = []
-                for annotation in globals.marked_annotations:
-                    patched_fig['layout']['shapes'].append({
-                        'editable': True,
-                        'xref': 'x',
-                        'yref': 'y',
-                        'layer': 'below',
-                        'opacity': 0.6,
-                        'line': {'width': 0},
-                        'fillcolor': globals.annotation_label_colors[annotation[2]],
-                        'fillrule': 'evenodd',
-                        'type': 'rect',
-                        'x0': annotation[0],
-                        'y0': current_fig['layout']['yaxis']['range'][0],  # len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
-                        'x1': annotation[1],
-                        'y1': current_fig['layout']['yaxis']['range'][1],  # -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor'],
-                        # 'label': {'text': annotation[2], 'font': {'size': 1}},
-                        'name': annotation[2]
-                    })
-
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
                 quick_save(globals.raw)
 
-                if show_annotations_only and len(globals.marked_annotations) > 0:
-                    num_segments = int(len(globals.marked_annotations) - 1)
-                    marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
-
-                    if globals.current_plot_index >= num_segments:
-                        globals.current_plot_index = num_segments
-
-                    return patched_fig, num_segments, 1, marks, globals.current_plot_index
-                else:
-                    return patched_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value
+                return 1
 
         raise PreventUpdate
+
+    # Update annotations in plot when globals.marked_annotations changed
+    @app.callback(
+        [
+            # Output('EEG-graph', 'figure', allow_duplicate=True),
+            Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True),
+            Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True),
+        ],
+        Input('hidden-output', 'n_clicks'),
+        [
+            State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure'),
+            State('segment-slider', 'max'), State('segment-slider', 'step'),
+            State('segment-slider', 'marks'), State('segment-slider', 'value')
+        ],
+        prevent_initial_call=True
+    )
+    def _update_segment_slider_annotations_only_mode(hidden_output, annotation_label, show_annotations_only, current_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value):
+        """Updates segment-slider when new annotations are made or old ones are moved/deleted.
+
+        Args:
+            
+        """
+        if show_annotations_only:
+            if len(globals.marked_annotations) == 0:
+                raise Exception('There are no artifacts to show')
+            else:
+                num_segments = int(len(globals.marked_annotations) - 1)
+                marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
+
+                if globals.current_plot_index >= num_segments:
+                    globals.current_plot_index = num_segments
+
+                return num_segments, 1, marks, globals.current_plot_index
+        else:
+            raise PreventUpdate
 
     # Add/remove/rename annotation label
     @app.callback(
@@ -268,12 +269,12 @@ def register_annotation_callbacks(app):
     # Update plot when annotation-label or annotation-label-color is changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        [Input('annotation-label', 'value'), Input('annotation-label-color', 'value')],
+        [Input('hidden-output', 'n_clicks'), Input('annotation-label', 'value'), Input('annotation-label-color', 'value')],
         State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _update_annotations(annotation_label, annotation_label_color, current_fig):
-        """Updates annotations.
+    def _update_annotations(hidden_output, annotation_label, annotation_label_color, current_fig):
+        """Updates annotations when annotation label or color are changed.
 
         Args:
             annotation_label (string); Label for new annotations.

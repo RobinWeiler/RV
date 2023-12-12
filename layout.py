@@ -905,7 +905,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         ),
 
         # Hidden output variables
-        html.Pre(id='hidden-output'),
+        html.Pre(id='hidden-output', n_clicks=0),
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
         html.Pre(id='username-dummy'),
