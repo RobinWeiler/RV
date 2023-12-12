@@ -47,14 +47,18 @@ def _get_clean_intervals(annotations, recording_length, interval_length=2):
 
         for annotation_starts, annotation_ends, _ in annotations:
             gap = annotation_starts - last_annotation_end
-            clean_interval_lengths.append(gap)
+            gap = round(gap, 2)
+            if gap > 0:
+                clean_interval_lengths.append(gap)
 
             amount_clean_intervals += max(0, (gap - interval_length)) // interval_length
             last_annotation_end = annotation_ends
 
         # Check the remaining time after the last event
         remaining_time = recording_length - last_annotation_end
-        clean_interval_lengths.append(remaining_time)
+        remaining_time = round(remaining_time, 2)
+        if remaining_time > 0:
+            clean_interval_lengths.append(remaining_time)
 
         amount_clean_intervals += max(0, (remaining_time - interval_length)) // interval_length
 
@@ -171,6 +175,8 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
                 end=recording_length,
                 size=2
             ),
+            # nbinsx=int(recording_length // 2),
+            # autobinx=False,
             hovertemplate='Length-range (in seconds)=%{x}, Amount of intervals=%{y}' + '<extra></extra>',
             marker_color='#4796c5'
         )
