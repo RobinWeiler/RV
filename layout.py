@@ -681,15 +681,15 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         dbc.Button("Rename selected label", id="rename-annotation-label-modal-button", className=['button'])
                     ], className='aligned'),
                 ]),
-                # html.Div([
-                #     dbc.Checklist(
-                #         id='show-annotation-labels',
-                #         switch=True,  # no effect in Safari
-                #         options=[
-                #             {'label': 'Display annotation labels', 'value': 1},
-                #         ],
-                #     )
-                # ]),
+                html.Div([
+                    dbc.Checklist(
+                        id='show-annotation-labels',
+                        switch=True,  # no effect in Safari
+                        options=[
+                            {'label': 'Display annotation labels', 'value': 1},
+                        ],
+                    )
+                ]),
             ]),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-annotation-settings", className=["close-button", 'button'])

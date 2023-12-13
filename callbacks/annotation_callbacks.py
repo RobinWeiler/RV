@@ -13,6 +13,7 @@ from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
 
 import globals
+import constants as c
 
 
 def register_annotation_callbacks(app):
@@ -129,7 +130,7 @@ def register_annotation_callbacks(app):
 
         raise PreventUpdate
 
-    # Update annotations in plot when globals.marked_annotations changed
+    # Update segment-slider when marked annotations changed and view-annotations-only mode is used
     @app.callback(
         [
             # Output('EEG-graph', 'figure', allow_duplicate=True),
@@ -269,11 +270,11 @@ def register_annotation_callbacks(app):
     # Update plot when annotation-label or annotation-label-color is changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        [Input('hidden-output', 'n_clicks'), Input('annotation-label', 'value'), Input('annotation-label-color', 'value')],
+        [Input('hidden-output', 'n_clicks'), Input('annotation-label', 'value'), Input('annotation-label-color', 'value'), Input('show-annotation-labels', 'value')],
         State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )
-    def _update_annotations(hidden_output, annotation_label, annotation_label_color, current_fig):
+    def _update_annotations(hidden_output, annotation_label, annotation_label_color, show_annotation_labels, current_fig):
         """Updates annotations when annotation label or color are changed.
 
         Args:
@@ -285,16 +286,30 @@ def register_annotation_callbacks(app):
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
         if globals.plotting_data:
+            trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
             patched_fig = Patch()
 
             if annotation_label_color != 'hide':
                 patched_fig['layout']['newshape']['fillcolor'] = annotation_label_color
             else:
                 patched_fig['layout']['newshape']['visible'] = False
-            patched_fig['layout']['newshape']['label']['text'] = annotation_label
             patched_fig['layout']['newshape']['name'] = annotation_label
             # patched_fig['layout']['newshape']['legendgroup'] = annotation_label
             
+            if show_annotation_labels:
+                patched_fig['layout']['newshape']['label']['text'] = annotation_label
+            else:
+                patched_fig['layout']['newshape']['label']['text'] = ''
+
+            if 'show-annotation-labels' in trigger:
+                if show_annotation_labels:
+                    new_yaxis_end = ((len(globals.plotting_data['EEG']['channel_names']) + 5) * (c.DEFAULT_Y_AXIS_OFFSET))
+                else:
+                    new_yaxis_end = ((len(globals.plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET))
+
+                patched_fig['layout']['yaxis']['range'][1] = new_yaxis_end
+                patched_fig['layout']['updatemenus'][0]['buttons'][1]['args'][0]['yaxis.range[1]'] = new_yaxis_end
+
             patched_fig['layout']['shapes'] = []
             for annotation in globals.marked_annotations:
                 patched_fig['layout']['shapes'].append({
@@ -310,9 +325,9 @@ def register_annotation_callbacks(app):
                     'x0': annotation[0],
                     'y0': current_fig['layout']['yaxis']['range'][0],  # len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
                     'x1': annotation[1],
-                    'y1': current_fig['layout']['yaxis']['range'][1],  # -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor'],
-                    # 'label': {'text': annotation[2], 'font': {'size': 1}},
+                    'y1': current_fig['layout']['yaxis']['range'][1] if not 'show-annotation-labels' in trigger else new_yaxis_end,
                     'name': annotation[2],
+                    'label':{'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
                     'visible': True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
                 })
 

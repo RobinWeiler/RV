@@ -38,6 +38,7 @@ def register_visualization_callbacks(app):
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
             State("resample-rate", "value"), State('segment-size', 'value'),
             State('annotation-label', 'value'),
+            State('show-annotation-labels', 'value'),
             State('upload-model-output', 'filename'),
             State("run-model", "value"),
             State("annotate-model", "value"),
@@ -53,7 +54,7 @@ def register_visualization_callbacks(app):
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
                             resample_rate, segment_size,
-                            annotation_label,
+                            annotation_label, show_annotation_labels,
                             model_output_files, run_model_bool, model_annotate, model_threshold,
                             hide_bad_channels, highlight_model_channels,
                             current_fig, current_selected_bad_channels):
@@ -122,19 +123,19 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
                 return updated_fig, fig_style
 
@@ -156,7 +157,7 @@ def register_visualization_callbacks(app):
                     else:
                         globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
                 
                 return updated_fig, fig_style
 
@@ -272,7 +273,7 @@ def register_visualization_callbacks(app):
                     print('No annotations found')
                     show_annotations_only = False
 
-            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+            fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, show_annotation_labels, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
             
             return fig, fig_style
 

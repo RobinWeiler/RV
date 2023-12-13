@@ -209,7 +209,7 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         
     return patched_fig
 
-def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
+def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, show_annotation_labels=False, EEG_scale=None, channel_offset=None, model_output=None, model_channels=[], use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates initial EEG figure.
 
     Args:
@@ -231,11 +231,11 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, EEG
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels)
+    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels)
 
     return fig
 
-def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
+def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels=False, use_slider=False, show_annotations_only=False, skip_hoverinfo=False, hide_bad_channels=False, highlight_model_channels=False):
     """Generates EEG plots.
 
     Args:
@@ -387,7 +387,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             drawdirection='vertical',
             layer='below',
             line_width=0,
-            label={'text': annotation_label, 'textposition': 'top center', 'font': {'size': 24, 'color': 'white'}},
+            label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
             name=annotation_label,
             # showlegend=True,
             # legend='legend',
@@ -417,7 +417,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         showgrid=False,
         zeroline=False,
         fixedrange=False,
-        range=((-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)), ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET)))  # Start y-axis range to cut off peaks
+        range=((-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)), ((len(plotting_data['EEG']['channel_names']) + (5 if show_annotation_labels else 1)) * (c.DEFAULT_Y_AXIS_OFFSET)))  # Start y-axis range to cut off peaks
     )
     fig.update_xaxes(
         # title_text='Time (in seconds)'
@@ -439,7 +439,8 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             opacity=0.6,
             layer='below',
             line_width=0,
-            name=annotation[2]
+            name=annotation[2],
+            label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
         )
    
     fig.update_layout(
@@ -457,7 +458,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                         method="relayout", 
                         args=[{
                             "yaxis.range[0]": (-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)),
-                            "yaxis.range[1]": ((len(plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET))
+                            "yaxis.range[1]": ((len(plotting_data['EEG']['channel_names']) + (5 if show_annotation_labels else 1)) * (c.DEFAULT_Y_AXIS_OFFSET))
                         }]
                     ),
                     # dict(label='Hide/show bad channels',
