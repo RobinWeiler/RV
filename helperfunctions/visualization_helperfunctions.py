@@ -186,14 +186,16 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
     # Update model predictions
     for model_index in range(len(globals.plotting_data['model'])):
         for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
-            if timepoint > x0:
+            if timepoint >= x0:
                 model_index_0 = index
                 break
             
         for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
-            if timepoint > x1:
+            if timepoint >= x1:
                 model_index_1 = index
                 break
+            else:
+                model_index_1 = len(globals.plotting_data['model'][model_index]['model_timescale']) - 1
 
         patched_fig['data'][len(channels) + model_index]['x'] = globals.plotting_data['model'][model_index]['model_timescale'][model_index_0:model_index_1]
         patched_fig['data'][len(channels) + model_index]['y'] = globals.plotting_data['model'][model_index]['offset_model_data'][model_index_0:model_index_1]
@@ -301,14 +303,16 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
     # Model predictions
     for model_index in range(len(plotting_data['model'])):
         for index, timepoint in enumerate(plotting_data['model'][model_index]['model_timescale']):
-            if timepoint > x0:
+            if timepoint >= x0:
                 model_index_0 = index
                 break
             
         for index, timepoint in enumerate(plotting_data['model'][model_index]['model_timescale']):
-            if timepoint > x1:
+            if timepoint >= x1:
                 model_index_1 = index
                 break
+            else:
+                model_index_1 = len(globals.plotting_data['model'][model_index]['model_timescale']) - 1
 
         # trace_number = data_subset.shape[0] + model_index
 
