@@ -42,14 +42,10 @@ def register_annotation_callbacks(app):
     @app.callback(
         Output('hidden-output', 'n_clicks'),
         Input('EEG-graph', 'relayoutData'),
-        [
-            State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure'),
-            State('segment-slider', 'max'), State('segment-slider', 'step'),
-            State('segment-slider', 'marks'), State('segment-slider', 'value')
-        ],
+        [State('show-annotations-only', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData, annotation_label, show_annotations_only, current_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value):
+    def _make_annotation(relayoutData, show_annotations_only, current_fig):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
@@ -61,7 +57,7 @@ def register_annotation_callbacks(app):
             # Annotation was added/removed/moved/resized
             if any('shapes' in key for key in relayoutData.keys()):
                 globals.marked_annotations[:] = []
-                # current_annotations = []
+                redraw_needed = False
 
                 for shape in current_fig['layout']['shapes']:
                     # print(shape)
@@ -82,8 +78,10 @@ def register_annotation_callbacks(app):
 
                         if annotation_start < 0:
                             annotation_start = 0
+                            redraw_needed = True
                         if annotation_end > globals.plotting_data['EEG']['recording_length']:
                             annotation_end = globals.plotting_data['EEG']['recording_length']
+                            redraw_needed = True
 
                         globals.marked_annotations.append((annotation_start, annotation_end, label))
                         # current_annotations.append((annotation_start, annotation_end))
@@ -120,13 +118,14 @@ def register_annotation_callbacks(app):
                 # # else:
                 # #     print('Undefined')
 
-                globals.marked_annotations = merge_intervals(globals.marked_annotations)
+                globals.marked_annotations, merge_happened = merge_intervals(globals.marked_annotations)
                 print(globals.marked_annotations)
 
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
                 quick_save(globals.raw)
 
-                return 1
+                if show_annotations_only or redraw_needed or merge_happened:
+                    return 1
 
         raise PreventUpdate
 
@@ -138,14 +137,10 @@ def register_annotation_callbacks(app):
             Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True),
         ],
         Input('hidden-output', 'n_clicks'),
-        [
-            State('annotation-label', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure'),
-            State('segment-slider', 'max'), State('segment-slider', 'step'),
-            State('segment-slider', 'marks'), State('segment-slider', 'value')
-        ],
+        State('show-annotations-only', 'value'),
         prevent_initial_call=True
     )
-    def _update_segment_slider_annotations_only_mode(hidden_output, annotation_label, show_annotations_only, current_fig, current_segment_max, current_segment_step, current_segment_marks, current_segment_value):
+    def _update_segment_slider_annotations_only_mode(hidden_output, show_annotations_only):
         """Updates segment-slider when new annotations are made or old ones are moved/deleted.
 
         Args:

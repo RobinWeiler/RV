@@ -183,7 +183,7 @@ def register_model_callbacks(app):
                         model_annotations[interval_index] = (interval[0], interval[1], run_model_description)
 
                     all_annotations = globals.marked_annotations + model_annotations
-                    all_annotations = merge_intervals(all_annotations)
+                    all_annotations, _ = merge_intervals(all_annotations)
 
                     globals.marked_annotations = all_annotations
 
@@ -250,7 +250,7 @@ def register_model_callbacks(app):
 
                 remaining_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != 'bad_artifact_model']
 
-                merged_annotations = merge_intervals(all_model_annotations + remaining_annotations)
+                merged_annotations, _ = merge_intervals(all_model_annotations + remaining_annotations)
 
                 globals.marked_annotations = merged_annotations
 

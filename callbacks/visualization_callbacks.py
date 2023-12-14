@@ -203,7 +203,7 @@ def register_visualization_callbacks(app):
 
             if 'annotations' in globals.parameters.keys():
                 loaded_annotations = globals.parameters['annotations']
-                merged_annotations = merge_intervals(globals.marked_annotations + loaded_annotations)
+                merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
                 globals.marked_annotations = merged_annotations
                 annotations_to_raw(globals.raw, globals.marked_annotations)
                 annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
@@ -216,7 +216,7 @@ def register_visualization_callbacks(app):
                 for model_name in model_output_files:
                     if '.csv' in model_name:
                         loaded_annotations = parse_annotation_file(model_name)
-                        merged_annotations = merge_intervals(globals.marked_annotations + loaded_annotations)
+                        merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
                         globals.marked_annotations = merged_annotations
                         annotations_to_raw(globals.raw, globals.marked_annotations)
                         annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
@@ -255,10 +255,10 @@ def register_visualization_callbacks(app):
                         output_intervals[interval_index] = (interval[0], interval[1], model_descriptions[model_index])
                     all_model_annotations = all_model_annotations + output_intervals
 
-                merged_model_annotations = merge_intervals(all_model_annotations)
+                merged_model_annotations, _ = merge_intervals(all_model_annotations)
 
                 all_annotations = globals.marked_annotations + merged_model_annotations
-                all_annotations = merge_intervals(all_annotations)
+                all_annotations, _ = merge_intervals(all_annotations)
 
                 globals.marked_annotations = all_annotations
 

@@ -55,7 +55,7 @@ def get_annotations(raw):
 
         marked_annotations.append((annotation_starts[annotation_index], annotation_ends[annotation_index], annotation_descriptions[annotation_index]))
 
-    merged_annotations = merge_intervals(marked_annotations)
+    merged_annotations, _ = merge_intervals(marked_annotations)
 
     return merged_annotations
 
@@ -119,8 +119,11 @@ def merge_intervals(marked_annotations):
         merged_annotations = list(dict.fromkeys(merged_annotations))
         # print(merged_annotations)
         merged_annotations = sorted(merged_annotations, key=lambda x: x[0])
+        
+    if len(merged_annotations) != len(marked_annotations):
+        merge_happened = True
 
-    return merged_annotations
+    return merged_annotations, merge_happened
 
 def confidence_intervals(model_output, low_threshold, high_threshold, timestep):
     """Calculates intervals in model-output between given threshold values.
