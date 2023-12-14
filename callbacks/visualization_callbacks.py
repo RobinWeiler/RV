@@ -10,7 +10,7 @@ import numpy as np
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
 from helperfunctions.preprocessing_helperfunctions import preprocess_EEG
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, _get_scaling, _get_offset
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, _get_scaling, _get_offset, _channel_name_sorting_key
 from model.run_model import run_model
 
 import constants as c
@@ -29,9 +29,9 @@ def register_visualization_callbacks(app):
             Input('use-slider', 'value'),
             Input('skip-hoverinfo', 'value'),
             Input('show-annotations-only', 'value'),
+            Input('reorder-channels', 'value'),
         ],
         [
-            State('reorder-channels', 'value'),
             State('data-file', 'children'),
             State('selected-channels-dropdown', 'value'),
             State("high-pass", "value"), State("low-pass", "value"),
@@ -113,30 +113,8 @@ def register_visualization_callbacks(app):
                     
                     globals.plotting_data['plot']['offset_factor'] = new_offset
                     
-                    for model_index, model_array in enumerate(globals.plotting_data['model']):
+                    for model_index in range(len(globals.plotting_data['model'])):
                         globals.plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][model_index]['model_timescale']))]
-
-                    y_ticks_model_output = np.arange((-len(globals.plotting_data['model']) - 1), -1)
-                    y_ticks_channels = np.arange(0, len(globals.plotting_data['EEG']['channel_names']))
-                    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-                    y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
-
-                    region_offset = np.zeros(len(globals.plotting_data['EEG']['channel_names']), dtype=np.int64)
-                    
-                    if len(globals.plotting_data['EEG']['channel_names']) == 129 and reorder_channels:
-                        region_names = ['frontal', 'temporal_left', 'central', 'temporal_right', 'parietal', 'occipital']
-                        region_names.reverse()
-                        counter = 1  # Cz in position 0
-
-                        for index, region in enumerate(region_names):
-                            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
-                                region_offset[counter] = index * globals.plotting_data['plot']['offset_factor'] * 2
-                                counter += 1
-
-                        # region_offset = np.flip(region_offset)
-
-                    y_ticks += region_offset
-                    globals.plotting_data['plot']['y_ticks'] = np.flip(y_ticks)
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
@@ -175,6 +153,29 @@ def register_visualization_callbacks(app):
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
                 return updated_fig, fig_style
+
+        if 'reorder-channels' in trigger:
+            if globals.plotting_data:
+                if reorder_channels:
+                    if len(globals.plotting_data['EEG']['channel_names']) == 129:
+                        channel_order = []
+                        for region in c.CHANNEL_TO_REGION_128.keys():
+                            channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
+                        channel_order.append('Cz')
+
+                        globals.raw.reorder_channels(channel_order)
+                        globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+                    else:
+                        print('Loaded channels are not supported yet')
+                else:
+                    channel_order = sorted(globals.raw.ch_names, key=_channel_name_sorting_key)
+                    globals.raw.reorder_channels(channel_order)
+                    globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                
+                return updated_fig, fig_style
+                    
 
         if 'plot-button' in trigger:
             globals.current_plot_index = 0
