@@ -243,10 +243,16 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
 
         # region_offset = np.flip(region_offset)
 
-        y_ticks[:-len(plotting_data['model'])] += region_offset
+        if len(plotting_data['model']) > 0:
+            y_ticks[len(plotting_data['model']):] += region_offset
+        else:
+            y_ticks += region_offset
     y_ticks = np.flip(y_ticks)
 
-    data_subset += y_ticks.reshape(-1, 1)[:-len(plotting_data['model'])]
+    if len(plotting_data['model']) > 0:
+        data_subset += y_ticks.reshape(-1, 1)[:-len(plotting_data['model'])]
+    else:
+        data_subset += y_ticks.reshape(-1, 1)
 
     t1 = time.time()
     for channel_index in range(data_subset.shape[0]):   
