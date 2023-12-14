@@ -229,7 +229,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
     y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
     y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
     
-    if reorder_channels:
+    if reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129:
         region_offset = np.zeros(len(plotting_data['EEG']['channel_names']), dtype=np.int64)
 
         region_names = list(c.CHANNEL_TO_REGION_128.keys())
@@ -273,7 +273,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                 channel_color = c.BAD_CHANNEL_COLOR
 
         region_name = None
-        if reorder_channels and not channel_name == 'Cz':
+        if reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129 and not channel_name == 'Cz':
             for region, channels in c.CHANNEL_TO_REGION_128.items():
                 if int(channel_name[1:]) in channels:
                     region_name = region
@@ -397,7 +397,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         showgrid=False,
         zeroline=False,
         fixedrange=False,
-        range=((-(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET), (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not reorder_channels else len(c.CHANNEL_TO_REGION_128) * 2))))  # Start y-axis range to cut off peaks
+        range=((-(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET), (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not (reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129) else len(c.CHANNEL_TO_REGION_128) * 2))))  # Start y-axis range to cut off peaks
     )
     fig.update_xaxes(
         # title_text='Time (in seconds)'
@@ -436,7 +436,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
                         method="relayout", 
                         args=[{
                             "yaxis.range[0]": (-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)),
-                            "yaxis.range[1]": (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not reorder_channels else len(c.CHANNEL_TO_REGION_128) * 2)))
+                            "yaxis.range[1]": (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not (reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129) else len(c.CHANNEL_TO_REGION_128) * 2)))
                         }]
                     ),
                     # dict(label='Hide/show bad channels',
