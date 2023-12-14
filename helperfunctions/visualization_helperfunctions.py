@@ -5,7 +5,7 @@ import numpy as np
 import mne
 
 from dash import Patch
-from plotly.graph_objs import Figure, Scattergl
+from plotly.graph_objs import Figure, Scattergl, Scatter
 
 import constants as c
 import globals
@@ -261,10 +261,10 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
     if not skip_hoverinfo:
         custom_data = data_subset.copy()
 
+    t1 = time.time()
     for channel_index in range(len(plotting_data['EEG']['channel_names'])):
         data_subset[channel_index, :] = data_subset[channel_index, :] + ((plotting_data['plot']['offset_factor']) * (len(plotting_data['EEG']['channel_names']) - 1 - channel_index))  # First channel goes to top of the plot
 
-    t1 = time.time()
     for channel_index in range(data_subset.shape[0]):   
         channel_name = plotting_data['EEG']['channel_names'][channel_index]
         channel_color = 'black'
@@ -446,7 +446,19 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
             name=annotation[2],
             label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
         )
-   
+
+        # Could use Scatter traces to create overview over all annotations
+        # fig.add_trace(
+        #     Scatter(
+        #         x=[annotation[0], annotation[1]],  # plotting_data['EEG']['timescale'][index_0:index_1],
+        #         y=[-1000, -1000],
+        #         marker=dict(color=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red', size=1000),
+        #         hoverinfo='none',
+        #         mode='lines',
+        #         visible=True
+        #     )
+        # )
+
     fig.update_layout(
         updatemenus=list([
             dict(
