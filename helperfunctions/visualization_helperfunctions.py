@@ -340,7 +340,9 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
             )
         )
     
-    longest_channel_name_length = len(max(plotting_data['EEG']['channel_names'], key=len))
+    longest_channel_name_length = len(max(plotting_data['EEG']['channel_names'], key=len)) 
+    if reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129:
+        longest_region_name_length = len(max(c.CHANNEL_TO_REGION_128.keys())) 
 
     fig.update_layout(
         plot_bgcolor='#fafafa',
@@ -374,7 +376,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, use_slider=False, show
         margin=dict(
             autoexpand=False,
             l=longest_channel_name_length * 6 + 15,  #30
-            r=longest_channel_name_length * 6 + 80,  #115
+            r=(longest_channel_name_length + longest_region_name_length if reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129 else longest_channel_name_length) * 6 + 80,  #115
             # b=0,
             t=50,
             pad=5,
