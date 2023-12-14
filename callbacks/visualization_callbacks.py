@@ -278,11 +278,10 @@ def register_visualization_callbacks(app):
             return fig, fig_style
 
         # Default plot when app is opened
-        else:
-            # fig = Figure()  # empty figure
-            img = io.imread(c.TITLE_IMAGE_FILE)
-            fig = px.imshow(img)
-            fig.update_xaxes(showticklabels=False)
-            fig.update_yaxes(showticklabels=False)
-            fig.update_traces(hovertemplate=None, hoverinfo='skip')
-            return fig, fig_style
+        # fig = Figure()  # empty figure
+        img = io.imread(c.TITLE_IMAGE_FILE)
+        fig = px.imshow(img)
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update_traces(hovertemplate=None, hoverinfo='skip')
+        return fig, fig_style

@@ -54,6 +54,21 @@ def register_loading_callbacks(app):
             new_sampling_frequency = 3 * low_pass
             return current_file_name, username, high_pass, low_pass, reference, new_sampling_frequency, scale, channel_offset, segment_size, disable_upload
         elif globals.external_raw or selected_file_name:
+            # Reset globals
+            globals.file_name = ''
+
+            globals.marked_annotations = []
+            globals.model_annotation_label = 'bad_artifact_model'
+            globals.annotation_label_colors = {'bad_artifact': 'red', globals.model_annotation_label: 'red'}
+
+            globals.plotting_data = {}
+
+            globals.preloaded_plots = {}
+            globals.current_plot_index = 0
+
+            globals.x0 = 0
+            globals.x1 = 0
+
             if globals.external_raw:
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')
                 external_file_name = globals.raw._filenames[0][file_name_index + 1:]  # external_save_file_path[file_name_index + 1:]
