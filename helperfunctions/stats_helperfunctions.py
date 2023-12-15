@@ -47,7 +47,7 @@ def _get_clean_intervals(annotations, recording_length, interval_length=2):
 
         for annotation_starts, annotation_ends, _ in annotations:
             gap = annotation_starts - last_annotation_end
-            gap = round(gap, 2)
+            gap = round(gap)
             if gap > 0:
                 clean_interval_lengths.append(gap)
 
@@ -56,7 +56,7 @@ def _get_clean_intervals(annotations, recording_length, interval_length=2):
 
         # Check the remaining time after the last event
         remaining_time = recording_length - last_annotation_end
-        remaining_time = round(remaining_time, 2)
+        remaining_time = round(remaining_time)
         if remaining_time > 0:
             clean_interval_lengths.append(remaining_time)
 
@@ -108,7 +108,7 @@ def _get_annotated_overlap(annotations1, annotations2):
         # print(len(unique_segments))
 
         amount_annotated_overlap = (len(common_segments) / (len(common_segments) + len(unique_segments))) * 100
-        amount_annotated_overlap = round(amount_annotated_overlap, 2)
+        amount_annotated_overlap = round(amount_annotated_overlap)
 
         return amount_annotated_overlap
 
@@ -177,7 +177,7 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
             ),
             # nbinsx=int(recording_length // 2),
             # autobinx=False,
-            hovertemplate='Length-range (in seconds)=%{x}, Amount of intervals=%{y}' + '<extra></extra>',
+            hovertemplate='Length (in seconds)=%{x}, Amount of intervals=%{y}' + '<extra></extra>',
             marker_color='#4796c5'
         )
     )

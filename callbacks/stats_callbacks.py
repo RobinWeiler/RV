@@ -43,12 +43,14 @@ def register_stats_callbacks(app):
 
             total_amount_annotated_data, total_amount_clean_data = _get_amount_annotated_clean_data(all_marked_annotations, recording_length)
             total_clean_interval_lengths, total_amount_clean_intervals = _get_clean_intervals(all_marked_annotations, recording_length, interval_length=2)
+            total_amount_clean_data_percentage = (total_amount_clean_data / recording_length) * 100
 
             graph = get_clean_intervals_graph(total_clean_interval_lengths, recording_length)
 
-            recording_length = round(recording_length, 2)
-            total_amount_clean_data = round(total_amount_clean_data, 2)
-            total_amount_annotated_data = round(total_amount_annotated_data, 2)
+            recording_length = round(recording_length)
+            total_amount_clean_data = round(total_amount_clean_data)
+            total_amount_clean_data_percentage = round(total_amount_clean_data_percentage)
+            total_amount_annotated_data = round(total_amount_annotated_data)
 
         # Annotation stats
         annotation_stats = html.Div([
@@ -67,9 +69,9 @@ def register_stats_callbacks(app):
                 sorted_annotations.append(corresponding_annotations)
 
                 amount_annotated_data, _ = _get_amount_annotated_clean_data(corresponding_annotations, recording_length)
-                amount_annotated_data = round(amount_annotated_data, 2)
+                amount_annotated_data = round(amount_annotated_data)
                 amount_annotated_data_percentage = (amount_annotated_data / recording_length) * 100
-                amount_annotated_data_percentage = round(amount_annotated_data_percentage, 2)
+                amount_annotated_data_percentage = round(amount_annotated_data_percentage)
 
                 annotation_stats.children.append(
                     html.Div([
@@ -144,8 +146,8 @@ def register_stats_callbacks(app):
                             html.Font(file_name if globals.raw else '-', id='file-name')
                         ]),
                         html.Div([
-                            html.H2('Recording length (in seconds):'),
-                            html.Font(recording_length if globals.raw else '-', id='recording-length')
+                            html.H2('Recording length:'),
+                            html.Font('{} seconds'.format(recording_length) if globals.raw else '-', id='recording-length')
                         ]),
                     ]),
 
@@ -157,7 +159,7 @@ def register_stats_callbacks(app):
 
                         html.Div([
                             html.H2('Total amount of clean data left:'),
-                            html.Font('{} seconds'.format(total_amount_clean_data) if globals.raw else '-', id='#clean-data')
+                            html.Font('{} seconds ({} % of recording)'.format(total_amount_clean_data, total_amount_clean_data_percentage) if globals.raw else '-', id='#clean-data')
                         ]),
                         html.Div([
                             html.H2('Total amount of clean intervals longer than 2 seconds:'),
@@ -252,7 +254,7 @@ def register_stats_callbacks(app):
             mean_Pxx_den = np.mean(all_Pxx_den, axis=0)
 
             most_prominent_freq = get_most_prominent_freq(f, mean_Pxx_den)
-            most_prominent_freq = round(most_prominent_freq, 2)
+            most_prominent_freq = round(most_prominent_freq)
 
             fig = get_power_spectrum_plot(f, mean_Pxx_den)
 
