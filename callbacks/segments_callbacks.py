@@ -158,12 +158,12 @@ def register_segments_callbacks(app):
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
         [
             State('segment-size', 'value'), State('show-annotations-only', 'value'), 
-            State('use-slider', 'value'), State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
+            State('use-slider', 'value'), State('reorder-channels', 'value'), State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
             State('annotation-label', 'value'), State('EEG-graph', 'figure')
         ],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label, current_fig):
+    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label, current_fig):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
@@ -218,7 +218,7 @@ def register_segments_callbacks(app):
                 globals.x0 += segment_size
                 globals.x1 += segment_size
 
-            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only)
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
             return patched_fig, globals.current_plot_index
 
@@ -265,13 +265,13 @@ def register_segments_callbacks(app):
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('segment-size', 'value'),
         [
-            State('show-annotations-only', 'value'), State('use-slider', 'value'), 
+            State('show-annotations-only', 'value'), State('use-slider', 'value'), State('reorder-channels', 'value'),
             State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
             State('annotation-label', 'value')
         ],
         prevent_initial_call=True
     )
-    def _update_segment_size(segment_size, show_annotations_only, use_slider, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
+    def _update_segment_size(segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
         """Updates size of viewed segment. Triggered when new value for segment-size is given.
 
         Args:
@@ -292,7 +292,7 @@ def register_segments_callbacks(app):
             else:
                 globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only)
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
             # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 

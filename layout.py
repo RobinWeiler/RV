@@ -381,6 +381,16 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 ),
                             ], className='aligned'),
                         ]),
+                        html.Div([
+                            dbc.Checklist(
+                                id='reorder-channels',
+                                switch=True,  # no effect in Safari
+                                options=[
+                                    {'label': 'Order channels according to regions', 'value': 1},
+                                ],
+                                # value=[1]
+                            )
+                        ]),
                     ], className='aligned'),
                     html.Div([
                         html.Div([

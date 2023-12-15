@@ -76,7 +76,7 @@ def register_stats_callbacks(app):
                 annotation_stats.children.append(
                     html.Div([
                         html.H2('Amount of annotated data of {}:'.format(annotation_option['label'])),
-                        html.Font('{} seconds ({} % of recording)'.format(amount_annotated_data, amount_annotated_data_percentage), id='#annotated-data-{}'.format(annotation_option['label']))
+                        html.Font('{} seconds ({}% of recording)'.format(amount_annotated_data, amount_annotated_data_percentage), id='#annotated-data-{}'.format(annotation_option['label']))
                     ]),
                 )
 
@@ -159,7 +159,7 @@ def register_stats_callbacks(app):
 
                         html.Div([
                             html.H2('Total amount of clean data left:'),
-                            html.Font('{} seconds ({} % of recording)'.format(total_amount_clean_data, total_amount_clean_data_percentage) if globals.raw else '-', id='#clean-data')
+                            html.Font('{} seconds ({}% of recording)'.format(total_amount_clean_data, total_amount_clean_data_percentage) if globals.raw else '-', id='#clean-data')
                         ]),
                         html.Div([
                             html.H2('Total amount of clean intervals longer than 2 seconds:'),
