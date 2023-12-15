@@ -298,9 +298,9 @@ def register_annotation_callbacks(app):
 
             if 'show-annotation-labels' in trigger:
                 if show_annotation_labels:
-                    new_yaxis_end = ((len(globals.plotting_data['EEG']['channel_names']) + 5) * (c.DEFAULT_Y_AXIS_OFFSET))
+                    new_yaxis_end = current_fig['layout']['yaxis']['range'][1] + (4 * c.DEFAULT_Y_AXIS_OFFSET)
                 else:
-                    new_yaxis_end = ((len(globals.plotting_data['EEG']['channel_names']) + 1) * (c.DEFAULT_Y_AXIS_OFFSET))
+                    new_yaxis_end = current_fig['layout']['yaxis']['range'][1] - (4 * c.DEFAULT_Y_AXIS_OFFSET)
 
                 patched_fig['layout']['yaxis']['range'][1] = new_yaxis_end
                 patched_fig['layout']['updatemenus'][0]['buttons'][1]['args'][0]['yaxis.range[1]'] = new_yaxis_end
