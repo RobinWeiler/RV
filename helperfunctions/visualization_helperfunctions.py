@@ -526,7 +526,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
             layer='below',
             line_width=0,
             name=annotation[2],
-            label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
+            label={'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
             visible=True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
         )
 
