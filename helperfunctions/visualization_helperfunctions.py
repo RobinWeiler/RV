@@ -386,13 +386,14 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
         dragmode='drawrect',
         newshape=dict(
-            fillcolor=globals.annotation_label_colors[annotation_label],
+            fillcolor=globals.annotation_label_colors[annotation_label] if globals.annotation_label_colors[annotation_label] != 'hide' else 'red',
             opacity=0.6,
             drawdirection='vertical',
             layer='below',
             line_width=0,
             label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
             name=annotation_label,
+            visible=True if globals.annotation_label_colors[annotation_label] != 'hide' else False
             # showlegend=True,
             # legend='legend',
             # legendgroup=annotation_label,
@@ -439,12 +440,13 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
             x0=annotation[0],
             x1=annotation[1],
             # annotation_text=annotation[2],
-            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red',
+            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() and globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
             opacity=0.6,
             layer='below',
             line_width=0,
             name=annotation[2],
             label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
+            visible=True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
         )
 
         # Could use Scatter traces to create overview over all annotations
