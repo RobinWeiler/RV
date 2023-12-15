@@ -40,7 +40,7 @@ def register_annotation_callbacks(app):
 
     # Annotation through dragging mouse across intervals callback
     @app.callback(
-        Output('hidden-output', 'n_clicks'),
+        Output('hidden-annotation-output', 'n_clicks'),
         Input('EEG-graph', 'relayoutData'),
         [State('show-annotations-only', 'value'), State('EEG-graph', 'figure')],
         prevent_initial_call=True
@@ -136,7 +136,7 @@ def register_annotation_callbacks(app):
             Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True),
             Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True),
         ],
-        Input('hidden-output', 'n_clicks'),
+        Input('hidden-annotation-output', 'n_clicks'),
         State('show-annotations-only', 'value'),
         prevent_initial_call=True
     )
@@ -265,7 +265,7 @@ def register_annotation_callbacks(app):
     # Update plot when annotation-label or annotation-label-color is changed
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
-        [Input('hidden-output', 'n_clicks'), Input('annotation-label', 'value'), Input('annotation-label-color', 'value'), Input('show-annotation-labels', 'value')],
+        [Input('hidden-annotation-output', 'n_clicks'), Input('annotation-label', 'value'), Input('annotation-label-color', 'value'), Input('show-annotation-labels', 'value')],
         State('EEG-graph', 'figure'),
         prevent_initial_call=True
     )

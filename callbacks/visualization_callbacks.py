@@ -1,5 +1,6 @@
 import dash
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 import plotly.express as px
 
@@ -46,7 +47,8 @@ def register_visualization_callbacks(app):
             State("model-threshold", "value"),
             State('hide-bad-channels-button', 'n_clicks'),
             State('highlight-model-channels-button', 'n_clicks'),
-            State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value')
+            State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value'),
+            State("hidden-preprocessing-output", "n_clicks"),
         ]
     )
     def _update_EEG_plot(plot_button,
@@ -58,7 +60,8 @@ def register_visualization_callbacks(app):
                             annotation_label, show_annotation_labels,
                             model_output_files, run_model_bool, model_annotate, model_threshold,
                             hide_bad_channels, highlight_model_channels,
-                            current_fig, current_selected_bad_channels):
+                            current_fig, current_selected_bad_channels,
+                            bandpass_changed):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
         Args:
@@ -191,7 +194,7 @@ def register_visualization_callbacks(app):
 
             print('Loading data...')
 
-            if not globals.external_raw:
+            if not globals.external_raw and bandpass_changed:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
             globals.marked_annotations = get_annotations(globals.raw)
