@@ -11,6 +11,28 @@ import constants as c
 
 def register_segments_callbacks(app):
 
+    # JavaScript function to handle keydown events
+    app.clientside_callback(
+        """
+            function(id) {
+                document.addEventListener("keydown", function(event) {
+                    if (event.key == 'ArrowLeft') {
+                        document.getElementById('left-button').click()
+                        event.stopPropogation()
+                    }
+                    if (event.key == 'ArrowRight') {
+                        document.getElementById('right-button').click()
+                        event.stopPropogation()
+                    }
+                });
+                return window.dash_clientside.no_update       
+            }
+        """,
+        Output("right-button", "id"),
+        Input("right-button", "id")
+    )
+
+
     # Enable/disable arrow buttons at edges
     @app.callback(
         [Output('left-button', 'disabled'), Output('right-button', 'disabled')],
