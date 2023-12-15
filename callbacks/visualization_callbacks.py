@@ -24,6 +24,7 @@ def register_visualization_callbacks(app):
         [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],
         [
             Input('plot-button', 'n_clicks'),
+            Input("resample-rate", "value"),
             Input("scale", "value"),
             Input("channel-offset", "value"),
             Input('use-slider', 'value'),
@@ -36,7 +37,7 @@ def register_visualization_callbacks(app):
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
-            State("resample-rate", "value"), State('segment-size', 'value'),
+            State('segment-size', 'value'),
             State('annotation-label', 'value'),
             State('show-annotation-labels', 'value'),
             State('upload-model-output', 'filename'),
@@ -49,11 +50,11 @@ def register_visualization_callbacks(app):
         ]
     )
     def _update_EEG_plot(plot_button,
-                            scale, channel_offset, use_slider, skip_hoverinfo,
+                            resample_rate, scale, channel_offset, use_slider, skip_hoverinfo,
                             show_annotations_only,
                             current_file_name, selected_channels,
                             high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
-                            resample_rate, segment_size,
+                            segment_size,
                             annotation_label, show_annotation_labels,
                             model_output_files, run_model_bool, model_annotate, model_threshold,
                             hide_bad_channels, highlight_model_channels,
@@ -62,6 +63,7 @@ def register_visualization_callbacks(app):
 
         Args:
             plot_button (int): Num clicks on plot button.
+            resample_rate (int): Input desired sampling frequency.
             scale (float): Input desired scaling for data.
             channel_offset (float): Input desired channel offset.
             use_slider (bool): Whether or not to activate view-slider.
@@ -77,7 +79,6 @@ def register_visualization_callbacks(app):
             reference (string): Chosen reference.
             bad_channel_detection (string): Chosen automatic bad-channel detection.
             bad_channel_interpolation (list): List containing 1 if bad-channel interpolation is chosen.
-            resample_rate (int): Input desired sampling frequency.
             segment_size (int): Input desired segment size for plots.
             annotation_label (string); Label for new annotations.
             model_output_files (list): List of strings of model-output file-names.
@@ -122,6 +123,24 @@ def register_visualization_callbacks(app):
                     y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+
+                return updated_fig, fig_style
+
+        if 'resample-rate' in trigger:
+            if globals.raw and globals.plotting_data:
+                globals.viewing_raw = globals.raw.copy()
+
+                if resample_rate and float(resample_rate) < globals.raw.info['sfreq']:
+                    print('Resample-rate: {}'.format(resample_rate))
+                    print('Performing resampling')
+                    globals.viewing_raw.resample(resample_rate)
+                    # timestep = 1 / resample_rate
+
+                print(globals.viewing_raw.info)
+
+                globals.plotting_data['EEG']['recording_length'] = len(globals.viewing_raw) / globals.viewing_raw.info['sfreq']
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
