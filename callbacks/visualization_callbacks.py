@@ -25,6 +25,7 @@ def register_visualization_callbacks(app):
         [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],
         [
             Input('plot-button', 'n_clicks'),
+            Input("confirm-plot-button", "n_clicks"),
             Input("resample-rate", "value"),
             Input("scale", "value"),
             Input("channel-offset", "value"),
@@ -48,20 +49,22 @@ def register_visualization_callbacks(app):
             State('hide-bad-channels-button', 'n_clicks'),
             State('highlight-model-channels-button', 'n_clicks'),
             State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value'),
-            State("hidden-preprocessing-output", "n_clicks"),
+            State("hidden-bandpass-changed", "n_clicks"),
         ]
     )
-    def _update_EEG_plot(plot_button,
-                            resample_rate, scale, channel_offset, use_slider, skip_hoverinfo,
-                            show_annotations_only,
-                            current_file_name, selected_channels,
-                            high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
-                            segment_size,
-                            annotation_label, show_annotation_labels,
-                            model_output_files, run_model_bool, model_annotate, model_threshold,
-                            hide_bad_channels, highlight_model_channels,
-                            current_fig, current_selected_bad_channels,
-                            bandpass_changed):
+    def _update_EEG_plot(
+        plot_button, confirm_plot_button,
+        resample_rate, scale, channel_offset, use_slider, skip_hoverinfo,
+        show_annotations_only,
+        current_file_name, selected_channels,
+        high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
+        segment_size,
+        annotation_label, show_annotation_labels,
+        model_output_files, run_model_bool, model_annotate, model_threshold,
+        hide_bad_channels, highlight_model_channels,
+        current_fig, current_selected_bad_channels,
+        bandpass_changed
+    ):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
 
         Args:
@@ -184,6 +187,9 @@ def register_visualization_callbacks(app):
                 return updated_fig, fig_style
 
         if 'plot-button' in trigger:
+            if 'plot-button.n_clicks' == trigger and bandpass_changed or plot_button == 0:
+                raise PreventUpdate
+
             globals.current_plot_index = 0
             
             globals.x0 = -0.5
@@ -194,10 +200,16 @@ def register_visualization_callbacks(app):
 
             print('Loading data...')
 
-            if not globals.external_raw and bandpass_changed:
+            if 'plot-button.n_clicks' == trigger and globals.raw:
+                globals.marked_annotations = get_annotations(globals.raw)
+
+            if not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
-            globals.marked_annotations = get_annotations(globals.raw)
+            if not ('plot-button.n_clicks' == trigger and globals.raw):
+                globals.marked_annotations = get_annotations(globals.raw)
+            else:
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
             
             globals.raw.info['bads'] = current_selected_bad_channels
 

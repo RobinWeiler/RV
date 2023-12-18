@@ -1,4 +1,6 @@
+import dash
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 from helperfunctions.modal_helperfunctions import _toggle_modal
 
@@ -22,6 +24,11 @@ def register_modal_callbacks(app):
         Returns:
             bool: Whether or not modal should now be open.
         """
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+        if 'plot-button' in trigger and not plot_button:
+            raise PreventUpdate
+
         return _toggle_modal([open_file, close_file, plot_button], is_open)
 
     # Toggle stats modal
@@ -84,3 +91,27 @@ def register_modal_callbacks(app):
             bool: Whether or not modal should now be open.
         """
         return _toggle_modal([quit_button, cancel_quit_button], is_open)
+
+    # Toggle confirm-replot modal
+    @app.callback(
+        Output("modal-confirm-replot", "is_open"),
+        [Input("confirm-plot-button", "n_clicks"), Input('cancel-plot-button', 'n_clicks'), Input('plot-button', 'n_clicks')],
+        [State("modal-confirm-replot", "is_open"), State("hidden-bandpass-changed", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def _toggle_overwrite_modal(confirm_replot_button, cancel_replot_button, plot_button, is_open, bandpass_changed):
+        """Opens or closes confirm-replot modal based on relevant button clicks.
+
+        Args:
+            confirm_replot_button (int): Num clicks on confirm-plot-button.
+            cancel_replot_button (int): Num clicks on cancel-plot-button.
+            plot_button (int): Num clicks on plot-button.
+            is_open (bool):  Whether or not modal-confirm-replot is currently open.
+
+        Returns:
+            bool: Whether or not modal-confirm-replot should now be open.
+        """
+        if not bandpass_changed:
+            raise PreventUpdate
+
+        return _toggle_modal([confirm_replot_button, cancel_replot_button, plot_button], is_open)

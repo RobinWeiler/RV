@@ -1,24 +1,39 @@
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 
 def register_preprocessing_callbacks(app):
     @app.callback(
-        Output("hidden-preprocessing-output", "n_clicks"),
-        [Input("high-pass", "value"), Input("low-pass", "value"), Input("bad-channel-interpolation", "value")],
+        Output("hidden-bandpass-changed", "n_clicks"),
+        [Input("high-pass", "value"), Input("low-pass", "value")],
+        State('plot-button', 'n_clicks')
     )
-    def _preprocessing_changed(high_pass, low_pass, bad_channel_interpolation):
-        """Sets n_clicks of hidden-preprocessing-output to 1 if either high-pass, low-pass or bad-channel-interpolation changed.
+    def _preprocessing_changed(high_pass, low_pass, plot_button):
+        """Sets n_clicks of hidden-bandpass-changed to 1 if either high-pass, low-pass or bad-channel-interpolation changed.
         """
-        print('Preprocessing changed')
+        if not plot_button:
+            raise PreventUpdate
+
+        # print('Bandpass changed')
         return 1
 
     @app.callback(
-        Output("hidden-preprocessing-output", "n_clicks", allow_duplicate=True),
-        Input("plot-button", "n_clicks"),
+        Output("hidden-bandpass-changed", "n_clicks", allow_duplicate=True),
+        Input("confirm-plot-button", "n_clicks"),
         prevent_initial_call=True
     )
     def _plot_button_pressed(plot_button):
-        """Sets n_clicks of hidden-preprocessing-output to 0 when plot-button is pressed.
+        """Sets n_clicks of hidden-bandpass-changed to 0 when confirm-plot-button is pressed.
         """
-        print('Reset bool')
+        # print('Reset bool')
+        return 0
+
+    @app.callback(
+        Output("plot-button", "n_clicks"),
+        Input('upload-file', 'filename'),
+        prevent_initial_call=True
+    )
+    def _plot_button_pressed(selected_file_name):
+        """Sets n_clicks of plot-button to 0 when new file is loaded.
+        """
         return 0

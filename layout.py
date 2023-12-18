@@ -514,7 +514,29 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True,
         ),
-        
+
+        # Confirm replotting modal
+        dbc.Modal([
+            dbc.ModalHeader('Caution!'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font('Replotting with different bandpass filter settings will reset currently marked annotations! Make sure to save all unsaved changes.')
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Replot", id="confirm-plot-button", className=['button']),
+                            dbc.Button("Cancel", id="cancel-plot-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-confirm-replot",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
         # Channel modal
         dbc.Modal([
             dbc.ModalHeader('Channel selection'),
@@ -908,7 +930,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         # Hidden output variables
         html.Pre(id='hidden-annotation-output', n_clicks=0),
         html.Pre(id='hidden-bad-channel-output'),
-        html.Pre(id='hidden-preprocessing-output', n_clicks=1),
+        html.Pre(id='hidden-bandpass-changed', n_clicks=0),
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
         html.Pre(id='username-dummy'),
