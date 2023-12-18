@@ -9,10 +9,10 @@ def register_modal_callbacks(app):
     # Toggle preprocessing modal
     @app.callback(
         Output("modal-file", "is_open"),
-        [Input("open-file", "n_clicks"), Input("close-file", "n_clicks"), Input('plot-button', 'n_clicks')],
+        [Input("open-file", "n_clicks"), Input("close-file", "n_clicks"), Input('plot-button', 'n_clicks'), Input('cancel-plot-button', 'n_clicks')],
         [State("modal-file", "is_open")],
     )
-    def _toggle_file_modal(open_file, close_file, plot_button, is_open):
+    def _toggle_file_modal(open_file, close_file, plot_button, cancel_plot_button, is_open):
         """Opens or closes open-file modal based on relevant button clicks.
 
         Args:
@@ -29,7 +29,7 @@ def register_modal_callbacks(app):
         if 'plot-button' in trigger and not plot_button:
             raise PreventUpdate
 
-        return _toggle_modal([open_file, close_file, plot_button], is_open)
+        return _toggle_modal([open_file, close_file, plot_button, cancel_plot_button], is_open)
 
     # Toggle stats modal
     @app.callback(
