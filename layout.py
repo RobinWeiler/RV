@@ -13,6 +13,7 @@ from callbacks.saving_callbacks import register_saving_callbacks
 from callbacks.annotation_callbacks import register_annotation_callbacks
 from callbacks.bad_channel_callbacks import register_bad_channel_callbacks
 from callbacks.model_callbacks import register_model_callbacks
+from callbacks.preprocessing_callbacks import register_preprocessing_callbacks
 from callbacks.segments_callbacks import register_segments_callbacks
 from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
@@ -523,7 +524,29 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             size='lg',
             centered=True,
         ),
-        
+
+        # Confirm replotting modal
+        dbc.Modal([
+            dbc.ModalHeader('Caution!'),
+            dbc.ModalBody([
+                html.Div([
+                    html.Div([
+                        html.Font('Replotting with different bandpass filter settings will reset currently marked annotations! Make sure to save all unsaved changes.')
+                    ]),
+                    html.Div([
+                        dbc.ButtonGroup([
+                            dbc.Button("Replot", id="confirm-plot-button", className=['button']),
+                            dbc.Button("Cancel", id="cancel-plot-button", className=['button']),
+                        ])
+                    ]),
+                ])
+            ])],
+            id="modal-confirm-replot",
+            is_open=False,
+            size='lg',
+            centered=True
+        ),
+
         # Channel modal
         dbc.Modal([
             dbc.ModalHeader('Channel selection'),
@@ -915,7 +938,9 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         ),
 
         # Hidden output variables
-        html.Pre(id='hidden-output', n_clicks=0),
+        html.Pre(id='hidden-annotation-output', n_clicks=0),
+        html.Pre(id='hidden-bad-channel-output'),
+        html.Pre(id='hidden-bandpass-changed', n_clicks=0),
         html.Pre(id='relayout-data'),
         html.Pre(id='preload-data'),
         html.Pre(id='username-dummy'),
@@ -942,6 +967,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     register_annotation_callbacks(app)
     register_bad_channel_callbacks(app)
     register_model_callbacks(app)
+    register_preprocessing_callbacks(app)
     register_segments_callbacks(app)
     register_stats_callbacks(app)
     register_visualization_callbacks(app)

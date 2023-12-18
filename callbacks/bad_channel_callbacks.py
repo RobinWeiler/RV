@@ -215,7 +215,7 @@ def register_bad_channel_callbacks(app):
 
     # Update disagreed bad channels callback
     @app.callback(
-        Output('hidden-output', 'children', allow_duplicate=True),
+        Output('hidden-bad-channel-output', 'children', allow_duplicate=True),
         Input('bad-channels-dropdown', 'value'),
         prevent_initial_call=True
     )
