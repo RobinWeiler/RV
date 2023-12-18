@@ -162,12 +162,12 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
         plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (plotting_data['plot']['offset_factor'])) for i in range(len(plotting_data['model'][model_index]['model_timescale']))]
 
-    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
-    for model_id in range(len(plotting_data['model'])):
-        y_tick_labels.append('M{}'.format(model_id))
-    # y_tick_labels.reverse()
+    # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    # for model_id in range(len(plotting_data['model'])):
+    #     y_tick_labels.append('M{}'.format(model_id))
+    # # y_tick_labels.reverse()
 
-    plotting_data['plot']['y_tick_labels'] = y_tick_labels
+    # plotting_data['plot']['y_tick_labels'] = y_tick_labels
 
     return plotting_data
 
@@ -494,10 +494,15 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         y_axis_range_1 += c.DEFAULT_Y_AXIS_OFFSET * 4
     y_axis_range = (y_axis_range_0, y_axis_range_1)
 
+    y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
+    for model_id in range(len(plotting_data['model'])):
+        y_tick_labels.append('M{}'.format(model_id))
+    # y_tick_labels.reverse()
+
     fig.update_yaxes(
         tickmode='array',
         tickvals=y_ticks,
-        ticktext=plotting_data['plot']['y_tick_labels'],
+        ticktext=y_tick_labels,
         showgrid=False,
         zeroline=False,
         fixedrange=False,
