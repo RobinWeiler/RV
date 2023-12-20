@@ -1,6 +1,4 @@
-from jupyter_dash import JupyterDash
-
-from dash import dcc, html
+from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
 # import dash_daq as daq
 
@@ -25,7 +23,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         disable_file_selection (bool, optional): Whether or not to disable file selection. Defaults to False.
         disable_preprocessing (bool, optional): Whether or not to disable preprocessing options. Defaults to False.
     """
-    app = JupyterDash(__name__, assets_folder='assets')
+    app = Dash(__name__, assets_folder='assets')
     app.layout = html.Div([
         # Top-bar buttons
         html.Div([

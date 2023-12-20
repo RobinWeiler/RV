@@ -30,7 +30,7 @@ def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
 
     app = setup_app(disable_file_selection, disable_preprocessing_parameters)
 
-    app.run_server(debug=True, mode='external', port=8050)
+    app.run_server(debug=True, jupyter_mode='tab', port=8050)
     
     # webbrowser.open("http://localhost:{}".format(8050))
 
