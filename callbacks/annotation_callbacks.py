@@ -196,7 +196,7 @@ def register_annotation_callbacks(app):
 
         elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
             remove_annotation_label = current_annotation_label
-            current_annotation_label = annotation_labels[-1]['value']
+            current_annotation_label = annotation_labels[0]['value']
 
             annotation_labels.remove({'label': remove_annotation_label, 'value': remove_annotation_label})
             globals.annotation_label_colors.pop(remove_annotation_label)
