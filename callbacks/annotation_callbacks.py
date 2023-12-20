@@ -303,7 +303,7 @@ def register_annotation_callbacks(app):
                     new_yaxis_end = current_fig['layout']['yaxis']['range'][1] - (4 * c.DEFAULT_Y_AXIS_OFFSET)
 
                 patched_fig['layout']['yaxis']['range'][1] = new_yaxis_end
-                patched_fig['layout']['updatemenus'][0]['buttons'][1]['args'][0]['yaxis.range[1]'] = new_yaxis_end
+                patched_fig['layout']['updatemenus'][0]['buttons'][1]['args'][0]['yaxis.range[1]'] = new_yaxis_end  # this only takes effect after switching segments
 
             patched_fig['layout']['shapes'] = []
             for annotation in globals.marked_annotations:

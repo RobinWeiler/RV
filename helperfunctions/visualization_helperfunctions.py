@@ -566,7 +566,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
                             "yaxis.range[0]": (-(2 + len(plotting_data['model'])) * (c.DEFAULT_Y_AXIS_OFFSET)),
                             # "yaxis.range[1]": ((len(plotting_data['EEG']['channel_names']) + (5 if show_annotation_labels else 1)) * (c.DEFAULT_Y_AXIS_OFFSET))
                             # "yaxis.range[1]": (c.DEFAULT_Y_AXIS_OFFSET * (len(plotting_data['EEG']['channel_names']) + (1 if not (reorder_channels and len(globals.plotting_data['EEG']['channel_names']) == 129) else len(c.CHANNEL_TO_REGION_128) * 2)))
-                            "yaxis.range[1]": y_axis_range
+                            "yaxis.range[1]": y_axis_range_1
                         }]
                     ),
                     # dict(label='Hide/show bad channels',
