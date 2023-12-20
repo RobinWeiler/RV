@@ -190,16 +190,16 @@ def register_visualization_callbacks(app):
         if 'reorder-channels' in trigger:
             if globals.plotting_data:
                 if reorder_channels:
-                    if len(globals.plotting_data['EEG']['channel_names']) == 129:
-                        channel_order = []
-                        for region in c.CHANNEL_TO_REGION_128.keys():
-                            channel_order.extend(['E{}'.format(channel) for channel in c.CHANNEL_TO_REGION_128[region]])
-                        channel_order.append('Cz')
+                    channel_order = []
+                    for region in c.CHANNEL_TO_REGION_128.keys():
+                        for channel in c.CHANNEL_TO_REGION_128[region]:
+                            channel_name = 'E{}'.format(channel)
+                            if channel_name in globals.plotting_data['EEG']['channel_names']:
+                                channel_order.append(channel_name)
+                    channel_order.append('Cz')
 
-                        globals.raw.reorder_channels(channel_order)
-                        globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
-                    else:
-                        print('Loaded channels are not supported yet')
+                    globals.raw.reorder_channels(channel_order)
+                    globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
                 else:
                     channel_order = sorted(globals.raw.ch_names, key=_channel_name_sorting_key)
                     globals.raw.reorder_channels(channel_order)
