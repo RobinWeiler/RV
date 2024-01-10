@@ -20,6 +20,49 @@ import globals
 
 def register_visualization_callbacks(app):
 
+    # Change channel offset when up and down arrow keys are pressed on keyboard
+    app.clientside_callback(
+        """
+            function(id) {
+                document.addEventListener("keydown", function(event) {
+                    if (event.target.nodeName != 'INPUT') {
+                        if (event.key == 'ArrowUp') {
+                            document.getElementById('hidden-increase-offset-button').click()
+                            event.stopPropogation()
+                        }
+                        if (event.key == 'ArrowDown') {
+                            document.getElementById('hidden-decrease-offset-button').click()
+                            event.stopPropogation()
+                        }
+                    }
+                });
+                return window.dash_clientside.no_update       
+            }
+        """,
+        Output("channel-offset", "id"),
+        Input("channel-offset", "id")
+    )
+
+    @app.callback(
+        Output('channel-offset', 'value', allow_duplicate=True),
+        [Input('hidden-decrease-offset-button', 'n_clicks'), Input('hidden-increase-offset-button', 'n_clicks'),],
+        State('channel-offset', 'value'),
+        prevent_initial_call=True
+    )
+    def _increase_offset(decrease_offset_button, increase_offset_button, current_offset):
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        print(trigger)
+        print(current_offset)
+        if not current_offset:
+            current_offset = c.DEFAULT_Y_AXIS_OFFSET
+
+        if 'increase' in trigger:
+            return current_offset + 10
+        elif 'decrease' in trigger and current_offset > 10:
+            return current_offset - 10
+        else:
+            return 0
+
     # plot callback
     @app.callback(
         [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],

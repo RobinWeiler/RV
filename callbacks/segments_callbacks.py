@@ -11,7 +11,7 @@ import constants as c
 
 def register_segments_callbacks(app):
 
-    # JavaScript function to switch the plotted segment when arrow keys are pressed on keyboard
+    # JavaScript function to switch the plotted segment when left and right arrow keys are pressed on keyboard
     app.clientside_callback(
         """
             function(id) {

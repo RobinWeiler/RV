@@ -25,6 +25,20 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     """
     app = Dash(__name__, assets_folder='assets')
     app.layout = html.Div([
+        # Hidden buttons
+        html.Div([
+            dbc.Button(
+                "Increase offset",
+                id="hidden-increase-offset-button",
+                className='button'
+            ),
+            dbc.Button(
+                "Decrease offset",
+                id="hidden-decrease-offset-button",
+                className='button'
+            ),
+        ], style={'display': 'none'}),
+
         # Top-bar buttons
         html.Div([
             html.Div([
@@ -375,6 +389,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                     type='number',
                                     placeholder="default: 40 (μV)",
                                     min=0,
+                                    step=10,
                                     debounce=True,
                                     className='medium-input'
                                 ),
