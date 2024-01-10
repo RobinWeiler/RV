@@ -34,6 +34,10 @@ def register_visualization_callbacks(app):
                             document.querySelector("a[data-val='select']").click()
                             event.stopPropogation()
                         }
+                        if (event.key == 'Delete' || event.key == 'Backspace') {
+                            document.querySelector("a[data-title='Erase active shape']").click()
+                            event.stopPropogation()
+                        }
                     }
                 });
                 return window.dash_clientside.no_update       
