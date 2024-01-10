@@ -18,25 +18,6 @@ import constants as c
 
 def register_annotation_callbacks(app):
 
-    # Open "Annotation settings" when "a" key is pressed on keyboard
-    app.clientside_callback(
-        """
-            function(id) {
-                document.addEventListener("keydown", function(event) {
-                    if (event.target.nodeName != 'INPUT') {
-                        if (event.key == 'a') {
-                            document.getElementById('open-annotation-settings').click()
-                            event.stopPropogation()
-                        }
-                    }
-                });
-                return window.dash_clientside.no_update       
-            }
-        """,
-        Output("open-annotation-settings", "id"),
-        Input("open-annotation-settings", "id")
-    )
-
     # Toggle annotation-settings modal
     @app.callback(
         Output("modal-annotation-settings", "is_open"),

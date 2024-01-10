@@ -20,6 +20,29 @@ import globals
 
 def register_visualization_callbacks(app):
 
+    # Switch taskbar button with keyboard
+    app.clientside_callback(
+        """
+            function(id) {
+                document.addEventListener("keydown", function(event) {
+                    if (event.target.nodeName != 'INPUT') {
+                        if (event.key == 'a') {
+                           document.querySelector("a[data-val='drawrect']").click()
+                            event.stopPropogation()
+                        }
+                        if (event.key == 'b') {
+                            document.querySelector("a[data-val='select']").click()
+                            event.stopPropogation()
+                        }
+                    }
+                });
+                return window.dash_clientside.no_update       
+            }
+        """,
+        Output("EEG-graph", "id"),
+        Input("EEG-graph", "id")
+    )
+
     # Change channel offset when up and down arrow keys are pressed on keyboard
     app.clientside_callback(
         """
