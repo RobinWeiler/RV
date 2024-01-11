@@ -205,7 +205,7 @@ def get_clean_intervals_graph(clean_interval_lengths, recording_length):
 
     return graph
 
-def get_power_spectrum_plot(f, Pxx_den):
+def get_power_spectrum_plot(f, all_Pxx_den, channel_names, mean_Pxx_den=[]):
     """Generates power spectrum plot.
 
     Args:
@@ -217,21 +217,35 @@ def get_power_spectrum_plot(f, Pxx_den):
     """
     fig = Figure()
 
-    fig.add_trace(
-        Scattergl(
-            x=f,
-            y=Pxx_den,
-            hovertemplate='Frequency (in Hz)=%{x:.2f}, Power density=%{y:.2f}' + '<extra></extra>',
-            marker=dict(color='#4796c5')
+    if len(mean_Pxx_den) == len(f):
+        fig.add_trace(
+            Scattergl(
+                x=f,
+                y=mean_Pxx_den,
+                name='Mean',
+                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.2f} Hz, Power density = %{y:.2f} V**2/Hz' + '<extra></extra>',
+                marker=dict(color='black')
+            )
         )
-    )
+
+    for i, Pxx_den in enumerate(all_Pxx_den):
+        fig.add_trace(
+            Scattergl(
+                x=f,
+                y=Pxx_den,
+                name=channel_names[i],
+                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.2f} Hz, Power density = %{y:.2f} V**2/Hz' + '<extra></extra>',
+                opacity=0.6
+                # marker=dict(color='#4796c5')
+            )
+        )
 
     fig.update_layout(
         xaxis=dict(
             title_text='Frequencies (in Hz)',
         ),
         yaxis=dict(
-            title_text='Power density'
+            title_text='Power spectral density (in V**2/Hz)'
         ),
     )
 
@@ -247,7 +261,7 @@ def calc_power_spectrum(sample_rate, selected_data):
     Returns:
         tuple(array, array): Tuple of sample frequencies and corresponding power densities.
     """
-    f, Pxx_den = welch(selected_data, sample_rate)
+    f, Pxx_den = welch(selected_data, sample_rate, scaling='density')
 
     return f, Pxx_den
 

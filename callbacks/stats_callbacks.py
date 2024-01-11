@@ -210,10 +210,11 @@ def register_stats_callbacks(app):
 
     # Data selection returns power-spectrum
     @app.callback(
-        [Output('selected-data', 'children'), Output('power-spectrum', 'figure')],
-        [Input('EEG-graph', 'selectedData')]
+        [Output('power-selected-interval', 'children'), Output('power-selected-channels', 'children'), Output('power-spectrum', 'figure')],  # Output('power-prominent-frequency', 'children')
+        Input('EEG-graph', 'selectedData'),
+        State('EEG-graph', 'figure')
     )
-    def _get_selected_power_spectrum(selectedData):
+    def _get_selected_power_spectrum(selectedData, current_fig):
         """Calculates frequency with highest power density and power-spectrum plot of selectedData.
 
         Args:
@@ -223,39 +224,61 @@ def register_stats_callbacks(app):
             tuple(string, plotly.graph_objs.Figure): String of frequency with highest power density, power-spectrum plot of selectedData.
         """
         if not selectedData or (not selectedData['points']):
-            most_prominent_freq = '-'
+            selected_range = '-'
+            selected_channels = '-'
+            # most_prominent_freq = '-'
             fig = Figure()
         else:
             # print(selectedData)
-            # selected_data = []
 
-            trace_number = selectedData['points'][0]['curveNumber']
-            # print('First trace: {}'.format(trace_number))
+            # first_trace_number = selectedData['points'][0]['curveNumber']
+            # print('First trace: {}'.format(first_trace_number))
 
-            selected_range = selectedData['range']
-            print('Range: {}'.format(selected_range))
+            selected_range = selectedData['range']['x']
+            selected_range = (round(selected_range[0], 1), round(selected_range[1], 1))
+            selected_range = '{} - {} seconds'.format(selected_range[0], selected_range[1])
+            # print('Range: {}'.format(selected_range))
 
             split_dict = collections.defaultdict(list)
 
             for datapoint in selectedData['points']:
                 split_dict[datapoint['curveNumber']].append(datapoint['customdata'])
 
-            selected_traces_list = list(split_dict.values())
+            split_dict = dict(split_dict)
+
+            max_length_selection = len(max(split_dict.values(), key=len))
+
+            filtered_dict = split_dict.copy()
+
+            for trace_number, datapoints in split_dict.items():
+                if len(datapoints) < max_length_selection:
+                    print('Not considering trace {}'.format(trace_number))
+                    del filtered_dict[trace_number]
+
+            selected_datapoints = list(filtered_dict.values())
+            selected_traces = list(filtered_dict.keys())
+            del filtered_dict
+
+            selected_channels = []
+            for trace in selected_traces:
+                selected_channels.append(current_fig['data'][trace]['name'])
+            print('Selected channels {}'.format(selected_channels))
 
             sample_rate = globals.viewing_raw.info['sfreq']
 
             all_Pxx_den = []
 
-            for counter, trace in enumerate(selected_traces_list):
+            for counter, trace in enumerate(selected_datapoints):
                 # print(counter)
                 f, Pxx_den = calc_power_spectrum(sample_rate, trace)
                 all_Pxx_den.append(Pxx_den)
 
             mean_Pxx_den = np.mean(all_Pxx_den, axis=0)
 
-            most_prominent_freq = get_most_prominent_freq(f, mean_Pxx_den)
-            most_prominent_freq = round(most_prominent_freq)
+            # most_prominent_freq = get_most_prominent_freq(f, mean_Pxx_den)
+            # most_prominent_freq = round(most_prominent_freq)
 
-            fig = get_power_spectrum_plot(f, mean_Pxx_den)
+            # print('Generating power spectra')
+            fig = get_power_spectrum_plot(f, all_Pxx_den, selected_channels, mean_Pxx_den)
 
-        return (str(most_prominent_freq) + ' Hz'), fig
+        return selected_range, _get_list_for_displaying(selected_channels), fig  # '{} Hz'.format(most_prominent_freq)

@@ -816,12 +816,20 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         
         # Power-spectrum modal
         dbc.Modal([
-            dbc.ModalHeader('Power spectrum of selected interval'),
+            dbc.ModalHeader('Power spectrum'),
             dbc.ModalBody([
                 html.Div([
-                    html.H2('Most prominent frequency:'),
-                    html.Font(id='selected-data'),
+                    html.H2('Selected interval:'),
+                    html.Font(id='power-selected-interval'),
                 ]),
+                html.Div([
+                    html.H2('Selected channels:'),
+                    html.Font(id='power-selected-channels'),
+                ]),
+                # html.Div([
+                #     html.H2('Most prominent frequency:'),
+                #     html.Font(id='power-prominent-frequency'),
+                # ]),
                 html.Div([
                     html.H2('Welch power spectrum:'),
                     dcc.Graph(
