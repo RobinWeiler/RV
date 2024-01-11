@@ -373,7 +373,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
                 name=channel_name if not region_name else channel_name + ' ' + region_name,
                 customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
-                hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude = %{customdata:.3f} μV' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude (scaled) = %{customdata:.3f}' + '<extra></extra>',
+                hovertemplate='' if skip_hoverinfo else '<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude = %{customdata:.2f} μV' + '<extra></extra>' if plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else '<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude (scaled) = %{customdata:.2f}' + '<extra></extra>',
                 mode='lines+markers',
                 visible=True if channel_name not in globals.raw.info['bads'] or not hide_bad_channels else False
             )

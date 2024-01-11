@@ -223,7 +223,7 @@ def get_power_spectrum_plot(f, all_Pxx_den, channel_names, mean_Pxx_den=[]):
                 x=f,
                 y=mean_Pxx_den,
                 name='Mean',
-                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.2f} Hz, Power density = %{y:.2f} V**2/Hz' + '<extra></extra>',
+                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.1f} Hz, Power density = %{y:.1f} V**2/Hz' + '<extra></extra>',
                 marker=dict(color='black')
             )
         )
@@ -234,7 +234,7 @@ def get_power_spectrum_plot(f, all_Pxx_den, channel_names, mean_Pxx_den=[]):
                 x=f,
                 y=Pxx_den,
                 name=channel_names[i],
-                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.2f} Hz, Power density = %{y:.2f} V**2/Hz' + '<extra></extra>',
+                hovertemplate='<b>%{fullData.name}</b> | Frequency = %{x:.1f} Hz, Power density = %{y:.1f} V**2/Hz' + '<extra></extra>',
                 opacity=0.6
                 # marker=dict(color='#4796c5')
             )
