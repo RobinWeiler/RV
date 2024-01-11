@@ -81,6 +81,18 @@ HELP_MENU = html.Div([
                     ]),
                 ]),
                 html.Div([
+                    dcc.Markdown('''
+                        # Keyboard shortcuts
+
+                        - **a**: Activate annotation-marking mode (button 5 in 'Taskbar')
+                        - **delete**/**backspace**: Delete currently selected annotation (button 6 in 'Taskbar')
+                        - **b**: Activate bad-channel-marking (and power-spectrum-selection) mode (button 4 in 'Taskbar')
+                        - **left arrow**: Plot previous segment ('<-' button in 'Menu bar')
+                        - **right arrow**: Plot following segment ('->' button in 'Menu bar')
+                        - **up arrow**: Increase channel offset by 10 μV
+                        - **down arrow**: Decrease channel offset by 10 μV
+                    '''),
+
                     html.H1('User Interface Overview'),
                     html.Div([
                         html.Img(src='assets/GUI_figure.png', alt='Annotated GUI', style={'max-width': '100%'})
