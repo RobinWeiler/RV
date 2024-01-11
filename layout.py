@@ -16,6 +16,8 @@ from callbacks.segments_callbacks import register_segments_callbacks
 from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
+import constants as c
+
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
     """Sets up HTML of RV application.
 
@@ -846,38 +848,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         dbc.Modal([
             dbc.ModalHeader('Help'),
             dbc.ModalBody([
-                html.Div([
-                    html.Div([
-                        html.Label([
-                            'Publication: ',
-                            html.A(
-                                'Click here',
-                                href='https://doi.org/10.3389/fninf.2022.1025847',
-                                target='_blank'
-                            )
-                        ]),
-                    ]),
-                    html.Div([
-                        html.Label([
-                            'GitHub: ',
-                            html.A(
-                                'Click here',
-                                href='https://github.com/RobinWeiler/RV',
-                                target='_blank'
-                            )
-                        ]),
-                    ]),
-                    html.Div([
-                        html.Label([
-                            'Documentation: ',
-                            html.A(
-                                'Click here',
-                                href='https://robinweiler.github.io/RV/RV.html',
-                                target='_blank'
-                            )
-                        ])
-                    ]),
-                ])
+                c.HELP_MENU
             ]),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close-help", className=["close-button", 'button'])
