@@ -247,10 +247,12 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         if not skip_hoverinfo:
             patched_fig['data'][len(channels) + model_index]['customdata'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
 
-    patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11)
+    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+
+    patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or (show_annotations_only and len(visible_annotations) > 0)) else (x0, x0 + 11)
 
     patched_fig['layout']['updatemenus'][0]['buttons'][0]['args'][0]['xaxis.range[0]'] = x0
-    patched_fig['layout']['updatemenus'][0]['buttons'][0]['args'][0]['xaxis.range[1]'] = x1 if (not use_slider or show_annotations_only) else x0 + 11
+    patched_fig['layout']['updatemenus'][0]['buttons'][0]['args'][0]['xaxis.range[1]'] = x1 if (not use_slider or (show_annotations_only and len(visible_annotations) > 0)) else x0 + 11
         
     return patched_fig
 
@@ -487,6 +489,37 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         ),
     )
 
+    # Add annotations
+    for annotation in globals.marked_annotations:
+        # if not ((annotation[0] < globals.x0 and annotation[1] < globals.x0) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
+        fig.add_vrect(
+            editable=True,
+            x0=annotation[0],
+            x1=annotation[1],
+            # annotation_text=annotation[2],
+            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() and globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
+            opacity=0.6,
+            layer='below',
+            line_width=0,
+            name=annotation[2],
+            label={'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
+            visible=True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
+        )
+
+        # Could use Scatter traces to create overview over all annotations
+        # fig.add_trace(
+        #     Scatter(
+        #         x=[annotation[0], annotation[1]],  # plotting_data['EEG']['timescale'][index_0:index_1],
+        #         y=[-1000, -1000],
+        #         marker=dict(color=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red', size=1000),
+        #         hoverinfo='none',
+        #         mode='lines',
+        #         visible=True
+        #     )
+        # )
+
+    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+
     y_axis_range_0 = -(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET
     y_axis_range_1 = c.DEFAULT_Y_AXIS_OFFSET * len(plotting_data['EEG']['channel_names'])
     if reorder_channels:
@@ -518,37 +551,8 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         showgrid=True,
         zeroline=False,
         constrain='domain',
-        range=(x0, x1) if (not use_slider or show_annotations_only) else (x0, x0 + 11),
+        range=(x0, x1) if (not use_slider or (show_annotations_only and len(visible_annotations) > 0)) else (x0, x0 + 11),
     )
-
-    # Add annotations
-    for annotation in globals.marked_annotations:
-        # if not ((annotation[0] < globals.x0 and annotation[1] < globals.x0) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
-        fig.add_vrect(
-            editable=True,
-            x0=annotation[0],
-            x1=annotation[1],
-            # annotation_text=annotation[2],
-            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() and globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
-            opacity=0.6,
-            layer='below',
-            line_width=0,
-            name=annotation[2],
-            label={'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
-            visible=True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
-        )
-
-        # Could use Scatter traces to create overview over all annotations
-        # fig.add_trace(
-        #     Scatter(
-        #         x=[annotation[0], annotation[1]],  # plotting_data['EEG']['timescale'][index_0:index_1],
-        #         y=[-1000, -1000],
-        #         marker=dict(color=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red', size=1000),
-        #         hoverinfo='none',
-        #         mode='lines',
-        #         visible=True
-        #     )
-        # )
 
     fig.update_layout(
         updatemenus=list([
@@ -558,7 +562,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
                         method="relayout", 
                         args=[{
                             "xaxis.range[0]": x0,
-                            "xaxis.range[1]": x1 if (not use_slider) or show_annotations_only else x0 + 11,
+                            "xaxis.range[1]": x1 if (not use_slider) or (show_annotations_only and len(visible_annotations) > 0) else x0 + 11,
                         }]
                     ),
                     dict(label="Reset channel-axis",  
