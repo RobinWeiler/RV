@@ -162,7 +162,7 @@ def register_segments_callbacks(app):
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
                 marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
-                print(marks)
+                # print(marks)
 
             return False, num_segments, 1, marks, new_segment
         else:

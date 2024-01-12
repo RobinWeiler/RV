@@ -182,36 +182,15 @@ def register_bad_channel_callbacks(app):
             removed_bad_channels = [removed_bad_channel for removed_bad_channel in globals.raw.info['bads'] if removed_bad_channel not in current_selected_bad_channels]
             print(removed_bad_channels)
             for channel_name in removed_bad_channels:
-                channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
-
-                patched_fig['data'][channel_index]['marker']['color'] = 'black'
+                if channel_name in globals.plotting_data['EEG']['channel_names']:
+                    channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
+                    patched_fig['data'][channel_index]['marker']['color'] = 'black'
 
             globals.raw.info['bads'] = current_selected_bad_channels
 
             return patched_fig
         else:
             raise PreventUpdate
-
-    # Enable/disable Hide/show bad channels button
-    @app.callback(
-        Output('hide-bad-channels-button', 'disabled'),
-        Input('bad-channels-dropdown', 'value'),
-        # prevent_initial_call=True
-    )
-    def _update_hide_bad_channels_button(current_selected_bad_channels):
-        """Disables/enables hide-bad-channels-button. Triggered when selected bad channels change.
-
-        Args:
-            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
-
-        Returns:
-            bool: Whether or not to disable hide-bad-channels-button button.
-        """
-
-        if len(current_selected_bad_channels) > 0:
-            return False
-        else:
-            return True
 
     # Update disagreed bad channels callback
     @app.callback(
@@ -232,6 +211,31 @@ def register_bad_channel_callbacks(app):
             globals.disagreed_bad_channels = list(set(disagreed_bad_channels))
             # print('Disagreeing:')
             # print(globals.disagreed_bad_channels)
+
+    # Enable/disable Hide/show bad channels button
+    @app.callback(
+        Output('hide-bad-channels-button', 'disabled'),
+        [Input('bad-channels-dropdown', 'value'), Input('selected-channels-dropdown', 'value')]
+        # prevent_initial_call=True
+    )
+    def _update_hide_bad_channels_button(current_selected_bad_channels, current_plotted_channels):
+        """Disables/enables hide-bad-channels-button. Triggered when selected bad channels change.
+
+        Args:
+            current_selected_bad_channels (list): List of strings of currently selected bad-channel names.
+
+        Returns:
+            bool: Whether or not to disable hide-bad-channels-button button.
+        """
+
+        if globals.raw:
+            if not current_plotted_channels:
+                current_plotted_channels = globals.raw.ch_names
+
+            if any(channel in current_plotted_channels for channel in current_selected_bad_channels):
+                return False
+
+        return True
 
     # Hide/show bad channels
     @app.callback(
@@ -255,12 +259,13 @@ def register_bad_channel_callbacks(app):
             patched_fig = Patch()
 
             for channel_name in current_selected_bad_channels:
-                channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
+                if channel_name in globals.plotting_data['EEG']['channel_names']:
+                    channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
-                if hide_bad_channels % 2 != 0:
-                    patched_fig['data'][channel_index]['visible'] = False
-                else:
-                    patched_fig['data'][channel_index]['visible'] = True
+                    if hide_bad_channels % 2 != 0:
+                        patched_fig['data'][channel_index]['visible'] = False
+                    else:
+                        patched_fig['data'][channel_index]['visible'] = True
 
             return patched_fig
         else:
