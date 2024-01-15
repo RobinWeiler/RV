@@ -35,13 +35,48 @@ h2 {
 }
 
 /* dcc.Loading component with transparent background */
-.loading_wrapper > div {
+/* .loading_wrapper > div {
     visibility: visible !important;
 }
 
 .dash-spinner.dash-default-spinner {
     height: 20vh;
+} */
+
+/* *[id="EEG-graph"][data-dash-is-loading="true"]{
+    visibility: hidden;
 }
+*[id="EEG-graph"][data-dash-is-loading="true"]::before{
+    content: "Loading...";
+    display: inline-block;
+    color: magenta;
+    visibility: visible;
+} */
+
+/* HTML: <div class="loader"></div> */
+#loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 45px;
+    aspect-ratio: .75;
+    --c: no-repeat linear-gradient(#000 0 0);
+    background: 
+      var(--c) 0%   100%,
+      var(--c) 50%  100%,
+      var(--c) 100% 100%;
+    background-size: 20% 65%;
+
+    animation: l5 1s infinite linear;
+}
+@keyframes l5 {
+    20% {background-position: 0% 50% ,50% 100%,100% 100%}
+    40% {background-position: 0% 0%  ,50% 50% ,100% 100%}
+    60% {background-position: 0% 100%,50% 0%  ,100% 50% }
+    80% {background-position: 0% 100%,50% 100%,100% 0%  }
+}
+
 
 .button {
     background-color: var(--main-bg-button-color);

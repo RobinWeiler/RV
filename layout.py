@@ -1,6 +1,7 @@
 from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
 # import dash_daq as daq
+from dash_extensions import DeferScript
 
 from plotly.graph_objs import Figure
 
@@ -891,43 +892,44 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
         ),
 
         # EEG graph
-        dcc.Loading(
-            id="loading-icon",
-            children=[
-                dcc.Graph(
-                    id='EEG-graph',
-                    figure=Figure(),
-                    config={
-                        'modeBarButtonsToAdd':[
-                            'drawrect',
-                            'eraseshape',
-                            'toggleSpikelines'
-                        ],
-                        'modeBarButtonsToRemove':[
-                            'lasso2d',
-                            'autoScale2d',
-                            'hoverClosestCartesian',
-                            'hoverCompareCartesian',
-                        ],
-                        'displayModeBar': True,
-                        # 'doubleClick': 'reset'
-                        'doubleClickDelay': 300,
-                        'displaylogo': False,
-                        'toImageButtonOptions': {
-                            'format': 'png', # one of png, svg, jpeg, webp
-                            'filename': 'EEG_RV',
-                        },
-                        'scrollZoom': True
-                    },
-                    style={
-                        'height': '95vh',
-                    },
-                ),
-            ],
-            type='default',
-            # color='red',
-            parent_className='loading_wrapper',
+        # dcc.Loading(
+        #     id="loading-icon",
+        #     children=[
+        html.Div(id='loader'),
+        dcc.Graph(
+            id='EEG-graph',
+            figure=Figure(),
+            config={
+                'modeBarButtonsToAdd':[
+                    'drawrect',
+                    'eraseshape',
+                    'toggleSpikelines'
+                ],
+                'modeBarButtonsToRemove':[
+                    'lasso2d',
+                    'autoScale2d',
+                    'hoverClosestCartesian',
+                    'hoverCompareCartesian',
+                ],
+                'displayModeBar': True,
+                # 'doubleClick': 'reset'
+                'doubleClickDelay': 300,
+                'displaylogo': False,
+                'toImageButtonOptions': {
+                    'format': 'png', # one of png, svg, jpeg, webp
+                    'filename': 'EEG_RV',
+                },
+                'scrollZoom': True
+            },
+            style={
+                'height': '95vh',
+            },
         ),
+        #     ],
+        #     type='default',
+        #     # color='red',
+        #     parent_className='loading_wrapper',
+        # ),
 
         # Hidden output variables
         html.Pre(id='hidden-annotation-output', n_clicks=0),
@@ -963,5 +965,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     register_segments_callbacks(app)
     register_stats_callbacks(app)
     register_visualization_callbacks(app)
-    
+
+    DeferScript(src='assets/loading_animation.js')
+
     return app
