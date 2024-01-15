@@ -8,6 +8,11 @@
     --main-red: #eb5f6e;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 body {
     /* background-color: rgb(255, 201, 119); */
     /* background-color: rgb(41, 39, 37); /* darkmode */

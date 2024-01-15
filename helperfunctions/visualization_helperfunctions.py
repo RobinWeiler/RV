@@ -174,7 +174,7 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
 def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip_hoverinfo=False, use_slider=False, show_annotations_only=False, reorder_channels=False):
     patched_fig = Patch()
-    
+
     # Get data of new segment
     index_0 = raw.time_as_index(x0)[0] if x0 > 0 else 0
     index_1 = raw.time_as_index(x1)[0]

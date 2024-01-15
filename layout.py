@@ -926,6 +926,14 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ],
             type='default',
             # color='red',
+            style={
+                'opacity': 0,
+                'animation-name': 'fadeIn',
+                'animation-duration': '100ms',
+                'animation-timing-function': 'ease-out',
+                'animation-delay': '500ms',
+                'animation-fill-mode': 'forwards',
+            },
             parent_className='loading_wrapper',
         ),
 
