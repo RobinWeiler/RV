@@ -46,7 +46,7 @@ h2 {
 /* *[id="EEG-graph"][data-dash-is-loading="true"]{
     visibility: hidden;
 } */
-*[data-dash-is-loading="true"]::before{
+*[id="EEG-graph"][data-dash-is-loading="true"]::before{
     content: " ";
     display: inline-block;
     visibility: visible;
