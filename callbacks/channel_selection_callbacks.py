@@ -7,6 +7,7 @@ from helperfunctions.visualization_helperfunctions import get_EEG_plot
 
 import globals
 
+
 def register_channel_selection_callbacks(app):
 
     # Toggle channel-selection modal
