@@ -132,7 +132,7 @@ def register_model_callbacks(app):
         ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(run_model_bool, rerun_model_button, reset_models_button, model_annotate, model_threshold, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
         """Updates plot when model settings are changed.
 
         Args:
