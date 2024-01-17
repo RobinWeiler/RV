@@ -78,9 +78,9 @@ def register_visualization_callbacks(app):
     )
     def _increase_offset(decrease_offset_button, increase_offset_button, current_offset):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-        print(trigger)
-        print(current_offset)
-        if not current_offset:
+        # print(trigger)
+        # print(current_offset)
+        if not current_offset and current_offset != 0:
             current_offset = c.DEFAULT_Y_AXIS_OFFSET
 
         if 'increase' in trigger:
