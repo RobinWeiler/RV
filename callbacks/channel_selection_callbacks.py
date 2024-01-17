@@ -1,4 +1,6 @@
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
+
 from plotly.graph_objs import Figure
 
 from helperfunctions.channel_selection_helperfunctions import get_channel_locations_plot
@@ -33,9 +35,9 @@ def register_channel_selection_callbacks(app):
     # Generate channel-selection plot
     @app.callback(
         Output("channel-topography", "figure"),
-        Input('data-file', 'children'),
+        Input("modal-channel-select", "is_open"),
     )
-    def _generate_channel_selection_plot(file_name):
+    def _generate_channel_selection_plot(channel_selection_is_open):
         """Loads channel-topography plot if available. Triggers when new file is loaded.
 
         Args:
@@ -44,13 +46,15 @@ def register_channel_selection_callbacks(app):
         Returns:
             plotly.graph_objs.Figure: Figure with channel-topography plot.
         """
+        if channel_selection_is_open:
+            if globals.raw:
+                topography_plot = get_channel_locations_plot(globals.raw)
+            else:
+                topography_plot = Figure()
 
-        if globals.raw:
-            topography_plot = get_channel_locations_plot(globals.raw)
+            return topography_plot
         else:
-            topography_plot = Figure()
-
-        return topography_plot
+            raise PreventUpdate
     
     # Selecting channels to plot
     @app.callback(
