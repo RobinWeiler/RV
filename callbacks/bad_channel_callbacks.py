@@ -200,12 +200,18 @@ def register_bad_channel_callbacks(app):
     )
     def _update_disagreed_bad_channels(current_selected_bad_channels):
         # If there are at least 2 lists of bad channels
-        if len([annotation for annotation in globals.bad_channels if annotation]) > 1:
+        if len([bad_channels for bad_channels in globals.bad_channels.values() if bad_channels]) > 1:
             disagreed_bad_channels = []
 
             for bad_channel in current_selected_bad_channels:
-                # If a bad channel does not appear in all lists
-                if sum(bad_channel in annotation for annotation in globals.bad_channels.values() if annotation) < len([annotation for annotation in globals.bad_channels.values() if annotation]):
+                agreed = True
+
+                for annotator, bad_channels in globals.bad_channels.items():
+                    if bad_channels and bad_channel not in bad_channels and annotator != 'current session':
+                        agreed = False
+
+                # If a bad channel does not appear in all lists except 'current session'
+                if not agreed:
                     disagreed_bad_channels.append(bad_channel)
 
             globals.disagreed_bad_channels = list(set(disagreed_bad_channels))
