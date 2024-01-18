@@ -15,10 +15,9 @@ annotation_label_colors = {'bad_artifact': 'red', model_annotation_label: 'red'}
 bad_channels = {'current session': []}
 disagreed_bad_channels = []
 
-plotting_data = {}
+plotting_data = {'EEG': {}, 'model': [], 'plot': {}}
 
 preloaded_plots = {}
 current_plot_index = 0
 
-x0 = 0
 x1 = 0

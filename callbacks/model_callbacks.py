@@ -78,7 +78,7 @@ def register_model_callbacks(app):
         Returns:
             bool: Whether or not to disable higlight-model-channels-button button.
         """
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             return not any(globals.plotting_data['model'][model_index]['model_channels'] for model_index in range(len(globals.plotting_data['model'])))
         else:
             return True
@@ -99,7 +99,7 @@ def register_model_callbacks(app):
             plotly.graph_objs.Figure: Updated EEG plot.
         """
 
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             patched_fig = Patch()
             for model_index in range(len(globals.plotting_data['model'])):
                 for channel_name in globals.plotting_data['model'][model_index]['model_channels']:
@@ -156,7 +156,7 @@ def register_model_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         patched_fig = Patch()
 
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             # If re-running model, keep current annotations and bad channels
             if 'rerun-model-button' in trigger and run_model_bool:
 
@@ -203,7 +203,7 @@ def register_model_callbacks(app):
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args'][0]['marker.color'] = globals.plotting_data['EEG']['highlighted_channel_colors']
                 # current_fig['layout']['updatemenus'][0]['buttons'][3]['args2'][0]['marker.color'] = globals.plotting_data['EEG']['default_channel_colors']
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig
 
@@ -218,7 +218,7 @@ def register_model_callbacks(app):
                     # globals.plotting_data['plot']['y_tick_labels'] = globals.plotting_data['plot']['y_tick_labels'][len(globals.plotting_data['model']):]
                     del globals.plotting_data['model'][:]
 
-                    # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+                    # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
                     return patched_fig
                 else:
@@ -230,7 +230,7 @@ def register_model_callbacks(app):
 
             #         patched_fig['data'] = current_fig['data'][:-1]
 
-            #         # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
+            #         # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo)
 
             #         return patched_fig
             #     else:
@@ -260,10 +260,10 @@ def register_model_callbacks(app):
                 if show_annotations_only and len(globals.marked_annotations) > 0:
                     globals.current_plot_index = 0
 
-                    globals.x0 = globals.marked_annotations[globals.current_plot_index][0] - 2
+                    globals.plotting_data['plot']['x0'] = globals.marked_annotations[globals.current_plot_index][0] - 2
                     globals.x1 = globals.marked_annotations[globals.current_plot_index][1] + 2
 
-                    updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label,  show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                    updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label,  show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                     return updated_fig
                 else:

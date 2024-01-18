@@ -280,7 +280,7 @@ def register_annotation_callbacks(app):
         Returns:
             tuple(plotly.graph_objs.Figure, int): Updated EEG plot.
         """
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
             patched_fig = Patch()
 

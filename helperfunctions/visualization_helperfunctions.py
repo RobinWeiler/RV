@@ -169,6 +169,8 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     # # y_tick_labels.reverse()
 
     # plotting_data['plot']['y_tick_labels'] = y_tick_labels
+    
+    plotting_data['plot']['x0'] = 0
 
     return plotting_data
 
@@ -278,7 +280,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, sho
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels, reorder_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels, reorder_channels)
+    fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels, reorder_channels)
 
     return fig
 
@@ -491,7 +493,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
     # Add annotations
     for annotation in globals.marked_annotations:
-        # if not ((annotation[0] < globals.x0 and annotation[1] < globals.x0) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
+        # if not ((annotation[0] < plotting_data['plot']['x0'] and annotation[1] < plotting_data['plot']['x0']) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
         fig.add_vrect(
             editable=True,
             x0=annotation[0],

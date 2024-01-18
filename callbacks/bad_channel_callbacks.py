@@ -123,7 +123,7 @@ def register_bad_channel_callbacks(app):
         # print('Clicked bad channel')
         # print(globals.bad_channels)
 
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             channel_index = clickData['points'][0]['curveNumber']
             if channel_index < len(globals.plotting_data['EEG']['channel_names']):
                 channel_name = globals.plotting_data['EEG']['channel_names'][channel_index]
@@ -159,7 +159,7 @@ def register_bad_channel_callbacks(app):
         Returns:
             plotly.graph_objs.Figure: Updated EEG plot.
         """
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             # print(current_selected_bad_channels)
             # print(globals.raw.info['bads'])
 
@@ -261,7 +261,7 @@ def register_bad_channel_callbacks(app):
             plotly.graph_objs.Figure: Updated EEG plot.
         """
 
-        if globals.plotting_data:
+        if globals.plotting_data['EEG']:
             patched_fig = Patch()
 
             for channel_name in current_selected_bad_channels:
