@@ -261,7 +261,46 @@ def register_visualization_callbacks(app):
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = Patch()
+                print(skip_hoverinfo)
+
+                for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                    if skip_hoverinfo:
+                        updated_fig['data'][channel_index]['customdata'] = None
+                        updated_fig['data'][channel_index]['hoverinfo'] = 'none'
+                        updated_fig['data'][channel_index]['hovertemplate'] = ''
+                    else:
+                        data = np.array(current_fig['data'][channel_index]['y'])
+
+                        data -= globals.plotting_data['plot']['y_ticks'][channel_index]
+
+                        updated_fig['data'][channel_index]['customdata'] = data
+                        updated_fig['data'][channel_index]['hoverinfo'] = 'all'
+                        updated_fig['data'][channel_index]['hovertemplate'] = ('<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude = %{customdata:.2f} μV' + '<extra></extra>') if globals.plotting_data['EEG']['scaling_factor'] == c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS else ('<b>%{fullData.name}</b> | Time = %{x:.2f} seconds, Amplitude (scaled) = %{customdata:.2f}' + '<extra></extra>')
+
+                for model_index in range(len(globals.plotting_data['model'])):
+                    if skip_hoverinfo:
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['customdata'] = None
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['hoverinfo'] = 'none'
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['hovertemplate'] = ''
+                    else:
+                        for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
+                            if timepoint >= globals.x0:
+                                model_index_0 = index
+                                break
+                            
+                        for index, timepoint in enumerate(globals.plotting_data['model'][model_index]['model_timescale']):
+                            if timepoint >= globals.x1:
+                                model_index_1 = index
+                                break
+                            else:
+                                model_index_1 = len(globals.plotting_data['model'][model_index]['model_timescale']) - 1
+
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['customdata']=globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['hoverinfo']='all'
+                        updated_fig['data'][len(globals.plotting_data['EEG']['channel_names']) + model_index]['hovertemplate']='Time=%{x:.2f}, Prediction=%{customdata:.2f}<extra><b>%{fullData.name}</b></extra>'
+
+                # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
