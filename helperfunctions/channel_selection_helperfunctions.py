@@ -29,9 +29,9 @@ def get_channel_locations_plot(raw):
         sphere = _check_sphere(sphere, raw.info)
         # print(sphere)
 
-        picks = _pick_data_channels(raw.info, exclude=())  # pick only data channels
-        pos = pick_info(raw.info, picks)
-        pos = _find_topomap_coords(pos, picks=picks, sphere=sphere)
+        # picks = _pick_data_channels(raw.info, exclude=())  # pick only data channels
+        # pos = pick_info(raw.info, picks)
+        pos = _find_topomap_coords(raw.info, picks=None, sphere=sphere)
         pos = pos[:, :2]
         # print(pos)
 
