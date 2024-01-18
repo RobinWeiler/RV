@@ -253,7 +253,9 @@ def register_visualization_callbacks(app):
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = Patch()
+
+                updated_fig['layout']['xaxis']['rangeslider']['visible'] = True if use_slider else False
 
                 return updated_fig, fig_style
 
