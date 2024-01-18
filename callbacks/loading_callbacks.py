@@ -61,13 +61,13 @@ def register_loading_callbacks(app):
             globals.model_annotation_label = 'bad_artifact_model'
             globals.annotation_label_colors = {'bad_artifact': 'red', globals.model_annotation_label: 'red'}
 
-            globals.plotting_data = {'EEG': {}, 'model': [], 'plot': {}}
+            globals.plotting_data = {'EEG': {}, 'model': [], 'plot': {'x0': 0, 'x1': 0}}
 
             globals.preloaded_plots = {}
             globals.current_plot_index = 0
 
             # globals.plotting_data['plot']['x0'] = 0
-            globals.x1 = 0
+            # globals.plotting_data['plot']['x1'] = 0
 
             if globals.external_raw:
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')

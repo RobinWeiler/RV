@@ -201,7 +201,7 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['plot']['y_ticks'] = y_ticks
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
@@ -219,19 +219,19 @@ def register_visualization_callbacks(app):
 
                 globals.plotting_data['EEG']['recording_length'] = len(globals.viewing_raw) / globals.viewing_raw.info['sfreq']
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data['EEG']:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data['EEG']:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
@@ -243,18 +243,18 @@ def register_visualization_callbacks(app):
         #             visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
         #             if len(visible_annotations) > 0:
         #                 plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
-        #                 globals.x1 = globals.marked_annotations[0][1] + 2
+        #                 plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
         #             else:
         #                 print('No annotations to show')
         #                 show_annotations_only = False
         #         else:
         #             plotting_data['plot']['x0'] = -0.5
         #             if segment_size:
-        #                 globals.x1 = segment_size + 0.5
+        #                 plotting_data['plot']['x1'] = segment_size + 0.5
         #             else:
-        #                 globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+        #                 plotting_data['plot']['x1'] = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-        #         updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+        #         updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
         #         return updated_fig, fig_style
 
@@ -276,7 +276,7 @@ def register_visualization_callbacks(app):
                     globals.raw.reorder_channels(channel_order)
                     globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
                 return updated_fig, fig_style
 
@@ -288,9 +288,9 @@ def register_visualization_callbacks(app):
             
             globals.plotting_data['plot']['x0'] = -0.5
             if segment_size:
-                globals.x1 = segment_size + 0.5
+                globals.plotting_data['plot']['x1'] = segment_size + 0.5
             else:
-                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+                globals.plotting_data['plot']['x1'] = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
             print('Loading data...')
 
@@ -397,7 +397,7 @@ def register_visualization_callbacks(app):
                 visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
                     globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
-                    globals.x1 = globals.marked_annotations[0][1] + 2
+                    globals.plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
                 else:
                     print('No annotations to show')
                     show_annotations_only = False

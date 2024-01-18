@@ -41,7 +41,7 @@ def register_stats_callbacks(app):
                 all_marked_annotations = get_annotations(globals.raw)
                 print(all_marked_annotations)
 
-                recording_length = globals.raw.n_times / globals.raw.info['sfreq']
+                recording_length = globals.plotting_data['EEG']['recording_length']
 
                 total_amount_annotated_data, total_amount_clean_data = _get_amount_annotated_clean_data(all_marked_annotations, recording_length)
                 total_clean_interval_lengths, total_amount_clean_intervals = _get_clean_intervals(all_marked_annotations, recording_length, interval_length=2)

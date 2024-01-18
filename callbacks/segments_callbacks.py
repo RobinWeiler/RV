@@ -67,9 +67,9 @@ def register_segments_callbacks(app):
                     right_disabled = False
 
             elif segment_size:
-                if globals.plotting_data['plot']['x0'] == -0.5 and not globals.x1 > globals.plotting_data['EEG']['recording_length']:
+                if globals.plotting_data['plot']['x0'] == -0.5 and not globals.plotting_data['plot']['x1'] > globals.plotting_data['EEG']['recording_length']:
                     right_disabled = False
-                elif globals.x1 > globals.plotting_data['EEG']['recording_length']:
+                elif globals.plotting_data['plot']['x1'] > globals.plotting_data['EEG']['recording_length']:
                     left_disabled = False
                 else:
                     left_disabled = False
@@ -109,7 +109,7 @@ def register_segments_callbacks(app):
                 right_disabled = True
             else:
                 left_disabled = current_fig['layout']['xaxis']['range'][0] < globals.plotting_data['plot']['x0']
-                right_disabled = current_fig['layout']['xaxis']['range'][1] > globals.x1
+                right_disabled = current_fig['layout']['xaxis']['range'][1] > globals.plotting_data['plot']['x1']
 
         return left_disabled, right_disabled
 
@@ -221,26 +221,26 @@ def register_segments_callbacks(app):
                 visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
                     globals.plotting_data['plot']['x0'] = visible_annotations[globals.current_plot_index][0] - 2
-                    globals.x1 = visible_annotations[globals.current_plot_index][1] + 2
+                    globals.plotting_data['plot']['x1'] = visible_annotations[globals.current_plot_index][1] + 2
                 else:
                     show_annotations_only = False
 
             if 'segment-slider' in trigger and not show_annotations_only:
                 globals.plotting_data['plot']['x0'] = segment_size * segment_slider - 0.5 if segment_slider != 0 else -0.5
-                globals.x1 = segment_size + (segment_size * segment_slider) + 0.5
+                globals.plotting_data['plot']['x1'] = segment_size + (segment_size * segment_slider) + 0.5
             elif 'left-button' in trigger and not show_annotations_only:
                 globals.plotting_data['plot']['x0'] -= segment_size
-                globals.x1 -= segment_size
+                globals.plotting_data['plot']['x1'] -= segment_size
 
             elif 'right-button' in trigger and not show_annotations_only:
                 globals.plotting_data['plot']['x0'] += segment_size
-                globals.x1 += segment_size
+                globals.plotting_data['plot']['x1'] += segment_size
 
-            patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
             return patched_fig, globals.current_plot_index
 
-            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
             # return updated_fig, globals.current_plot_index
         else:
@@ -306,13 +306,13 @@ def register_segments_callbacks(app):
         """
         if globals.plotting_data['EEG']:
             if segment_size:
-                globals.x1 = globals.plotting_data['plot']['x0'] + segment_size + 1
+                globals.plotting_data['plot']['x1'] = globals.plotting_data['plot']['x0'] + segment_size + 1
             else:
-                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+                globals.plotting_data['plot']['x1'] = globals.plotting_data['EEG']['recording_length'] + 0.5
 
-            patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
+            patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
-            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
             return patched_fig
 
@@ -366,7 +366,7 @@ def register_segments_callbacks(app):
     #             if (not show_annotations_only) and (globals.current_plot_index + 1 not in globals.preloaded_plots.keys()) and (globals.current_plot_index + 1 < num_segments):
     #                 print('Preloading segments')
     #                 new_x0 = plotting_data['plot']['x0'] + segment_size
-    #                 new_x1 = globals.x1 + segment_size
+    #                 new_x1 = plotting_data['plot']['x1'] + segment_size
     #                 globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
     #                 print('Next segment preloaded')
 

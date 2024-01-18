@@ -107,38 +107,38 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
     Returns:
         dict: Dict holding all relevant data from raw object and model outputs for plotting.
     """
-    plotting_data = {'EEG': {}, 'model': [], 'plot': {}}
+    # plotting_data = {'EEG': {}, 'model': [], 'plot': {'x0': 0, 'x1': 0}}
     
-    plotting_data['EEG']['file_name'] = file_name
+    globals.plotting_data['EEG']['file_name'] = file_name
 
-    plotting_data['EEG']['scaling_factor'] = _get_scaling(EEG_scale)
-    plotting_data['plot']['offset_factor'] = _get_offset(channel_offset)
+    globals.plotting_data['EEG']['scaling_factor'] = _get_scaling(EEG_scale)
+    globals.plotting_data['plot']['offset_factor'] = _get_offset(channel_offset)
 
     if selected_channel_names:
         check = all(channel in raw.ch_names for channel in selected_channel_names)
         if check:
             # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data(selected_channel_names))
-            plotting_data['EEG']['channel_names'] = selected_channel_names
+            globals.plotting_data['EEG']['channel_names'] = selected_channel_names
     else:
         print('Displaying all channels')
         # plotting_data['EEG']['EEG_data'] = np.transpose(raw.get_data())
-        plotting_data['EEG']['channel_names'] = raw.ch_names
+        globals.plotting_data['EEG']['channel_names'] = raw.ch_names
         
         if reorder_channels:
             channel_order = []
             for region in c.CHANNEL_TO_REGION_128.keys():
                 for channel in c.CHANNEL_TO_REGION_128[region]:
                     channel_name = 'E{}'.format(channel)
-                    if channel_name in plotting_data['EEG']['channel_names']:
+                    if channel_name in globals.plotting_data['EEG']['channel_names']:
                         channel_order.append(channel_name)
             channel_order.append('Cz')
 
             globals.raw.reorder_channels(channel_order)
             raw.reorder_channels(channel_order)
-            plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+            globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
 
     # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
-    plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
+    globals.plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']
 
     # Calculate offset for y-axis
     # offset_EEG = plotting_data['EEG']['EEG_data'].copy() 
@@ -150,18 +150,18 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
         eog_channels.append(raw.ch_names[channel_index])
     # print(eog_channels)
 
-    plotting_data['EEG']['eog_channels'] = eog_channels
+    globals.plotting_data['EEG']['eog_channels'] = eog_channels
 
     # plotting_data['EEG']['offset_EEG_data'] = offset_EEG
 
     for model_index, model_array in enumerate(model_output):
-        plotting_data['model'].append({})
-        plotting_data['model'][model_index]['model_data'] = model_array
-        plotting_data['model'][model_index]['model_channels'] = model_channels[model_index]
+        globals.plotting_data['model'].append({})
+        globals.plotting_data['model'][model_index]['model_data'] = model_array
+        globals.plotting_data['model'][model_index]['model_channels'] = model_channels[model_index]
 
-        plotting_data['model'][model_index]['model_timescale'] = np.linspace(0, plotting_data['EEG']['recording_length'], num=model_array.shape[0])
+        globals.plotting_data['model'][model_index]['model_timescale'] = np.linspace(0, globals.plotting_data['EEG']['recording_length'], num=model_array.shape[0])
 
-        plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (plotting_data['plot']['offset_factor'])) for i in range(len(plotting_data['model'][model_index]['model_timescale']))]
+        globals.plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][model_index]['model_timescale']))]
 
     # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
     # for model_id in range(len(plotting_data['model'])):
@@ -170,9 +170,10 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
     # plotting_data['plot']['y_tick_labels'] = y_tick_labels
     
-    plotting_data['plot']['x0'] = 0
+    # plotting_data['plot']['x0'] = 0
+    # plotting_data['plot']['x1'] = 0
 
-    return plotting_data
+    return globals.plotting_data
 
 def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip_hoverinfo=False, use_slider=False, show_annotations_only=False, reorder_channels=False):
     patched_fig = Patch()
@@ -280,7 +281,7 @@ def get_EEG_figure(file_name, raw, selected_channel_names, annotation_label, sho
     globals.plotting_data = _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channel_offset, model_output, model_channels, reorder_channels)
     # globals.plotting_data = plotting_data.copy()    
     
-    fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels, reorder_channels)
+    fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, hide_bad_channels, highlight_model_channels, reorder_channels)
 
     return fig
 
@@ -493,7 +494,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
     # Add annotations
     for annotation in globals.marked_annotations:
-        # if not ((annotation[0] < plotting_data['plot']['x0'] and annotation[1] < plotting_data['plot']['x0']) or (annotation[0] > globals.x1 and annotation[1] > globals.x1)):
+        # if not ((annotation[0] < plotting_data['plot']['x0'] and annotation[1] < plotting_data['plot']['x0']) or (annotation[0] > plotting_data['plot']['x1'] and annotation[1] > plotting_data['plot']['x1'])):
         fig.add_vrect(
             editable=True,
             x0=annotation[0],
