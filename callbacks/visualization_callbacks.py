@@ -185,7 +185,7 @@ def register_visualization_callbacks(app):
 
                     globals.plotting_data['EEG']['scaling_factor'] = new_scale
 
-                    updated_fig = _get_next_segment(globals.raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
+                    updated_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
                     
                 if 'channel-offset' in trigger and globals.plotting_data['plot']['offset_factor'] != channel_offset:
                     updated_fig = Patch()
@@ -218,12 +218,36 @@ def register_visualization_callbacks(app):
                     print('Performing resampling')
                     globals.viewing_raw.resample(resample_rate)
                     # timestep = 1 / resample_rate
+                else:
+                    if float(resample_rate) < globals.raw.info['sfreq']:
+                        raise Exception('New sampling rate ({}) cannot be higher than the original sampling rate ({})'.format(resample_rate, globals.raw.info['sfreq']))
 
                 print(globals.viewing_raw.info)
 
-                globals.plotting_data['EEG']['recording_length'] = len(globals.viewing_raw) / globals.viewing_raw.info['sfreq']
+                updated_fig = Patch()
+                
+                index_0 = globals.viewing_raw.time_as_index(globals.x0)[0] if globals.x0 > 0 else 0
+                index_1 = globals.viewing_raw.time_as_index(globals.x1)[0]
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                data_subset, times_subset = globals.viewing_raw[globals.plotting_data['EEG']['channel_names'], index_0:index_1]
+                data_subset = data_subset * globals.plotting_data['EEG']['scaling_factor']
+
+                if not skip_hoverinfo:
+                    custom_data = data_subset.copy()
+
+                if len(globals.plotting_data['model']) > 0:
+                    data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)[:-len(globals.plotting_data['model'])]
+                else:
+                    data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)
+
+                for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                    updated_fig['data'][channel_index]['x'] = times_subset
+                    updated_fig['data'][channel_index]['y'] = data_subset[channel_index, :]
+
+                    if not skip_hoverinfo:
+                        updated_fig['data'][channel_index]['customdata'] = custom_data[channel_index]
+
+                # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
