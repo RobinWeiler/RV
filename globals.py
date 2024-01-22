@@ -1,4 +1,3 @@
-username = None
 external_save_file_path = None
 parameters = {}
 

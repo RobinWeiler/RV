@@ -119,7 +119,7 @@ def register_visualization_callbacks(app):
             State("model-threshold", "value"),
             State('hide-bad-channels-button', 'n_clicks'),
             State('highlight-model-channels-button', 'n_clicks'),
-            State('EEG-graph', 'figure'), State('bad-channels-dropdown', 'value'),
+            State('EEG-graph', 'figure'), State('username', 'value'), State('bad-channels-dropdown', 'value'),
             State("hidden-bandpass-changed", "n_clicks"),
         ]
     )
@@ -133,7 +133,7 @@ def register_visualization_callbacks(app):
         annotation_label, show_annotation_labels,
         model_output_files, run_model_bool, model_annotate, model_threshold,
         hide_bad_channels, highlight_model_channels,
-        current_fig, current_selected_bad_channels,
+        current_fig, username, current_selected_bad_channels,
         bandpass_changed
     ):
         """Generates EEG plot preprocessed with given parameter values. Triggered when plot-, redraw-, left-arrow-, and right-arrow button are clicked.
@@ -276,7 +276,7 @@ def register_visualization_callbacks(app):
             if not ('plot-button.n_clicks' == trigger and globals.raw):
                 globals.marked_annotations = get_annotations(globals.raw)
             else:
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             
             globals.raw.info['bads'] = current_selected_bad_channels
 
@@ -306,8 +306,7 @@ def register_visualization_callbacks(app):
                 loaded_annotations = globals.parameters['annotations']
                 merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
                 globals.marked_annotations = merged_annotations
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
 
             model_output = []
             model_channel_names = []
@@ -319,8 +318,7 @@ def register_visualization_callbacks(app):
                         loaded_annotations = parse_annotation_file(model_name)
                         merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
                         globals.marked_annotations = merged_annotations
-                        annotations_to_raw(globals.raw, globals.marked_annotations)
-                        annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                        globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
                     else:
                         temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.viewing_raw)
                         model_output.append(temp_model_output)
@@ -363,8 +361,7 @@ def register_visualization_callbacks(app):
 
                 globals.marked_annotations = all_annotations
 
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             
             if show_annotations_only:
                 visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']

@@ -42,10 +42,10 @@ def register_annotation_callbacks(app):
     @app.callback(
         Output('hidden-annotation-output', 'n_clicks'),
         Input('EEG-graph', 'relayoutData'),
-        [State('show-annotations-only', 'value'), State('EEG-graph', 'figure')],
+        [State('show-annotations-only', 'value'), State('EEG-graph', 'figure'), State('username', 'value')],
         prevent_initial_call=True
     )
-    def _make_annotation(relayoutData, show_annotations_only, current_fig):
+    def _make_annotation(relayoutData, show_annotations_only, current_fig, username):
         """Saves annotations when new ones are made or old ones are moved/deleted. Triggers when user zooms, pans, and draws on plot.
 
         Args:
@@ -121,7 +121,7 @@ def register_annotation_callbacks(app):
                 globals.marked_annotations, merge_happened = merge_intervals(globals.marked_annotations)
                 print(globals.marked_annotations)
 
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
                 quick_save(globals.raw)
 
                 if show_annotations_only or redraw_needed or merge_happened:
@@ -164,10 +164,10 @@ def register_annotation_callbacks(app):
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('data-file', 'children'), Input('upload-model-output', 'filename'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
-        [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value')],
+        [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value'), State('username', 'value')],
         prevent_initial_call=True
     )
-    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label):
+    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label, username):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
 
@@ -202,7 +202,7 @@ def register_annotation_callbacks(app):
             globals.annotation_label_colors.pop(remove_annotation_label)
 
             globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != remove_annotation_label]
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             quick_save(globals.raw)
 
         elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
@@ -214,7 +214,7 @@ def register_annotation_callbacks(app):
                 globals.model_annotation_label = renamed_annotation_label
 
             globals.marked_annotations = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.marked_annotations]
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             quick_save(globals.raw)
 
             current_annotation_label = renamed_annotation_label
@@ -233,12 +233,11 @@ def register_annotation_callbacks(app):
     )
     def _change_username(username):
         print(username)
-        if globals.raw and globals.username != username:
-            globals.username = username
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations)
-            quick_save(globals.raw)
+        if not globals.raw:
+            raise PreventUpdate
         else:
-            globals.username = username
+            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+            quick_save(globals.raw)
 
     # Switch to current annotation-label color
     @app.callback(

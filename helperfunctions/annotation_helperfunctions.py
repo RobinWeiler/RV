@@ -4,7 +4,7 @@ import numpy as np
 import globals
 
 
-def annotations_to_raw(raw, marked_annotations):
+def annotations_to_raw(raw, marked_annotations, username=None):
     """Adds marked_annotations to raw object. 
 
     Args:
@@ -20,8 +20,8 @@ def annotations_to_raw(raw, marked_annotations):
     for annotation in marked_annotations:
         onsets.append(annotation[0])
         durations.append(annotation[1] - annotation[0])
-        if globals.username:
-            descriptions.append(annotation[2] + '_' + globals.username)
+        if username:
+            descriptions.append(annotation[2] + '_' + username)
         else:
             descriptions.append(annotation[2])
 

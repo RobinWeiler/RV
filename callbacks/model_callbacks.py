@@ -128,11 +128,11 @@ def register_model_callbacks(app):
             State('use-slider', 'value'), State('reorder-channels', 'value'), State('skip-hoverinfo', 'value'), 
             State('annotation-label', 'value'), State('show-annotation-labels', 'value'), State('show-annotations-only', 'value'), 
             State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
-            State('EEG-graph', 'figure')
+            State('EEG-graph', 'figure'), State('username', 'value')
         ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig):
+    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig, username):
         """Updates plot when model settings are changed.
 
         Args:
@@ -187,8 +187,7 @@ def register_model_callbacks(app):
 
                     globals.marked_annotations = all_annotations
 
-                    annotations_to_raw(globals.raw, globals.marked_annotations)
-                    annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                    globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
                 
                 if not globals.plotting_data['model']:
                     globals.plotting_data['model'].append({})
@@ -254,8 +253,7 @@ def register_model_callbacks(app):
 
                 globals.marked_annotations = merged_annotations
 
-                annotations_to_raw(globals.raw, globals.marked_annotations)
-                annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
+                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
 
                 if show_annotations_only and len(globals.marked_annotations) > 0:
                     globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
