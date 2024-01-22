@@ -86,7 +86,9 @@ def register_bad_channel_callbacks(app):
         prevent_initial_call=True
     )
     def _load_bad_channel_files(loaded_bad_channel_files, current_selected_bad_channels):
-        if loaded_bad_channel_files:
+        if not loaded_bad_channel_files:
+            raise PreventUpdate
+        else:
             for file_name in loaded_bad_channel_files:
                 if '.txt' in file_name:
                     loaded_bad_channels = parse_bad_channels_file(file_name)
@@ -96,12 +98,7 @@ def register_bad_channel_callbacks(app):
 
             current_selected_bad_channels = list(set(current_selected_bad_channels))
 
-        else:
-            current_selected_bad_channels = globals.bad_channels[globals.file_name]
-
-        # globals.raw.info['bads'] = current_selected_bad_channels
-
-        return current_selected_bad_channels
+            return current_selected_bad_channels
 
     # Register channel click
     @app.callback(

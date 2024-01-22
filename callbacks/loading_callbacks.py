@@ -55,8 +55,6 @@ def register_loading_callbacks(app):
             return current_file_name, username, high_pass, low_pass, reference, new_sampling_frequency, scale, channel_offset, segment_size, disable_upload
         elif globals.external_raw or selected_file_name:
             # Reset globals
-            globals.file_name = ''
-
             globals.marked_annotations = []
             globals.model_annotation_label = 'bad_artifact_model'
             globals.annotation_label_colors = {'bad_artifact': 'red', globals.model_annotation_label: 'red'}
@@ -66,13 +64,10 @@ def register_loading_callbacks(app):
             if globals.external_raw:
                 file_name_index = globals.raw._filenames[0].rfind('/')   # external_save_file_path.rfind('/')
                 external_file_name = globals.raw._filenames[0][file_name_index + 1:]  # external_save_file_path[file_name_index + 1:]
-                globals.file_name = external_file_name
                 selected_file_name = external_file_name
                 
                 file_selection_disabled = True
             else:
-                globals.file_name = str(selected_file_name)
-                
                 globals.raw = parse_data_file(selected_file_name)
                 
                 file_selection_disabled = False

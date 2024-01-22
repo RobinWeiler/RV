@@ -79,9 +79,11 @@ def register_saving_callbacks(app):
         if not save_file_name:
             print('No file name given!')
             save_file_name = 'unnamed'
+
         if not extension:
             extension = '.fif'
-        globals.file_name = save_to(save_file_name, extension, globals.raw)
+
+        new_file_name = save_to(save_file_name, extension, globals.raw)
 
     # Overwrite save-file button callback
     @app.callback(
