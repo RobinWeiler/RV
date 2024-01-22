@@ -194,19 +194,19 @@ def register_annotation_callbacks(app):
                                 globals.annotation_label_colors[annotation[2]] = 'red'
                                 annotation_labels.append(_get_annotation_label_radioitem(annotation[2]))
 
-        elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
-            remove_annotation_label = current_annotation_label
-            current_annotation_label = annotation_labels[0]['value']
-
-            for annotation_label in annotation_labels:
-                if annotation_label['value'] == remove_annotation_label:
-                    annotation_labels.remove(annotation_label)
-
-            globals.annotation_label_colors.pop(remove_annotation_label)
-
-            globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != remove_annotation_label]
+        elif 'remove-annotation-label' in trigger:
+            globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != current_annotation_label]
             globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             quick_save(globals.raw)
+
+            if len(annotation_labels) > 1:
+                for annotation_label in annotation_labels:
+                    if annotation_label['value'] == current_annotation_label:
+                        annotation_labels.remove(annotation_label)
+
+                globals.annotation_label_colors.pop(current_annotation_label)
+                
+                current_annotation_label = annotation_labels[0]['value']
 
         elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
             for annotation_index, annotation_label in enumerate(annotation_labels):
