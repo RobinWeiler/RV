@@ -182,12 +182,12 @@ def register_model_callbacks(app):
                     for interval_index, interval in enumerate(model_annotations):
                         model_annotations[interval_index] = (interval[0], interval[1], run_model_description)
 
-                    all_annotations = globals.marked_annotations + model_annotations
+                    all_annotations = globals.plotting_data['annotations']['marked_annotations'] + model_annotations
                     all_annotations, _ = merge_intervals(all_annotations)
 
-                    globals.marked_annotations = all_annotations
+                    globals.plotting_data['annotations']['marked_annotations'] = all_annotations
 
-                    globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                    globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
                 
                 if not globals.plotting_data['model']:
                     globals.plotting_data['model'].append({})
@@ -247,24 +247,24 @@ def register_model_callbacks(app):
                             output_intervals[interval_index] = (interval[0], interval[1], globals.plotting_data['annotations']['default_model_annotation_label'])
                         all_model_annotations = all_model_annotations + output_intervals
 
-                remaining_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != globals.plotting_data['annotations']['default_model_annotation_label']]
+                remaining_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if annotation[2] != globals.plotting_data['annotations']['default_model_annotation_label']]
 
                 merged_annotations, _ = merge_intervals(all_model_annotations + remaining_annotations)
 
-                globals.marked_annotations = merged_annotations
+                globals.plotting_data['annotations']['marked_annotations'] = merged_annotations
 
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
 
-                if show_annotations_only and len(globals.marked_annotations) > 0:
-                    globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
-                    globals.plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
+                if show_annotations_only and len(globals.plotting_data['annotations']['marked_annotations']) > 0:
+                    globals.plotting_data['plot']['x0'] = globals.plotting_data['annotations']['marked_annotations'][0][0] - 2
+                    globals.plotting_data['plot']['x1'] = globals.plotting_data['annotations']['marked_annotations'][0][1] + 2
 
                     updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label,  show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                     return updated_fig
                 else:
                     patched_fig['layout']['shapes'] = []
-                    for annotation in globals.marked_annotations:
+                    for annotation in globals.plotting_data['annotations']['marked_annotations']:
                         patched_fig['layout']['shapes'].append({
                             'editable': True,
                             'xref': 'x',

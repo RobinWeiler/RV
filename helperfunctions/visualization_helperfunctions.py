@@ -250,7 +250,7 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         if not skip_hoverinfo:
             patched_fig['data'][len(channels) + model_index]['customdata'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
 
-    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
+    visible_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
 
     patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or (show_annotations_only and len(visible_annotations) > 0)) else (x0, x0 + 11)
 
@@ -493,7 +493,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
     )
 
     # Add annotations
-    for annotation in globals.marked_annotations:
+    for annotation in globals.plotting_data['annotations']['marked_annotations']:
         # if not ((annotation[0] < plotting_data['plot']['x0'] and annotation[1] < plotting_data['plot']['x0']) or (annotation[0] > plotting_data['plot']['x1'] and annotation[1] > plotting_data['plot']['x1'])):
         fig.add_vrect(
             editable=True,
@@ -521,7 +521,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         #     )
         # )
 
-    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
+    visible_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
 
     y_axis_range_0 = -(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET
     y_axis_range_1 = c.DEFAULT_Y_AXIS_OFFSET * len(plotting_data['EEG']['channel_names'])

@@ -57,10 +57,10 @@ def register_segments_callbacks(app):
 
         if globals.plotting_data['EEG']:
             if show_annotations_only:
-                if len(globals.marked_annotations) > 0:
+                if len(globals.plotting_data['annotations']['marked_annotations']) > 0:
                     if current_segment > 0:
                         left_disabled = False
-                    if current_segment + 1 < len([annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']):
+                    if current_segment + 1 < len([annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']):
                         right_disabled = False
                 else:
                     left_disabled = False
@@ -104,7 +104,7 @@ def register_segments_callbacks(app):
             segment_size = 100  # hack for if statement below when recording is not segmented
 
         if globals.plotting_data['EEG']:
-            if (show_annotations_only and len(globals.marked_annotations) > 0) or segment_size <= 10:
+            if (show_annotations_only and len(globals.plotting_data['annotations']['marked_annotations']) > 0) or segment_size <= 10:
                 left_disabled = True
                 right_disabled = True
             else:
@@ -134,7 +134,7 @@ def register_segments_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
         if globals.plotting_data['EEG'] and segment_size:
-            visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
+            visible_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
             if show_annotations_only and len(visible_annotations) > 0:
                 num_segments = int(len(visible_annotations) - 1)
             else:
@@ -208,7 +208,7 @@ def register_segments_callbacks(app):
                 current_segment += 1
 
             if show_annotations_only:
-                visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
+                visible_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
                     globals.plotting_data['plot']['x0'] = visible_annotations[current_segment][0] - 2
                     globals.plotting_data['plot']['x1'] = visible_annotations[current_segment][1] + 2

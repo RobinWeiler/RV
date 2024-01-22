@@ -56,7 +56,7 @@ def register_annotation_callbacks(app):
         if relayoutData:
             # Annotation was added/removed/moved/resized
             if any('shapes' in key for key in relayoutData.keys()):
-                globals.marked_annotations[:] = []
+                globals.plotting_data['annotations']['marked_annotations'][:] = []
                 redraw_needed = False
 
                 for shape in current_fig['layout']['shapes']:
@@ -83,13 +83,13 @@ def register_annotation_callbacks(app):
                             annotation_end = globals.plotting_data['EEG']['recording_length']
                             redraw_needed = True
 
-                        globals.marked_annotations.append((annotation_start, annotation_end, label))
+                        globals.plotting_data['annotations']['marked_annotations'].append((annotation_start, annotation_end, label))
                         # current_annotations.append((annotation_start, annotation_end))
 
-                globals.marked_annotations, merge_happened = merge_intervals(globals.marked_annotations)
-                print(globals.marked_annotations)
+                globals.plotting_data['annotations']['marked_annotations'], merge_happened = merge_intervals(globals.plotting_data['annotations']['marked_annotations'])
+                print(globals.plotting_data['annotations']['marked_annotations'])
 
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
                 quick_save(globals.raw)
 
                 if show_annotations_only or redraw_needed or merge_happened:
@@ -115,10 +115,10 @@ def register_annotation_callbacks(app):
             
         """
         if show_annotations_only:
-            if len(globals.marked_annotations) == 0:
+            if len(globals.plotting_data['annotations']['marked_annotations']) == 0:
                 raise Exception('There are no artifacts to show')
             else:
-                num_segments = int(len(globals.marked_annotations) - 1)
+                num_segments = int(len(globals.plotting_data['annotations']['marked_annotations']) - 1)
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
 
                 if current_segment >= num_segments:
@@ -167,8 +167,8 @@ def register_annotation_callbacks(app):
                             globals.plotting_data['annotations']['annotation_label_colors'][globals.plotting_data['annotations']['default_model_annotation_label']] = 'red'
 
         elif 'remove-annotation-label' in trigger:
-            globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != current_annotation_label]
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+            globals.plotting_data['annotations']['marked_annotations'] = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if annotation[2] != current_annotation_label]
+            globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
             quick_save(globals.raw)
 
             if len(annotation_labels) > 1:
@@ -190,8 +190,8 @@ def register_annotation_callbacks(app):
             if current_annotation_label == globals.plotting_data['annotations']['default_model_annotation_label']:
                 globals.plotting_data['annotations']['default_model_annotation_label'] = renamed_annotation_label
 
-            globals.marked_annotations = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.marked_annotations]
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+            globals.plotting_data['annotations']['marked_annotations'] = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.plotting_data['annotations']['marked_annotations']]
+            globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
             quick_save(globals.raw)
 
             current_annotation_label = renamed_annotation_label
@@ -221,7 +221,7 @@ def register_annotation_callbacks(app):
         if not globals.raw:
             raise PreventUpdate
         else:
-            globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+            globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
             quick_save(globals.raw)
 
     # Annotation-label color has changed
@@ -314,7 +314,7 @@ def register_annotation_callbacks(app):
                 patched_fig['layout']['updatemenus'][0]['buttons'][1]['args'][0]['yaxis.range[1]'] = new_yaxis_end  # this only takes effect after switching segments
 
             patched_fig['layout']['shapes'] = []
-            for annotation in globals.marked_annotations:
+            for annotation in globals.plotting_data['annotations']['marked_annotations']:
                 patched_fig['layout']['shapes'].append({
                     'editable': True,
                     'xref': 'x',

@@ -268,15 +268,15 @@ def register_visualization_callbacks(app):
             print('Loading data...')
 
             if 'plot-button.n_clicks' == trigger and globals.raw:
-                globals.marked_annotations = get_annotations(globals.raw)
+                globals.plotting_data['annotations']['marked_annotations'] = get_annotations(globals.raw)
 
             if not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
             if not ('plot-button.n_clicks' == trigger and globals.raw):
-                globals.marked_annotations = get_annotations(globals.raw)
+                globals.plotting_data['annotations']['marked_annotations'] = get_annotations(globals.raw)
             else:
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
             
             globals.raw.info['bads'] = current_selected_bad_channels
 
@@ -304,9 +304,9 @@ def register_visualization_callbacks(app):
 
             if 'annotations' in globals.parameters.keys():
                 loaded_annotations = globals.parameters['annotations']
-                merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
-                globals.marked_annotations = merged_annotations
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                merged_annotations, _ = merge_intervals(globals.plotting_data['annotations']['marked_annotations'] + loaded_annotations)
+                globals.plotting_data['annotations']['marked_annotations'] = merged_annotations
+                globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
 
             model_output = []
             model_channel_names = []
@@ -316,9 +316,9 @@ def register_visualization_callbacks(app):
                 for model_name in model_output_files:
                     if '.csv' in model_name:
                         loaded_annotations = parse_annotation_file(model_name)
-                        merged_annotations, _ = merge_intervals(globals.marked_annotations + loaded_annotations)
-                        globals.marked_annotations = merged_annotations
-                        globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                        merged_annotations, _ = merge_intervals(globals.plotting_data['annotations']['marked_annotations'] + loaded_annotations)
+                        globals.plotting_data['annotations']['marked_annotations'] = merged_annotations
+                        globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
                     else:
                         temp_model_output, temp_channel_names, temp_sample_rate, temp_model_description = parse_model_output_file(model_name, globals.viewing_raw)
                         model_output.append(temp_model_output)
@@ -360,18 +360,18 @@ def register_visualization_callbacks(app):
 
                 merged_model_annotations, _ = merge_intervals(all_model_annotations)
 
-                all_annotations = globals.marked_annotations + merged_model_annotations
+                all_annotations = globals.plotting_data['annotations']['marked_annotations'] + merged_model_annotations
                 all_annotations, _ = merge_intervals(all_annotations)
 
-                globals.marked_annotations = all_annotations
+                globals.plotting_data['annotations']['marked_annotations'] = all_annotations
 
-                globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
+                globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
             
             if show_annotations_only:
-                visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
+                visible_annotations = [annotation for annotation in globals.plotting_data['annotations']['marked_annotations'] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
-                    globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
-                    globals.plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
+                    globals.plotting_data['plot']['x0'] = globals.plotting_data['annotations']['marked_annotations'][0][0] - 2
+                    globals.plotting_data['plot']['x1'] = globals.plotting_data['annotations']['marked_annotations'][0][1] + 2
                 else:
                     print('No annotations to show')
                     show_annotations_only = False
