@@ -16,6 +16,8 @@ from callbacks.segments_callbacks import register_segments_callbacks
 from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
+from helperfunctions.annotation_helperfunctions import _get_annotation_label_radioitem
+
 import constants as c
 
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
@@ -681,32 +683,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                             id='annotation-label',
                             options=
                                 [
-                                    {
-                                        'label':
-                                            html.Div([
-                                                html.Div([
-                                                    html.Font('bad_artifact', className='header')
-                                                ], className='aligned'),
-                                                html.Div([
-                                                    dcc.Dropdown(
-                                                        options=[
-                                                            {'label': 'hide', 'value': 'hide'},
-                                                            {'label': 'red', 'value': 'red'},
-                                                            {'label': 'green', 'value': 'green'},
-                                                            {'label': 'blue', 'value': 'blue'},
-                                                            {'label': 'yellow', 'value': 'orange'},
-                                                            {'label': 'turquoise', 'value': 'turquoise'},
-                                                            {'label': 'purple', 'value': 'purple'}
-                                                        ],
-                                                        value='red',
-                                                        clearable=False,
-                                                        className='small-dropdown',
-                                                        id={'type': 'color-dropdown', 'label': 'bad_artifact'}
-                                                    )
-                                                ], className='aligned'),
-                                            ]),
-                                        'value': 'bad_artifact'
-                                    }
+                                    _get_annotation_label_radioitem('bad_artifact')
                                     # {'label': 'bad_artifact_model', 'value': 'bad_artifact_model'},
                                     # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
                                 ],

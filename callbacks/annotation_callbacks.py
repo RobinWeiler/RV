@@ -7,7 +7,7 @@ from dash.exceptions import PreventUpdate
 
 import numpy as np
 
-from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw, get_annotations
+from helperfunctions.annotation_helperfunctions import merge_intervals, annotations_to_raw, get_annotations, _get_annotation_label_radioitem
 from helperfunctions.loading_helperfunctions import parse_annotation_file
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import quick_save
@@ -181,34 +181,7 @@ def register_annotation_callbacks(app):
                 for annotation in loaded_annotations:
                     if annotation[2] not in globals.annotation_label_colors.keys():
                         globals.annotation_label_colors[annotation[2]] = 'red'
-                        annotation_labels.append(
-                            {
-                                'label':
-                                    html.Div([
-                                        html.Div([
-                                            html.Font(annotation[2], className='header')
-                                        ], className='aligned'),
-                                        html.Div([
-                                            dcc.Dropdown(
-                                                options=[
-                                                    {'label': 'hide', 'value': 'hide'},
-                                                    {'label': 'red', 'value': 'red'},
-                                                    {'label': 'green', 'value': 'green'},
-                                                    {'label': 'blue', 'value': 'blue'},
-                                                    {'label': 'yellow', 'value': 'orange'},
-                                                    {'label': 'turquoise', 'value': 'turquoise'},
-                                                    {'label': 'purple', 'value': 'purple'}
-                                                ],
-                                                value='red',
-                                                clearable=False,
-                                                className='small-dropdown',
-                                                id={'type': 'color-dropdown', 'label': annotation[2]}
-                                            )
-                                        ], className='aligned'),
-                                    ]),
-                                'value': annotation[2]
-                            }
-                        )
+                        annotation_labels.append(_get_annotation_label_radioitem(annotation[2]))
 
         elif 'upload-model-output' in trigger:
             if loaded_annotation_files:
@@ -219,34 +192,7 @@ def register_annotation_callbacks(app):
                         for annotation in loaded_annotations:
                             if annotation[2] not in globals.annotation_label_colors.keys():
                                 globals.annotation_label_colors[annotation[2]] = 'red'
-                                annotation_labels.append(
-                                    {
-                                        'label':
-                                            html.Div([
-                                                html.Div([
-                                                    html.Font(annotation[2], className='header')
-                                                ], className='aligned'),
-                                                html.Div([
-                                                    dcc.Dropdown(
-                                                        options=[
-                                                            {'label': 'hide', 'value': 'hide'},
-                                                            {'label': 'red', 'value': 'red'},
-                                                            {'label': 'green', 'value': 'green'},
-                                                            {'label': 'blue', 'value': 'blue'},
-                                                            {'label': 'yellow', 'value': 'orange'},
-                                                            {'label': 'turquoise', 'value': 'turquoise'},
-                                                            {'label': 'purple', 'value': 'purple'}
-                                                        ],
-                                                        value='red',
-                                                        clearable=False,
-                                                        className='small-dropdown',
-                                                        id={'type': 'color-dropdown', 'label': annotation[2]}
-                                                    )
-                                                ], className='aligned'),
-                                            ]),
-                                        'value': annotation[2]
-                                    }
-                                )
+                                annotation_labels.append(_get_annotation_label_radioitem(annotation[2]))
 
         elif 'remove-annotation-label' in trigger and len(annotation_labels) > 1:
             remove_annotation_label = current_annotation_label
@@ -265,32 +211,7 @@ def register_annotation_callbacks(app):
         elif 'rename-annotation-label' in trigger and len(annotation_labels) > 0:
             for annotation_index, annotation_label in enumerate(annotation_labels):
                 if annotation_label['value'] == current_annotation_label:
-                    annotation_labels[annotation_index] = {
-                        'label':
-                            html.Div([
-                                html.Div([
-                                    html.Font(renamed_annotation_label, className='header')
-                                ], className='aligned'),
-                                html.Div([
-                                    dcc.Dropdown(
-                                        options=[
-                                            {'label': 'hide', 'value': 'hide'},
-                                            {'label': 'red', 'value': 'red'},
-                                            {'label': 'green', 'value': 'green'},
-                                            {'label': 'blue', 'value': 'blue'},
-                                            {'label': 'yellow', 'value': 'orange'},
-                                            {'label': 'turquoise', 'value': 'turquoise'},
-                                            {'label': 'purple', 'value': 'purple'}
-                                        ],
-                                        value=globals.annotation_label_colors[current_annotation_label],
-                                        clearable=False,
-                                        className='small-dropdown',
-                                        id={'type': 'color-dropdown', 'label': renamed_annotation_label}
-                                    )
-                                ], className='aligned'),
-                            ]),
-                        'value': renamed_annotation_label
-                    }
+                    annotation_labels[annotation_index] = _get_annotation_label_radioitem(renamed_annotation_label)
                     break
 
             globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
@@ -302,34 +223,7 @@ def register_annotation_callbacks(app):
             current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger:
-            annotation_labels.append(
-                {
-                    'label':
-                        html.Div([
-                            html.Div([
-                                html.Font(new_annotation_label, className='header')
-                            ], className='aligned'),
-                            html.Div([
-                                dcc.Dropdown(
-                                    options=[
-                                        {'label': 'hide', 'value': 'hide'},
-                                        {'label': 'red', 'value': 'red'},
-                                        {'label': 'green', 'value': 'green'},
-                                        {'label': 'blue', 'value': 'blue'},
-                                        {'label': 'yellow', 'value': 'orange'},
-                                        {'label': 'turquoise', 'value': 'turquoise'},
-                                        {'label': 'purple', 'value': 'purple'}
-                                    ],
-                                    value='red',
-                                    clearable=False,
-                                    className='small-dropdown',
-                                    id={'type': 'color-dropdown', 'label': new_annotation_label}
-                                )
-                            ], className='aligned'),
-                        ]),
-                    'value': new_annotation_label
-                }
-            )
+            annotation_labels.append(_get_annotation_label_radioitem(new_annotation_label))
 
         return annotation_labels, '', current_annotation_label
 
