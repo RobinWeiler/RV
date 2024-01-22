@@ -137,10 +137,10 @@ def register_annotation_callbacks(app):
             Output('segment-slider', 'marks', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True),
         ],
         Input('hidden-annotation-output', 'n_clicks'),
-        State('show-annotations-only', 'value'),
+        [State('show-annotations-only', 'value'), State('segment-slider', 'value')],
         prevent_initial_call=True
     )
-    def _update_segment_slider_annotations_only_mode(hidden_output, show_annotations_only):
+    def _update_segment_slider_annotations_only_mode(hidden_output, show_annotations_only, current_segment):
         """Updates segment-slider when new annotations are made or old ones are moved/deleted.
 
         Args:
@@ -153,10 +153,10 @@ def register_annotation_callbacks(app):
                 num_segments = int(len(globals.marked_annotations) - 1)
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
 
-                if globals.current_plot_index >= num_segments:
-                    globals.current_plot_index = num_segments
+                if current_segment >= num_segments:
+                    current_segment = num_segments
 
-                return num_segments, 1, marks, globals.current_plot_index
+                return num_segments, 1, marks, current_segment
         else:
             raise PreventUpdate
 

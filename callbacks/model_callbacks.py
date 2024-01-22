@@ -258,10 +258,8 @@ def register_model_callbacks(app):
                 annotations_to_raw(globals.viewing_raw, globals.marked_annotations)
 
                 if show_annotations_only and len(globals.marked_annotations) > 0:
-                    globals.current_plot_index = 0
-
-                    globals.plotting_data['plot']['x0'] = globals.marked_annotations[globals.current_plot_index][0] - 2
-                    globals.plotting_data['plot']['x1'] = globals.marked_annotations[globals.current_plot_index][1] + 2
+                    globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
+                    globals.plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
 
                     updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label,  show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 

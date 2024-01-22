@@ -38,10 +38,10 @@ def register_segments_callbacks(app):
     @app.callback(
         [Output('left-button', 'disabled'), Output('right-button', 'disabled')],
         Input('EEG-graph', 'figure'),
-        [State('segment-size', 'value'), State('show-annotations-only', 'value')]
+        [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('segment-slider', 'value')]
         # prevent_initial_call=True
     )
-    def _update_arrow_buttons(fig, segment_size, show_annotations_only):
+    def _update_arrow_buttons(fig, segment_size, show_annotations_only, current_segment):
         """Disables/enables arrow-buttons based on position of current segment. Triggered when EEG plot has loaded.
 
         Args:
@@ -58,9 +58,9 @@ def register_segments_callbacks(app):
         if globals.plotting_data['EEG']:
             if show_annotations_only:
                 if len(globals.marked_annotations) > 0:
-                    if globals.current_plot_index > 0:
+                    if current_segment > 0:
                         left_disabled = False
-                    if globals.current_plot_index + 1 < len([annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']):
+                    if current_segment + 1 < len([annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']):
                         right_disabled = False
                 else:
                     left_disabled = False
@@ -179,7 +179,7 @@ def register_segments_callbacks(app):
         ],
         prevent_initial_call=True
     )
-    def _use_segment_slider(segment_slider, left_button, right_button, segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label, current_fig):
+    def _use_segment_slider(current_segment, left_button, right_button, segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label, current_fig):
         """Moves viewed segment. Triggered when segment-slider is moved and when left- or right-arrow button is clicked.
 
         Args:
@@ -202,32 +202,22 @@ def register_segments_callbacks(app):
         print(trigger)
 
         if globals.plotting_data['EEG'] and segment_size:
-            # Switching to next segment, current segment gets updated in globals.preloaded_plots
-            # if not show_annotations_only:
-            #     globals.preloaded_plots[globals.current_plot_index] = current_fig
-
-            if 'segment-slider' in trigger:
-                # if globals.current_plot_index == segment_slider and not show_annotations_only:
-                #     print('no update')
-                #     raise PreventUpdate
-                # else:
-                globals.current_plot_index = segment_slider
-            elif 'left-button' in trigger:
-                globals.current_plot_index -= 1
+            if 'left-button' in trigger:
+                current_segment -= 1
             elif 'right-button' in trigger:
-                globals.current_plot_index += 1
+                current_segment += 1
 
             if show_annotations_only:
                 visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
-                    globals.plotting_data['plot']['x0'] = visible_annotations[globals.current_plot_index][0] - 2
-                    globals.plotting_data['plot']['x1'] = visible_annotations[globals.current_plot_index][1] + 2
+                    globals.plotting_data['plot']['x0'] = visible_annotations[current_segment][0] - 2
+                    globals.plotting_data['plot']['x1'] = visible_annotations[current_segment][1] + 2
                 else:
                     show_annotations_only = False
 
             if 'segment-slider' in trigger and not show_annotations_only:
-                globals.plotting_data['plot']['x0'] = segment_size * segment_slider - 0.5 if segment_slider != 0 else -0.5
-                globals.plotting_data['plot']['x1'] = segment_size + (segment_size * segment_slider) + 0.5
+                globals.plotting_data['plot']['x0'] = segment_size * current_segment - 0.5 if current_segment != 0 else -0.5
+                globals.plotting_data['plot']['x1'] = segment_size + (segment_size * current_segment) + 0.5
             elif 'left-button' in trigger and not show_annotations_only:
                 globals.plotting_data['plot']['x0'] -= segment_size
                 globals.plotting_data['plot']['x1'] -= segment_size
@@ -238,11 +228,7 @@ def register_segments_callbacks(app):
 
             patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
-            return patched_fig, globals.current_plot_index
-
-            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
-
-            # return updated_fig, globals.current_plot_index
+            return patched_fig, current_segment
         else:
             raise PreventUpdate
 
@@ -312,62 +298,6 @@ def register_segments_callbacks(app):
 
             patched_fig = _get_next_segment(globals.viewing_raw, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
-            # updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
-
             return patched_fig
-
         else:
             raise PreventUpdate
-
-    # @app.callback(
-    #     Output('preload-data', 'children'),
-    #     [Input('EEG-graph', 'figure'), Input('bad-channels-dropdown', 'value'), Input('segment-size', 'value'), Input('show-annotations-only', 'value'), Input('annotation-label-color', 'value')],
-    #     [State('use-slider', 'value'), State('annotation-label', 'value')],
-    #     prevent_initial_call=True
-    # )
-    # def _preload_plots(current_fig, current_bad_channels, segment_size, show_annotations_only, annotation_color, use_slider, annotation_label):
-    #     """Preloads 1 following segment and adds it to globals.preloaded_plots. Triggered when EEG plot has loaded.
-
-    #     Args:
-    #         fig (plotly.graph_objs.Figure): EEG plot.
-    #         segment_size (int): Segment size of EEG plot.
-    #         use_slider (bool): Whether or not to activate view-slider.
-    #     """
-    #     trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    #     # print(trigger)
-
-    #     if globals.plotting_data['EEG']:
-    #         if segment_size:
-    #             num_segments = math.ceil(globals.plotting_data['EEG']['recording_length'] / segment_size)
-    #             # print(num_segments)
-                
-    #             # upper_bound = globals.current_plot_index + 2 if globals.current_plot_index + 2 < num_segments else num_segments
-    #             # # print(upper_bound)
-
-    #             # globals.preloaded_plots[globals.current_plot_index] = fig
-
-    #             # for segment_index in range(upper_bound):
-    #                 # if segment_index not in globals.preloaded_plots:
-    #                 #     new_x0 = segment_index * segment_size - 0.5
-    #                 #     new_x1 = segment_size + segment_index * segment_size + 0.5
-    #                 #     globals.preloaded_plots[segment_index] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, use_slider)
-    #                 #     print(segment_index)
-
-    #             preloaded_segments = list(globals.preloaded_plots.keys())
-    #             for key in preloaded_segments:
-    #                 if int(key) > globals.current_plot_index + 1 or int(key) < globals.current_plot_index - 1:
-    #                     # print('Removing segment {} for preloaded plots'.format(key))
-    #                     globals.preloaded_plots.pop(key)
-
-    #             if ('bad-channels' in trigger) or ('segment-size' in trigger) or ('show-annotations-only' in trigger) or ('annotation-label-color' in trigger):
-    #                 print('Deleting preloaded segments')
-    #                 globals.preloaded_plots.clear()
-
-    #             if (not show_annotations_only) and (globals.current_plot_index + 1 not in globals.preloaded_plots.keys()) and (globals.current_plot_index + 1 < num_segments):
-    #                 print('Preloading segments')
-    #                 new_x0 = plotting_data['plot']['x0'] + segment_size
-    #                 new_x1 = plotting_data['plot']['x1'] + segment_size
-    #                 globals.preloaded_plots[globals.current_plot_index + 1] = get_EEG_plot(globals.plotting_data, new_x0, new_x1, annotation_label, use_slider, show_annotations_only)
-    #                 print('Next segment preloaded')
-
-    #             print(globals.preloaded_plots.keys())

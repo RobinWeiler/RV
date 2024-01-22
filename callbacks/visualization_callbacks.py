@@ -170,8 +170,6 @@ def register_visualization_callbacks(app):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         print('visualization trigger: {}'.format(trigger))
 
-        globals.preloaded_plots = {}
-
         if not use_slider:
             fig_style = {'height': '97vh'}
         else:
@@ -235,29 +233,6 @@ def register_visualization_callbacks(app):
 
                 return updated_fig, fig_style
 
-        # if 'show-annotations-only' in trigger:
-        #     if globals.plotting_data['EEG']:
-        #         globals.current_plot_index = 0
-
-        #         if show_annotations_only:
-        #             visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
-        #             if len(visible_annotations) > 0:
-        #                 plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
-        #                 plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2
-        #             else:
-        #                 print('No annotations to show')
-        #                 show_annotations_only = False
-        #         else:
-        #             plotting_data['plot']['x0'] = -0.5
-        #             if segment_size:
-        #                 plotting_data['plot']['x1'] = segment_size + 0.5
-        #             else:
-        #                 plotting_data['plot']['x1'] = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
-
-        #         updated_fig = get_EEG_plot(globals.plotting_data, plotting_data['plot']['x0'], plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
-                
-        #         return updated_fig, fig_style
-
         if 'reorder-channels' in trigger:
             if globals.plotting_data['EEG']:
                 if reorder_channels:
@@ -284,8 +259,6 @@ def register_visualization_callbacks(app):
             if 'plot-button.n_clicks' == trigger and bandpass_changed or plot_button == 0:
                 raise PreventUpdate
 
-            globals.current_plot_index = 0
-            
             globals.plotting_data['plot']['x0'] = -0.5
             if segment_size:
                 globals.plotting_data['plot']['x1'] = segment_size + 0.5
