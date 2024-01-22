@@ -358,7 +358,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
                     channel_color = c.MODEL_CHANNEL_COLOR
                     break
         if channel_name in globals.raw.info['bads']:
-            if channel_name in globals.disagreed_bad_channels:
+            if channel_name in globals.plotting_data['plot']['disagreed_bad_channels']:
                 channel_color = c.BAD_CHANNEL_DISAGREE_COLOR
             else:
                 channel_color = c.BAD_CHANNEL_COLOR

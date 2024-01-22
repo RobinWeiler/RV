@@ -214,7 +214,7 @@ def register_bad_channel_callbacks(app):
                 if not agreed:
                     disagreed_bad_channels.append(bad_channel)
 
-            globals.disagreed_bad_channels = list(set(disagreed_bad_channels))
+            globals.plotting_data['plot']['disagreed_bad_channels'] = list(set(disagreed_bad_channels))
             # print('Disagreeing:')
             # print(globals.disagreed_bad_channels)
 
