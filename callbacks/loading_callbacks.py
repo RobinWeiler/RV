@@ -57,7 +57,7 @@ def register_loading_callbacks(app):
             # Reset globals
             globals.marked_annotations = []
 
-            plotting_data = {
+            globals.plotting_data = {
                 'EEG': {},
                 'model': [],
                 'plot': {'x0': 0, 'x1': 0, 'disagreed_bad_channels': []},
