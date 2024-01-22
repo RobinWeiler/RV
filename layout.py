@@ -16,6 +16,8 @@ from callbacks.segments_callbacks import register_segments_callbacks
 from callbacks.stats_callbacks import register_stats_callbacks
 from callbacks.visualization_callbacks import register_visualization_callbacks
 
+from helperfunctions.annotation_helperfunctions import _get_annotation_label_radioitem
+
 import constants as c
 
 def setup_app(disable_file_selection=False, disable_preprocessing=False):
@@ -679,38 +681,39 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.Div([
                         dcc.RadioItems(
                             id='annotation-label',
-                            options=[
-                                {'label': 'bad_artifact', 'value': 'bad_artifact'},
-                                {'label': 'bad_artifact_model', 'value': 'bad_artifact_model'},
-                                # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
-                            ],
+                            options=
+                                [
+                                    _get_annotation_label_radioitem('bad_artifact')
+                                    # {'label': 'bad_artifact_model', 'value': 'bad_artifact_model'},
+                                    # {'label': 'bad_drowsiness', 'value': 'bad_drowsiness'},
+                                ],
                             value='bad_artifact',
                             labelStyle={'display': 'block'},
                         )
                     ], className='aligned'),
-                    html.Div([
-                        # daq.ColorPicker(
-                        #     id="annotation-label-color",
-                        #     label='Label color',
-                        #     size=256,
-                        #     value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
-                        # ),
-                        dcc.Dropdown(
-                            id='annotation-label-color',
-                            options=[
-                                {'label': 'hide', 'value': 'hide'},
-                                {'label': 'red', 'value': 'red'},
-                                {'label': 'green', 'value': 'green'},
-                                {'label': 'blue', 'value': 'blue'},
-                                {'label': 'yellow', 'value': 'orange'},
-                                {'label': 'turquoise', 'value': 'turquoise'},
-                                {'label': 'purple', 'value': 'purple'}
-                            ],
-                            value='red',
-                            clearable=False,
-                            className='small-dropdown'
-                        )
-                    ], className='aligned'),
+                    # html.Div([
+                    #     # daq.ColorPicker(
+                    #     #     id="annotation-label-color",
+                    #     #     label='Label color',
+                    #     #     size=256,
+                    #     #     value={'rgb': {'r': 255, 'g': 0, 'b': 0, 'a': 1}}
+                    #     # ),
+                    #     dcc.Dropdown(
+                    #         id='annotation-label-color',
+                    #         options=[
+                    #             {'label': 'hide', 'value': 'hide'},
+                    #             {'label': 'red', 'value': 'red'},
+                    #             {'label': 'green', 'value': 'green'},
+                    #             {'label': 'blue', 'value': 'blue'},
+                    #             {'label': 'yellow', 'value': 'orange'},
+                    #             {'label': 'turquoise', 'value': 'turquoise'},
+                    #             {'label': 'purple', 'value': 'purple'}
+                    #         ],
+                    #         value='red',
+                    #         clearable=False,
+                    #         className='small-dropdown'
+                    #     )
+                    # ], className='aligned'),
                 ]),
                 html.Div([
                     dcc.Input(

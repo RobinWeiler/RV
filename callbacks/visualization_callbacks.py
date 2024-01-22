@@ -320,11 +320,13 @@ def register_visualization_callbacks(app):
                         globals.marked_annotations = merged_annotations
                         globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
                     else:
-                        temp_model_output, temp_channel_names, temp_sample_rate, temp_descriptions = parse_model_output_file(model_name, globals.viewing_raw)
+                        temp_model_output, temp_channel_names, temp_sample_rate, temp_model_description = parse_model_output_file(model_name, globals.viewing_raw)
                         model_output.append(temp_model_output)
                         model_channel_names.append(temp_channel_names)
                         model_sample_rate.append(temp_sample_rate)
-                        model_descriptions.append(temp_descriptions)
+                        model_descriptions.append(temp_model_description)
+                        if temp_model_description not in globals.annotation_label_colors.keys():
+                            globals.annotation_label_colors[temp_model_description] = 'red'
 
             if run_model_bool:
                 print('Running model...')
@@ -333,6 +335,8 @@ def register_visualization_callbacks(app):
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
                 model_descriptions.append(run_model_description)
+                # if run_model_description not in globals.annotation_label_colors.keys():
+                #     globals.annotation_label_colors[run_model_description] = 'red'
 
             if (not (model_output_files or run_model_bool)) and model_annotate:
                 print('No model selected to annotate with!')

@@ -1,3 +1,5 @@
+from dash import dcc, html
+
 import mne
 import numpy as np
 
@@ -75,6 +77,36 @@ def get_annotations_dict(raw):
     }
 
     return marked_annotations_dict
+
+def _get_annotation_label_radioitem(annotation_label):
+    annotation_label_dict = {
+        'label':
+            html.Div([
+                html.Div([
+                    html.Font(annotation_label, className='header')
+                ], className='aligned'),
+                html.Div([
+                    dcc.Dropdown(
+                        options=[
+                            {'label': 'hide', 'value': 'hide'},
+                            {'label': 'red', 'value': 'red'},
+                            {'label': 'green', 'value': 'green'},
+                            {'label': 'blue', 'value': 'blue'},
+                            {'label': 'yellow', 'value': 'orange'},
+                            {'label': 'turquoise', 'value': 'turquoise'},
+                            {'label': 'purple', 'value': 'purple'}
+                        ],
+                        value='red',
+                        clearable=False,
+                        className='small-dropdown',
+                        id={'type': 'color-dropdown', 'label': annotation_label}
+                    )
+                ], className='aligned'),
+            ]),
+        'value': annotation_label
+    }
+
+    return annotation_label_dict
 
 def merge_intervals(marked_annotations):
     """Returns merged and sorted (by onset) version of given annotations.
