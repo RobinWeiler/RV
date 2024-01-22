@@ -250,7 +250,7 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
         if not skip_hoverinfo:
             patched_fig['data'][len(channels) + model_index]['customdata'] = globals.plotting_data['model'][model_index]['model_data'][model_index_0:model_index_1]
 
-    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
 
     patched_fig['layout']['xaxis']['range'] = (x0, x1) if (not use_slider or (show_annotations_only and len(visible_annotations) > 0)) else (x0, x0 + 11)
 
@@ -477,14 +477,14 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
         dragmode='drawrect',
         newshape=dict(
-            fillcolor=globals.annotation_label_colors[annotation_label] if globals.annotation_label_colors[annotation_label] != 'hide' else 'red',
+            fillcolor=globals.plotting_data['annotations']['annotation_label_colors'][annotation_label] if globals.plotting_data['annotations']['annotation_label_colors'][annotation_label] != 'hide' else 'red',
             opacity=0.6,
             drawdirection='vertical',
             layer='below',
             line_width=0,
             label={'text': annotation_label if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
             name=annotation_label,
-            visible=True if globals.annotation_label_colors[annotation_label] != 'hide' else False
+            visible=True if globals.plotting_data['annotations']['annotation_label_colors'][annotation_label] != 'hide' else False
             # showlegend=True,
             # legend='legend',
             # legendgroup=annotation_label,
@@ -500,13 +500,13 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
             x0=annotation[0],
             x1=annotation[1],
             # annotation_text=annotation[2],
-            fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() and globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
+            fillcolor=globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] if annotation[2] in globals.plotting_data['annotations']['annotation_label_colors'].keys() and globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else 'red',
             opacity=0.6,
             layer='below',
             line_width=0,
             name=annotation[2],
             label={'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
-            visible=True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
+            visible=True if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else False
         )
 
         # Could use Scatter traces to create overview over all annotations
@@ -514,14 +514,14 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         #     Scatter(
         #         x=[annotation[0], annotation[1]],  # plotting_data['EEG']['timescale'][index_0:index_1],
         #         y=[-1000, -1000],
-        #         marker=dict(color=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() else 'red', size=1000),
+        #         marker=dict(color=globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] if annotation[2] in globals.plotting_data['annotations']['annotation_label_colors'].keys() else 'red', size=1000),
         #         hoverinfo='none',
         #         mode='lines',
         #         visible=True
         #     )
         # )
 
-    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+    visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
 
     y_axis_range_0 = -(2 + len(plotting_data['model'])) * c.DEFAULT_Y_AXIS_OFFSET
     y_axis_range_1 = c.DEFAULT_Y_AXIS_OFFSET * len(plotting_data['EEG']['channel_names'])

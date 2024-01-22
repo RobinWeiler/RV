@@ -325,8 +325,8 @@ def register_visualization_callbacks(app):
                         model_channel_names.append(temp_channel_names)
                         model_sample_rate.append(temp_sample_rate)
                         model_descriptions.append(temp_model_description)
-                        if temp_model_description not in globals.annotation_label_colors.keys():
-                            globals.annotation_label_colors[temp_model_description] = 'red'
+                        # if temp_model_description not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                        #     globals.plotting_data['annotations']['annotation_label_colors'][temp_model_description] = 'red'
 
             if run_model_bool:
                 print('Running model...')
@@ -335,8 +335,8 @@ def register_visualization_callbacks(app):
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
                 model_descriptions.append(run_model_description)
-                # if run_model_description not in globals.annotation_label_colors.keys():
-                #     globals.annotation_label_colors[run_model_description] = 'red'
+                # if run_model_description not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                #     globals.plotting_data['annotations']['annotation_label_colors'][run_model_description] = 'red'
 
             if (not (model_output_files or run_model_bool)) and model_annotate:
                 print('No model selected to annotate with!')
@@ -368,7 +368,7 @@ def register_visualization_callbacks(app):
                 globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
             
             if show_annotations_only:
-                visible_annotations = [annotation for annotation in globals.marked_annotations if globals.annotation_label_colors[annotation[2]] != 'hide']
+                visible_annotations = [annotation for annotation in globals.marked_annotations if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide']
                 if len(visible_annotations) > 0:
                     globals.plotting_data['plot']['x0'] = globals.marked_annotations[0][0] - 2
                     globals.plotting_data['plot']['x1'] = globals.marked_annotations[0][1] + 2

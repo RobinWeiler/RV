@@ -147,8 +147,8 @@ def register_annotation_callbacks(app):
                     loaded_annotations += globals.parameters['annotations']
 
                 for annotation in loaded_annotations:
-                    if annotation[2] not in globals.annotation_label_colors.keys():
-                        globals.annotation_label_colors[annotation[2]] = 'red'
+                    if annotation[2] not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                        globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] = 'red'
                         annotation_labels.append(_get_annotation_label_radioitem(annotation[2]))
 
         elif 'upload-model-output' in trigger:
@@ -158,9 +158,13 @@ def register_annotation_callbacks(app):
                         loaded_annotations = parse_annotation_file(file_name)
 
                         for annotation in loaded_annotations:
-                            if annotation[2] not in globals.annotation_label_colors.keys():
-                                globals.annotation_label_colors[annotation[2]] = 'red'
+                            if annotation[2] not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                                globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] = 'red'
                                 annotation_labels.append(_get_annotation_label_radioitem(annotation[2]))
+                    else:
+                        if globals.plotting_data['annotations']['default_model_annotation_label'] not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                            annotation_labels.append(_get_annotation_label_radioitem(globals.plotting_data['annotations']['default_model_annotation_label']))
+                            globals.plotting_data['annotations']['annotation_label_colors'][globals.plotting_data['annotations']['default_model_annotation_label']] = 'red'
 
         elif 'remove-annotation-label' in trigger:
             globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != current_annotation_label]
@@ -172,7 +176,7 @@ def register_annotation_callbacks(app):
                     if annotation_label['value'] == current_annotation_label:
                         annotation_labels.remove(annotation_label)
 
-                globals.annotation_label_colors.pop(current_annotation_label)
+                globals.plotting_data['annotations']['annotation_label_colors'].pop(current_annotation_label)
                 
                 current_annotation_label = annotation_labels[0]['value']
 
@@ -182,7 +186,7 @@ def register_annotation_callbacks(app):
                     annotation_labels[annotation_index] = _get_annotation_label_radioitem(renamed_annotation_label)
                     break
 
-            globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
+            globals.plotting_data['annotations']['annotation_label_colors'][renamed_annotation_label] = globals.plotting_data['annotations']['annotation_label_colors'].pop(current_annotation_label)
             if current_annotation_label == globals.plotting_data['annotations']['default_model_annotation_label']:
                 globals.plotting_data['annotations']['default_model_annotation_label'] = renamed_annotation_label
 
@@ -193,13 +197,13 @@ def register_annotation_callbacks(app):
             current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger:
-            if new_annotation_label not in globals.annotation_label_colors.keys():
+            if new_annotation_label not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
                 annotation_labels.append(_get_annotation_label_radioitem(new_annotation_label))
             else:
                 raise PreventUpdate
 
         elif 'annotate-model' in trigger:
-            if model_annotate and globals.plotting_data['annotations']['default_model_annotation_label'] not in globals.annotation_label_colors.keys():
+            if model_annotate and globals.plotting_data['annotations']['default_model_annotation_label'] not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
                 annotation_labels.append(_get_annotation_label_radioitem(globals.plotting_data['annotations']['default_model_annotation_label']))
             else:
                 raise PreventUpdate
@@ -230,7 +234,7 @@ def register_annotation_callbacks(app):
         print(trigger)
 
         for label_index in range(len(annotation_labels)):
-            globals.annotation_label_colors[annotation_labels[label_index]['value']] = annotation_label_colors[label_index]
+            globals.plotting_data['annotations']['annotation_label_colors'][annotation_labels[label_index]['value']] = annotation_label_colors[label_index]
 
         return 1
 
@@ -255,8 +259,8 @@ def register_annotation_callbacks(app):
 
             patched_fig = Patch()
 
-            if globals.annotation_label_colors[current_annotation_label] != 'hide':
-                patched_fig['layout']['newshape']['fillcolor'] = globals.annotation_label_colors[current_annotation_label]
+            if globals.plotting_data['annotations']['annotation_label_colors'][current_annotation_label] != 'hide':
+                patched_fig['layout']['newshape']['fillcolor'] = globals.plotting_data['annotations']['annotation_label_colors'][current_annotation_label]
             else:
                 patched_fig['layout']['newshape']['visible'] = False
 
@@ -293,8 +297,8 @@ def register_annotation_callbacks(app):
 
             patched_fig = Patch()
 
-            if globals.annotation_label_colors[current_annotation_label] != 'hide':
-                patched_fig['layout']['newshape']['fillcolor'] = globals.annotation_label_colors[current_annotation_label]
+            if globals.plotting_data['annotations']['annotation_label_colors'][current_annotation_label] != 'hide':
+                patched_fig['layout']['newshape']['fillcolor'] = globals.plotting_data['annotations']['annotation_label_colors'][current_annotation_label]
             else:
                 patched_fig['layout']['newshape']['visible'] = False
 
@@ -318,7 +322,7 @@ def register_annotation_callbacks(app):
                     'layer': 'below',
                     'opacity': 0.6,
                     'line': {'width': 0},
-                    'fillcolor': globals.annotation_label_colors[annotation[2]] if globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
+                    'fillcolor': globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else 'red',
                     'fillrule': 'evenodd',
                     'type': 'rect',
                     'x0': annotation[0],
@@ -327,7 +331,7 @@ def register_annotation_callbacks(app):
                     'y1': current_fig['layout']['yaxis']['range'][1] if not 'show-annotation-labels' in trigger else new_yaxis_end,
                     'name': annotation[2],
                     'label':{'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
-                    'visible': True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
+                    'visible': True if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else False
                 })
 
             return patched_fig

@@ -272,7 +272,7 @@ def register_model_callbacks(app):
                             'layer': 'below',
                             'opacity': 0.6,
                             'line': {'width': 0},
-                            'fillcolor': globals.annotation_label_colors[annotation[2]] if globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
+                            'fillcolor': globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else 'red',
                             'fillrule': 'evenodd',
                             'type': 'rect',
                             'x0': annotation[0],
@@ -281,7 +281,7 @@ def register_model_callbacks(app):
                             'y1': current_fig['layout']['yaxis']['range'][1],
                             'name': annotation[2],
                             'label':{'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
-                            'visible': True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
+                            'visible': True if globals.plotting_data['annotations']['annotation_label_colors'][annotation[2]] != 'hide' else False
                         })
 
                     return patched_fig
