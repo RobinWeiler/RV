@@ -244,10 +244,10 @@ def register_model_callbacks(app):
 
                         output_intervals = confidence_intervals(model['model_data'], model_threshold, 1, model_timestep)
                         for interval_index, interval in enumerate(output_intervals):
-                            output_intervals[interval_index] = (interval[0], interval[1], 'bad_artifact_model')
+                            output_intervals[interval_index] = (interval[0], interval[1], globals.plotting_data['annotations']['default_model_annotation_label'])
                         all_model_annotations = all_model_annotations + output_intervals
 
-                remaining_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != 'bad_artifact_model']
+                remaining_annotations = [annotation for annotation in globals.marked_annotations if annotation[2] != globals.plotting_data['annotations']['default_model_annotation_label']]
 
                 merged_annotations, _ = merge_intervals(all_model_annotations + remaining_annotations)
 
@@ -272,13 +272,16 @@ def register_model_callbacks(app):
                             'layer': 'below',
                             'opacity': 0.6,
                             'line': {'width': 0},
-                            'fillcolor': globals.annotation_label_colors[annotation[2]],
+                            'fillcolor': globals.annotation_label_colors[annotation[2]] if globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
                             'fillrule': 'evenodd',
                             'type': 'rect',
                             'x0': annotation[0],
-                            'y0': len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
+                            'y0': current_fig['layout']['yaxis']['range'][0],  # len(globals.plotting_data['EEG']['channel_names']) * globals.plotting_data['plot']['offset_factor'] + globals.plotting_data['plot']['offset_factor'],
                             'x1': annotation[1],
-                            'y1': -1 * len(globals.plotting_data['model']) * globals.plotting_data['plot']['offset_factor'] - globals.plotting_data['plot']['offset_factor']
+                            'y1': current_fig['layout']['yaxis']['range'][1],
+                            'name': annotation[2],
+                            'label':{'text': annotation[2] if show_annotation_labels else '', 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}},
+                            'visible': True if globals.annotation_label_colors[annotation[2]] != 'hide' else False
                         })
 
                     return patched_fig

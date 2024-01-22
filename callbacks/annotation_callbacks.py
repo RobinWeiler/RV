@@ -86,38 +86,6 @@ def register_annotation_callbacks(app):
                         globals.marked_annotations.append((annotation_start, annotation_end, label))
                         # current_annotations.append((annotation_start, annotation_end))
 
-                # patched_fig['layout']['shapes'] = new_shapes
-
-                # previous_annotations = [(annotation[0], annotation[1]) for annotation in globals.marked_annotations]
-                # print('current')
-                # print(current_annotations)
-                # print('before')
-                # print(previous_annotations)
-
-                # new_annotation = [annotation for annotation in current_annotations if annotation not in previous_annotations] if len(current_annotations) > len(previous_annotations) else None
-                # print('new')
-                # print(new_annotation)
-                # removed_annotation = [annotation for annotation in previous_annotations if annotation not in current_annotations] if len(current_annotations) < len(previous_annotations) else None
-                # print('removed')
-                # print(removed_annotation)
-                
-                # if len(current_annotations) == len(previous_annotations):
-                #     print('Annotation was moved/resized')
-                #     removed_annotation = [annotation for annotation in previous_annotations if annotation not in current_annotations]
-                #     print('removed')
-                #     print(removed_annotation)
-                #     annotation_label = [annotation[2] for annotation in globals.marked_annotations if annotation[0] == removed_annotation[0][0] and annotation[1] == removed_annotation[0][1]][0]
-                #     new_annotation = [annotation for annotation in current_annotations if annotation not in previous_annotations]
-
-                # if new_annotation:
-                #     print('New annotation added')
-                #     globals.marked_annotations.append((new_annotation[0][0], new_annotation[0][1], annotation_label))
-                # if removed_annotation:
-                #     print('Old annotation removed')
-                #     globals.marked_annotations = [annotation for annotation in globals.marked_annotations if annotation[0] != removed_annotation[0][0] or annotation[1] != removed_annotation[0][1]]
-                # # else:
-                # #     print('Undefined')
-
                 globals.marked_annotations, merge_happened = merge_intervals(globals.marked_annotations)
                 print(globals.marked_annotations)
 
@@ -163,11 +131,11 @@ def register_annotation_callbacks(app):
     # Add/remove/rename annotation label
     @app.callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
-        [Input('data-file', 'children'), Input('upload-model-output', 'filename'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks')],
+        [Input('data-file', 'children'), Input('upload-model-output', 'filename'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks'), Input("annotate-model", "value")],
         [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value'), State('username', 'value')],
         prevent_initial_call=True
     )
-    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, annotation_labels, current_annotation_label, renamed_annotation_label, username):
+    def _add_annotation_label(current_file_name, loaded_annotation_files, new_annotation_label, remove_annotations_button, rename_annotation_label_button, model_annotate, annotation_labels, current_annotation_label, renamed_annotation_label, username):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
 
@@ -215,6 +183,8 @@ def register_annotation_callbacks(app):
                     break
 
             globals.annotation_label_colors[renamed_annotation_label] = globals.annotation_label_colors.pop(current_annotation_label)
+            if current_annotation_label == globals.plotting_data['annotations']['default_model_annotation_label']:
+                globals.plotting_data['annotations']['default_model_annotation_label'] = renamed_annotation_label
 
             globals.marked_annotations = [(annotation[0], annotation[1], renamed_annotation_label) if annotation[2] == current_annotation_label else annotation for annotation in globals.marked_annotations]
             globals.raw = annotations_to_raw(globals.raw, globals.marked_annotations, username)
@@ -223,7 +193,16 @@ def register_annotation_callbacks(app):
             current_annotation_label = renamed_annotation_label
 
         elif 'new-annotation-label' in trigger:
-            annotation_labels.append(_get_annotation_label_radioitem(new_annotation_label))
+            if new_annotation_label not in globals.annotation_label_colors.keys():
+                annotation_labels.append(_get_annotation_label_radioitem(new_annotation_label))
+            else:
+                raise PreventUpdate
+
+        elif 'annotate-model' in trigger:
+            if model_annotate and globals.plotting_data['annotations']['default_model_annotation_label'] not in globals.annotation_label_colors.keys():
+                annotation_labels.append(_get_annotation_label_radioitem(globals.plotting_data['annotations']['default_model_annotation_label']))
+            else:
+                raise PreventUpdate
 
         return annotation_labels, '', current_annotation_label
 

@@ -271,4 +271,4 @@ def run_model(raw, viewing_raw=None):
     model = load_model()
     model_output = feed_data_to_model(TF_data, segmentsRaw, model)
 
-    return model_output, selected_channel_names, sample_rate, 'bad_artifact_model'
+    return model_output, selected_channel_names, sample_rate, globals.plotting_data['annotations']['default_model_annotation_label']
