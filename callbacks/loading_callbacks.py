@@ -56,8 +56,7 @@ def register_loading_callbacks(app):
         elif globals.external_raw or selected_file_name:
             # Reset globals
             globals.marked_annotations = []
-            globals.model_annotation_label = 'bad_artifact_model'
-            globals.annotation_label_colors = {'bad_artifact': 'red', globals.model_annotation_label: 'red'}
+            globals.annotation_label_colors = {'bad_artifact': 'red'}
 
             globals.plotting_data = {'EEG': {}, 'model': [], 'plot': {'x0': 0, 'x1': 0, 'disagreed_bad_channels': []}}  # , 'current_plot_index': 0}}
 

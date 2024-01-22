@@ -7,8 +7,7 @@ model_raw = None
 external_raw = False
 
 marked_annotations = []
-model_annotation_label = 'bad_artifact_model'
-annotation_label_colors = {'bad_artifact': 'red', model_annotation_label: 'red'}
+annotation_label_colors = {'bad_artifact': 'red'}
 
 bad_channels = {'current session': []}
 

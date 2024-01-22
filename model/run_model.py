@@ -265,10 +265,10 @@ def run_model(raw, viewing_raw=None):
         viewing_raw (mne.io.Raw, optional): Preprocessed raw object for plotting. Defaults to None.
 
     Returns:
-        Tuple(array, list, float): Array of model output, list of strings of channel names used by the model, sampling frequency of model output.
+        Tuple(array, list, float, string): Array of model output, list of strings of channel names used by the model, sampling frequency of model output, annotation label.
     """
     TF_data, segmentsRaw, selected_channel_names, sample_rate = preprocess_data(raw, viewing_raw)
     model = load_model()
     model_output = feed_data_to_model(TF_data, segmentsRaw, model)
 
-    return model_output, selected_channel_names, sample_rate, globals.model_annotation_label
+    return model_output, selected_channel_names, sample_rate, 'bad_artifact_model'
