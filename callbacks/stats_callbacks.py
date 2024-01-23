@@ -37,22 +37,54 @@ def register_stats_callbacks(app):
             tuple(bool, html.Div): Whether or not modal should be open, stats.
         """
         if stats_modal_is_open:
-            if globals.raw:
+            general_stats = html.Div([
+                html.H1('General'),
+
+                html.Div([
+                    html.H2('File name:'),
+                    html.Font(file_name if file_name else '-', id='file-name')
+                ]),
+                html.Div([
+                    html.H2('Recording length:'),
+                    html.Font('{} seconds'.format(round(globals.plotting_data['EEG']['recording_length'])) if globals.plotting_data['EEG']['recording_length'] else '-', id='recording-length')
+                ]),
+            ])
+
+            if globals.plotting_data['EEG']:
                 all_marked_annotations = get_annotations(globals.raw)
                 print(all_marked_annotations)
 
-                recording_length = globals.plotting_data['EEG']['recording_length']
+                total_amount_annotated_data, total_amount_clean_data = _get_amount_annotated_clean_data(all_marked_annotations, globals.plotting_data['EEG']['recording_length'])
+                total_clean_interval_lengths, total_amount_clean_intervals = _get_clean_intervals(all_marked_annotations, globals.plotting_data['EEG']['recording_length'], interval_length=2)
+                total_amount_clean_data_percentage = (total_amount_clean_data / globals.plotting_data['EEG']['recording_length']) * 100
 
-                total_amount_annotated_data, total_amount_clean_data = _get_amount_annotated_clean_data(all_marked_annotations, recording_length)
-                total_clean_interval_lengths, total_amount_clean_intervals = _get_clean_intervals(all_marked_annotations, recording_length, interval_length=2)
-                total_amount_clean_data_percentage = (total_amount_clean_data / recording_length) * 100
+                graph = get_clean_intervals_graph(total_clean_interval_lengths, globals.plotting_data['EEG']['recording_length'])
 
-                graph = get_clean_intervals_graph(total_clean_interval_lengths, recording_length)
-
-                recording_length = round(recording_length)
                 total_amount_clean_data = round(total_amount_clean_data)
                 total_amount_clean_data_percentage = round(total_amount_clean_data_percentage)
                 total_amount_annotated_data = round(total_amount_annotated_data)
+
+            clean_stats = html.Div([
+                html.H1('Clean data'),
+
+                html.Div([
+                    html.H2('Total amount of clean data left:'),
+                    html.Font('{} seconds ({}% of recording)'.format(total_amount_clean_data, total_amount_clean_data_percentage) if globals.plotting_data['EEG'] else '-', id='#clean-data')
+                ]),
+                html.Div([
+                    html.H2('Total amount of clean intervals longer than 2 seconds:'),
+                    html.Font(total_amount_clean_intervals if globals.plotting_data['EEG'] else '-', id='#clean-intervals')
+                ]),
+                html.Div([
+                    dcc.Graph(
+                        id='clean-intervals-graph',
+                        figure=graph if globals.plotting_data['EEG'] else Figure(),
+                        config={
+                            'displayModeBar': False,
+                        },
+                    ),
+                ]),
+            ])
 
             # Annotation stats
             annotation_stats = html.Div([
@@ -60,25 +92,25 @@ def register_stats_callbacks(app):
 
                 html.Div([
                     html.H2('Total amount of annotated data:'),
-                    html.Font('{} seconds'.format(total_amount_annotated_data) if globals.raw else '-', id='#annotated-data')
+                    html.Font('{} seconds'.format(total_amount_annotated_data) if globals.plotting_data['EEG'] else '-', id='#annotated-data')
                 ]),
             ])
 
-            if globals.raw:
+            if globals.plotting_data['EEG']:
                 sorted_annotations = []
-                for annotation_option in annotation_labels:
-                    corresponding_annotations = [annotation for annotation in all_marked_annotations if annotation[2] == annotation_option['label']]
+                for annotation_option in globals.plotting_data['annotations']['annotation_label_colors'].keys():
+                    corresponding_annotations = [annotation for annotation in all_marked_annotations if annotation[2] == annotation_option]
                     sorted_annotations.append(corresponding_annotations)
 
-                    amount_annotated_data, _ = _get_amount_annotated_clean_data(corresponding_annotations, recording_length)
+                    amount_annotated_data, _ = _get_amount_annotated_clean_data(corresponding_annotations, globals.plotting_data['EEG']['recording_length'])
                     amount_annotated_data = round(amount_annotated_data)
-                    amount_annotated_data_percentage = (amount_annotated_data / recording_length) * 100
+                    amount_annotated_data_percentage = (amount_annotated_data / globals.plotting_data['EEG']['recording_length']) * 100
                     amount_annotated_data_percentage = round(amount_annotated_data_percentage)
 
                     annotation_stats.children.append(
                         html.Div([
-                            html.H2('Amount of annotated data of {}:'.format(annotation_option['label'])),
-                            html.Font('{} seconds ({}% of recording)'.format(amount_annotated_data, amount_annotated_data_percentage), id='#annotated-data-{}'.format(annotation_option['label']))
+                            html.H2('Amount of annotated data of {}:'.format(annotation_option)),
+                            html.Font('{} seconds ({}% of recording)'.format(amount_annotated_data, amount_annotated_data_percentage), id='#annotated-data-{}'.format(annotation_option))
                         ]),
                     )
 
@@ -133,53 +165,20 @@ def register_stats_callbacks(app):
                     )
 
             stats = html.Div([
-                        # General info
-                        html.Div([
-                            html.H1('General'),
+                general_stats,
 
-                            html.Div([
-                                html.H2('File name:'),
-                                html.Font(file_name if globals.raw else '-', id='file-name')
-                            ]),
-                            html.Div([
-                                html.H2('Recording length:'),
-                                html.Font('{} seconds'.format(recording_length) if globals.raw else '-', id='recording-length')
-                            ]),
-                        ]),
+                html.Hr(),
 
-                        html.Hr(),
+                clean_stats,
 
-                        # Clean stats
-                        html.Div([
-                            html.H1('Clean data'),
+                html.Hr(),
 
-                            html.Div([
-                                html.H2('Total amount of clean data left:'),
-                                html.Font('{} seconds ({}% of recording)'.format(total_amount_clean_data, total_amount_clean_data_percentage) if globals.raw else '-', id='#clean-data')
-                            ]),
-                            html.Div([
-                                html.H2('Total amount of clean intervals longer than 2 seconds:'),
-                                html.Font(total_amount_clean_intervals if globals.raw else '-', id='#clean-intervals')
-                            ]),
-                            html.Div([
-                                dcc.Graph(
-                                    id='clean-intervals-graph',
-                                    figure=graph if globals.raw else Figure(),
-                                    config={
-                                        'displayModeBar': False,
-                                    },
-                                ),
-                            ]),
-                        ]),
+                annotation_stats,
+                
+                html.Hr(),
 
-                        html.Hr(),
-
-                        annotation_stats,
-                        
-                        html.Hr(),
-
-                        bad_channel_stats
-                    ]),
+                bad_channel_stats
+            ])
 
             return stats
         else:
