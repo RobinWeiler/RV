@@ -133,9 +133,9 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
                         channel_order.append(channel_name)
             channel_order.append('Cz')
 
-            globals.raw.reorder_channels(channel_order)
-            raw.reorder_channels(channel_order)
-            plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+            globals.viewing_raw.reorder_channels(channel_order)
+            # raw.reorder_channels(channel_order)
+            plotting_data['EEG']['channel_names'] = globals.viewing_raw.ch_names
 
     # plotting_data['EEG']['timescale'], plotting_data['EEG']['recording_length'] = _get_time(plotting_data['EEG']['EEG_data'], raw.info['sfreq'])
     plotting_data['EEG']['recording_length'] = len(raw) / raw.info['sfreq']

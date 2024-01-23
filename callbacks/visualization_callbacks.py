@@ -269,12 +269,12 @@ def register_visualization_callbacks(app):
                                 channel_order.append(channel_name)
                     channel_order.append('Cz')
 
-                    globals.raw.reorder_channels(channel_order)
-                    globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+                    globals.viewing_raw.reorder_channels(channel_order)
+                    globals.plotting_data['EEG']['channel_names'] = globals.viewing_raw.ch_names
                 else:
-                    channel_order = sorted(globals.raw.ch_names, key=_channel_name_sorting_key)
-                    globals.raw.reorder_channels(channel_order)
-                    globals.plotting_data['EEG']['channel_names'] = globals.raw.ch_names
+                    channel_order = sorted(globals.viewing_raw.ch_names, key=_channel_name_sorting_key)
+                    globals.viewing_raw.reorder_channels(channel_order)
+                    globals.plotting_data['EEG']['channel_names'] = globals.viewing_raw.ch_names
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
