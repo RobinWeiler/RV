@@ -204,7 +204,7 @@ def register_visualization_callbacks(app):
                 return updated_fig, fig_style
 
         if 'resample-rate' in trigger:
-            if globals.raw and globals.plotting_data:
+            if globals.raw and globals.plotting_data['EEG']:
                 globals.viewing_raw = globals.raw.copy()
 
                 if resample_rate and float(resample_rate) < globals.raw.info['sfreq']:
