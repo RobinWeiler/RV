@@ -267,17 +267,17 @@ def register_visualization_callbacks(app):
 
             print('Loading data...')
 
-            if 'plot-button.n_clicks' == trigger and globals.raw:
+            if 'plot-button.n_clicks' == trigger and globals.plotting_data['EEG']:
                 globals.plotting_data['annotations']['marked_annotations'] = get_annotations(globals.raw)
 
             if not globals.external_raw:
                 globals.raw = parse_data_file(current_file_name)  # reload data in case preprocessing has changed
 
-            if not ('plot-button.n_clicks' == trigger and globals.raw):
+            if not ('plot-button.n_clicks' == trigger and globals.plotting_data['EEG']):
                 globals.plotting_data['annotations']['marked_annotations'] = get_annotations(globals.raw)
             else:
                 globals.raw = annotations_to_raw(globals.raw, globals.plotting_data['annotations']['marked_annotations'], username)
-            
+
             globals.raw.info['bads'] = current_selected_bad_channels
 
             # if run_model_bool:
