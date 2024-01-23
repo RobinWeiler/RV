@@ -312,7 +312,7 @@ def register_visualization_callbacks(app):
 
         if 'selected-channels' in trigger:
             print(selected_channels)
-            if globals.plotting_data['EEG']:
+            if globals.plotting_data:
                 if len(selected_channels) == 0:
                     selected_channels = globals.raw.ch_names
 
