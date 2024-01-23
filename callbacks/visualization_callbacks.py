@@ -102,10 +102,10 @@ def register_visualization_callbacks(app):
             Input('use-slider', 'value'),
             Input('skip-hoverinfo', 'value'),
             Input('reorder-channels', 'value'),
+            Input('selected-channels-dropdown', 'value'),
         ],
         [
             State('data-file', 'children'),
-            State('selected-channels-dropdown', 'value'),
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
@@ -126,8 +126,8 @@ def register_visualization_callbacks(app):
     def _update_EEG_plot(
         plot_button, confirm_plot_button,
         resample_rate, scale, channel_offset, use_slider, skip_hoverinfo,
-        reorder_channels,
-        current_file_name, selected_channels,
+        reorder_channels, selected_channels,
+        current_file_name,
         high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
         segment_size, show_annotations_only,
         annotation_label, show_annotation_labels,
@@ -308,6 +308,22 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
+                return updated_fig, fig_style
+
+        if 'selected-channels' in trigger:
+            print(selected_channels)
+            if globals.plotting_data['EEG']:
+                if len(selected_channels) == 0:
+                    selected_channels = globals.raw.ch_names
+
+                check = all(channel in globals.raw.ch_names for channel in selected_channels)
+
+                if check:
+                    globals.plotting_data['EEG']['channel_names'] = selected_channels
+                    globals.plotting_data['plot']['y_ticks'] = _get_y_ticks(globals.plotting_data, reorder_channels)
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+
                 return updated_fig, fig_style
 
         if 'plot-button' in trigger:
