@@ -111,7 +111,7 @@ def register_stats_callbacks(app):
                 ]),
             ])
 
-            if len(globals.bad_channels) > 1:
+            if len(globals.plotting_data['annotations']['bad_channels']) > 1:
                 if globals.plotting_data['plot']['disagreed_bad_channels']:
                     globals.plotting_data['plot']['disagreed_bad_channels'].sort(key=_natural_keys)
 
@@ -122,7 +122,7 @@ def register_stats_callbacks(app):
                     ]),
                 )
 
-                for annotator, bad_channels in globals.bad_channels.items():
+                for annotator, bad_channels in globals.plotting_data['annotations']['bad_channels'].items():
                     if bad_channels:
                         bad_channels.sort(key=_natural_keys)
                     bad_channel_stats.children.append(

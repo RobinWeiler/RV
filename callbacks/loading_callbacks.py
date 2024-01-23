@@ -59,7 +59,7 @@ def register_loading_callbacks(app):
                 'EEG': {},
                 'model': [],
                 'plot': {'x0': 0, 'x1': 0, 'disagreed_bad_channels': []},
-                'annotations': {'marked_annotations': [], 'default_model_annotation_label': 'bad_artifact_model', 'annotation_label_colors': {'bad_artifact': 'red'}}
+                'annotations': {'bad_channels': {'current session': []}, 'marked_annotations': [], 'default_model_annotation_label': 'bad_artifact_model', 'annotation_label_colors': {'bad_artifact': 'red'}}
             }
 
             if globals.external_raw:

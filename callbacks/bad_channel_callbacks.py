@@ -26,7 +26,7 @@ def register_bad_channel_callbacks(app):
         Returns:
             tuple(list, list, list): First list contains strings of selected bad-channel names. Second and third list contain dicts of all channel names.
         """
-        globals.bad_channels = {'current session': []}
+        globals.plotting_data['annotations']['bad_channels'] = {'current session': []}
 
         if globals.raw:
             print('Loading bad channel dropdown menu...')
@@ -38,13 +38,13 @@ def register_bad_channel_callbacks(app):
                 dropdown_channel_names.append({'label': channel, 'value': channel})
 
             loaded_bad_channels = globals.raw.info['bads']
-            globals.bad_channels[file] = loaded_bad_channels
+            globals.plotting_data['annotations']['bad_channels'][file] = loaded_bad_channels
 
             if 'bad_channels' in globals.parameters.keys():
                 all_loaded_bad_channels = globals.parameters['bad_channels']
                 
                 for annotator, bad_channels in all_loaded_bad_channels.items():
-                    globals.bad_channels[annotator] = bad_channels
+                    globals.plotting_data['annotations']['bad_channels'][annotator] = bad_channels
                     loaded_bad_channels += bad_channels
 
             loaded_bad_channels = list(set(loaded_bad_channels))
@@ -93,7 +93,7 @@ def register_bad_channel_callbacks(app):
                 if '.txt' in file_name:
                     loaded_bad_channels = parse_bad_channels_file(file_name)
 
-                    globals.bad_channels[file_name] = loaded_bad_channels
+                    globals.plotting_data['annotations']['bad_channels'][file_name] = loaded_bad_channels
                     current_selected_bad_channels += loaded_bad_channels
 
             current_selected_bad_channels = list(set(current_selected_bad_channels))
@@ -118,7 +118,7 @@ def register_bad_channel_callbacks(app):
             plotly.graph_objs.Figure: Updated EEG plot.
         """
         # print('Clicked bad channel')
-        # print(globals.bad_channels)
+        # print(globals.plotting_data['annotations']['bad_channels'])
 
         if globals.plotting_data['EEG']:
             channel_index = clickData['points'][0]['curveNumber']
@@ -127,11 +127,11 @@ def register_bad_channel_callbacks(app):
                 
                 if channel_name not in current_selected_bad_channels:
                     current_selected_bad_channels.append(channel_name)
-                    globals.bad_channels['current session'].append(channel_name)
+                    globals.plotting_data['annotations']['bad_channels']['current session'].append(channel_name)
                 else:
                     current_selected_bad_channels.remove(channel_name)
-                    if channel_name in globals.bad_channels['current session']:
-                        globals.bad_channels['current session'].remove(channel_name)
+                    if channel_name in globals.plotting_data['annotations']['bad_channels']['current session']:
+                        globals.plotting_data['annotations']['bad_channels']['current session'].remove(channel_name)
 
                 # globals.raw.info['bads'] = current_selected_bad_channels
 
@@ -167,7 +167,7 @@ def register_bad_channel_callbacks(app):
             for channel_name in new_bad_channels:
                 channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
-                if not all(channel_name in annotation for annotation in globals.bad_channels.values() if annotation):
+                if not all(channel_name in annotation for annotation in globals.plotting_data['annotations']['bad_channels'].values() if annotation):
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_DISAGREE_COLOR
                 else:
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
@@ -197,13 +197,13 @@ def register_bad_channel_callbacks(app):
     )
     def _update_disagreed_bad_channels(current_selected_bad_channels):
         # If there are at least 2 lists of bad channels
-        if len([bad_channels for bad_channels in globals.bad_channels.values() if bad_channels]) > 1:
+        if len([bad_channels for bad_channels in globals.plotting_data['annotations']['bad_channels'].values() if bad_channels]) > 1:
             disagreed_bad_channels = []
 
             for bad_channel in current_selected_bad_channels:
                 agreed = True
 
-                for annotator, bad_channels in globals.bad_channels.items():
+                for annotator, bad_channels in globals.plotting_data['annotations']['bad_channels'].items():
                     if bad_channels and bad_channel not in bad_channels and annotator != 'current session':
                         agreed = False
 
