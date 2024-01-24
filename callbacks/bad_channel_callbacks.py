@@ -13,7 +13,7 @@ def register_bad_channel_callbacks(app):
 
     # Loading bad channels and all channel names into dropdown menu callback
     @app.callback(
-        [Output('bad-channels-dropdown', 'value'), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options'), Output('bad-channel-files', 'children', allow_duplicate=True)],
+        [Output('bad-channels-dropdown', 'value', allow_duplicate=True), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options'), Output('bad-channel-files', 'children', allow_duplicate=True)],
         Input('data-file', 'children'),
         prevent_initial_call=True
     )
@@ -143,10 +143,10 @@ def register_bad_channel_callbacks(app):
     @app.callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('bad-channels-dropdown', 'value'),
-        [State('EEG-graph', 'figure'), State('data-file', 'children'), State('hide-bad-channels-button', 'n_clicks'),],
+        [State('EEG-graph', 'figure'), State('hide-bad-channels-button', 'n_clicks'),],
         prevent_initial_call=True
     )
-    def  _update_bad_channels_in_plot(current_selected_bad_channels, current_fig, file_name, hide_bad_channels):
+    def  _update_bad_channels_in_plot(current_selected_bad_channels, current_fig, hide_bad_channels):
         """Updates plot when bad channels changed.
 
         Args:
@@ -162,14 +162,16 @@ def register_bad_channel_callbacks(app):
 
             patched_fig = Patch()
 
-            new_bad_channels = [added_bad_channel for added_bad_channel in current_selected_bad_channels if added_bad_channel not in globals.raw.info['bads']]
-            print(new_bad_channels)
-            for channel_name in new_bad_channels:
+            # new_bad_channels = [added_bad_channel for added_bad_channel in current_selected_bad_channels if added_bad_channel not in globals.raw.info['bads']]
+
+            print(current_selected_bad_channels)
+
+            for channel_name in current_selected_bad_channels:
                 channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
 
-                if not all(channel_name in annotation for annotation in globals.plotting_data['annotations']['bad_channels'].values() if annotation):
+                if channel_name in globals.plotting_data['plot']['disagreed_bad_channels'] and current_fig['data'][channel_index]['marker']['color'] != c.BAD_CHANNEL_DISAGREE_COLOR:
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_DISAGREE_COLOR
-                else:
+                elif channel_name not in globals.plotting_data['plot']['disagreed_bad_channels'] and current_fig['data'][channel_index]['marker']['color'] != c.BAD_CHANNEL_COLOR:
                     patched_fig['data'][channel_index]['marker']['color'] = c.BAD_CHANNEL_COLOR
 
                 # If bad channels are currently hidden
@@ -178,6 +180,7 @@ def register_bad_channel_callbacks(app):
 
             removed_bad_channels = [removed_bad_channel for removed_bad_channel in globals.raw.info['bads'] if removed_bad_channel not in current_selected_bad_channels]
             print(removed_bad_channels)
+
             for channel_name in removed_bad_channels:
                 if channel_name in globals.plotting_data['EEG']['channel_names']:
                     channel_index = globals.plotting_data['EEG']['channel_names'].index(channel_name)
@@ -191,9 +194,8 @@ def register_bad_channel_callbacks(app):
 
     # Update disagreed bad channels callback
     @app.callback(
-        Output('hidden-bad-channel-output', 'children', allow_duplicate=True),
-        Input('bad-channels-dropdown', 'value'),
-        prevent_initial_call=True
+        Output('hidden-bad-channel-output', 'children'),
+        Input('bad-channels-dropdown', 'value')
     )
     def _update_disagreed_bad_channels(current_selected_bad_channels):
         # If there are at least 2 lists of bad channels
@@ -212,8 +214,8 @@ def register_bad_channel_callbacks(app):
                     disagreed_bad_channels.append(bad_channel)
 
             globals.plotting_data['plot']['disagreed_bad_channels'] = list(set(disagreed_bad_channels))
-            # print('Disagreeing:')
-            # print(globals.disagreed_bad_channels)
+            print('Disagreeing:')
+            print(globals.plotting_data['plot']['disagreed_bad_channels'])
 
     # Enable/disable Hide/show bad channels button
     @app.callback(

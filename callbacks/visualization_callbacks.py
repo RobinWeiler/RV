@@ -92,7 +92,7 @@ def register_visualization_callbacks(app):
 
     # plot callback
     @app.callback(
-        [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'),],
+        [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'), Output('bad-channels-dropdown', 'value'),],
         [
             Input('plot-button', 'n_clicks'),
             Input("confirm-plot-button", "n_clicks"),
@@ -201,7 +201,7 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
-                return updated_fig, fig_style
+                return updated_fig, fig_style, current_selected_bad_channels
 
         if 'resample-rate' in trigger:
             if globals.raw and globals.plotting_data['EEG']:
@@ -219,19 +219,19 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
-                return updated_fig, fig_style
+                return updated_fig, fig_style, current_selected_bad_channels
 
         if 'use-slider' in trigger:
             if globals.plotting_data['EEG']:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
-                return updated_fig, fig_style
+                return updated_fig, fig_style, current_selected_bad_channels
 
         if 'skip-hoverinfo' in trigger:
             if globals.plotting_data['EEG']:
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
-                return updated_fig, fig_style
+                return updated_fig, fig_style, current_selected_bad_channels
 
         if 'reorder-channels' in trigger:
             if globals.plotting_data['EEG']:
@@ -253,7 +253,7 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.plotting_data['plot']['x0'], globals.plotting_data['plot']['x1'], annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
-                return updated_fig, fig_style
+                return updated_fig, fig_style, current_selected_bad_channels
 
         if 'plot-button' in trigger:
             if 'plot-button.n_clicks' == trigger and bandpass_changed or plot_button == 0:
@@ -378,7 +378,7 @@ def register_visualization_callbacks(app):
 
             fig = get_EEG_figure(current_file_name, globals.viewing_raw, selected_channels, annotation_label, show_annotation_labels, scale, channel_offset, model_output, model_channel_names, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
             
-            return fig, fig_style
+            return fig, fig_style, globals.raw.info['bads']
 
         # Default plot when app is opened
         # fig = Figure()  # empty figure
@@ -387,4 +387,5 @@ def register_visualization_callbacks(app):
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
         fig.update_traces(hovertemplate=None, hoverinfo='skip')
-        return fig, fig_style
+
+        return fig, fig_style, current_selected_bad_channels

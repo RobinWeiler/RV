@@ -4,7 +4,7 @@ import globals
 
 def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation):
     # Bandpass-filter
-    if (high_pass or low_pass) and not (float(high_pass) == globals.raw.info['highpass'] and float(low_pass) == globals.raw.info['lowpass']):
+    if (high_pass or low_pass) and not (float(high_pass) == raw.info['highpass'] and float(low_pass) == raw.info['lowpass']):
         # print(high_pass)
         # print(low_pass)
         print('Applying bandpass-filter')
@@ -16,24 +16,20 @@ def preprocess_EEG(raw, high_pass, low_pass, reference, bad_channel_detection, b
     if bad_channel_detection == 'None':
         print('No automatic bad-channel detection')
         bad_channel_detection = None
-    elif bad_channel_detection == 'AutoReject':
-        print('Automatic bad-channel detection using AutoReject')
-        bad_channel_detection = 'AutoReject'
-    elif bad_channel_detection == 'RANSAC':
-        print('Automatic bad-channel detection using RANSAC')
-        bad_channel_detection = 'RANSAC'
 
     if bad_channel_detection:
-        print('Performing automatic bad channel detection')
-        detected_bad_channels = get_bad_channels(globals.raw, bad_channel_detection)
+        print('Performing automatic bad channel detection using {}'.format(bad_channel_detection))
+        detected_bad_channels = get_bad_channels(raw, bad_channel_detection)
         # print(detected_bad_channels)
 
-        total_bad_channels = globals.raw.info['bads']
+        total_bad_channels = raw.info['bads']
         for bad_channel in detected_bad_channels:
             if bad_channel not in total_bad_channels:
                 total_bad_channels.append(bad_channel)
 
         raw.info['bads'] = total_bad_channels
+        
+        globals.plotting_data['annotations']['bad_channels'][bad_channel_detection] = detected_bad_channels
 
     # Re-referencing
     if reference:
