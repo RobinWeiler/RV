@@ -207,11 +207,10 @@ def register_visualization_callbacks(app):
 
         if 'resample-rate' in trigger:
             if globals.raw and globals.plotting_data:
-                globals.viewing_raw = globals.raw.copy()
-
-                if resample_rate and float(resample_rate) < globals.raw.info['sfreq']:
+                if resample_rate and float(resample_rate) <= globals.raw.info['sfreq'] and float(resample_rate) != globals.viewing_raw.info['sfreq']:
                     print('Resample-rate: {}'.format(resample_rate))
                     print('Performing resampling')
+                    globals.viewing_raw = globals.raw.copy()
                     globals.viewing_raw.resample(resample_rate)
                     # timestep = 1 / resample_rate
 
@@ -321,7 +320,7 @@ def register_visualization_callbacks(app):
             # Resampling
             globals.viewing_raw = globals.raw.copy()
 
-            if resample_rate and float(resample_rate) < globals.raw.info['sfreq']:
+            if resample_rate and float(resample_rate) <= globals.raw.info['sfreq'] and float(resample_rate) != globals.viewing_raw.info['sfreq']:
                 print('Resample-rate: {}'.format(resample_rate))
                 print('Performing resampling')
                 globals.viewing_raw.resample(resample_rate)
