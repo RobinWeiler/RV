@@ -1,6 +1,6 @@
 import collections
 
-from dash import dcc, html
+from dash import dcc, html, callback_context
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -210,6 +210,11 @@ def register_stats_callbacks(app):
         Returns:
             bool: Whether or not modal should now be open.
         """
+        trigger = [p['prop_id'] for p in callback_context.triggered][0]
+
+        if 'EEG-graph' in trigger and (not selected_data or (not selected_data['points'])):
+            raise PreventUpdate
+
         return _toggle_modal([open_power_spectrum, close_power_spectrum, selected_data], is_open)
 
     # Data selection returns power-spectrum
@@ -218,34 +223,34 @@ def register_stats_callbacks(app):
         Input('EEG-graph', 'selectedData'),
         State('EEG-graph', 'figure')
     )
-    def _get_selected_power_spectrum(selectedData, current_fig):
-        """Calculates frequency with highest power density and power-spectrum plot of selectedData.
+    def _get_selected_power_spectrum(selected_data, current_fig):
+        """Calculates frequency with highest power density and power-spectrum plot of selected data.
 
         Args:
-            selectedData (dict): Data from latest selection event.
+            selected_data (dict): Data from latest selection event.
 
         Returns:
-            tuple(string, plotly.graph_objs.Figure): String of frequency with highest power density, power-spectrum plot of selectedData.
+            tuple(string, plotly.graph_objs.Figure): String of frequency with highest power density, power-spectrum plot of selected_data.
         """
-        if not selectedData or (not selectedData['points']):
+        if not selected_data or (not selected_data['points']):
             selected_range = '-'
             selected_channels = '-'
             # most_prominent_freq = '-'
             fig = Figure()
         else:
-            # print(selectedData)
+            # print(selected_data)
 
-            # first_trace_number = selectedData['points'][0]['curveNumber']
+            # first_trace_number = selected_data['points'][0]['curveNumber']
             # print('First trace: {}'.format(first_trace_number))
 
-            selected_range = selectedData['range']['x']
+            selected_range = selected_data['range']['x']
             selected_range = (round(selected_range[0], 1), round(selected_range[1], 1))
             selected_range = '{} - {} seconds'.format(selected_range[0], selected_range[1])
             # print('Range: {}'.format(selected_range))
 
             split_dict = collections.defaultdict(list)
 
-            for datapoint in selectedData['points']:
+            for datapoint in selected_data['points']:
                 split_dict[datapoint['curveNumber']].append(datapoint['customdata'])
 
             split_dict = dict(split_dict)
