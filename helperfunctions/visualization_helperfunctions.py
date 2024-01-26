@@ -33,24 +33,26 @@ def _get_scaling(EEG_scale):
         float: Scaling factor to multiply data with.
     """
     if EEG_scale:
-        temp = EEG_scale
-        temp_string = str(EEG_scale)
+        # temp = EEG_scale
+        # temp_string = str(EEG_scale)
 
-        if 'e' in temp_string:
-            e_index = temp_string.index('e')
-            zeros = int(temp_string[e_index + 2:])
-            temp *= 10 ** zeros
-            temp *= 10 ** zeros
-        else:
-            zeros = 0
-            while temp < 1:
-                temp *= 10
-                zeros += 1
-            temp *= 10 ** zeros
+        # if 'e' in temp_string:
+        #     e_index = temp_string.index('e')
+        #     zeros = int(temp_string[e_index + 2:])
+        #     temp *= 10 ** zeros
+        #     temp *= 10 ** zeros
+        # else:
+        #     zeros = 0
+        #     while temp < 1:
+        #         temp *= 10
+        #         zeros += 1
+        #     temp *= 10 ** zeros
 
-        scaling_factor = temp
+        # scaling_factor = temp
 
-        # print('Apply custom scaling {}'.format(scaling_factor))
+        # # print('Apply custom scaling {}'.format(scaling_factor))
+
+        scaling_factor = c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS * EEG_scale
     else:
         scaling_factor = c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS
         

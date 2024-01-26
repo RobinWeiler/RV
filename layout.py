@@ -374,7 +374,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                 dcc.Input(
                                     id="scale",
                                     type='number',
-                                    placeholder="default: 1e-6",
+                                    placeholder="default: 1 μV",
                                     min=0,
                                     debounce=True,
                                     className='medium-input'
