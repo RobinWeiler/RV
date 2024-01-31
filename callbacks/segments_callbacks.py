@@ -150,6 +150,11 @@ def register_segments_callbacks(app):
                     if (segment * segment_size - 0.5 <= globals.x0) and ((segment + 1) * segment_size - 0.5 > globals.x0):
                         new_segment = segment
                         break
+            else:
+                for index, annotation in enumerate(globals.marked_annotations):
+                    if annotation[0] > globals.x0 and annotation[0] <= globals.x1:
+                        new_segment = index
+                        break
 
             print(new_segment)
 
