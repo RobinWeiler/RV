@@ -146,7 +146,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     id='segment-slider',
                 ),
             ], className='aligned', id='segment-slider-container'),
-            
+
             html.Div([
                 dbc.Button(
                     "+10s",

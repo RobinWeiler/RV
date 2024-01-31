@@ -161,7 +161,7 @@ def register_segments_callbacks(app):
             if show_annotations_only and len(visible_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
             else:
-                marks = {i: '{} - {}'.format(i * segment_size, i * segment_size + segment_size) for i in range(num_segments + 1)}
+                marks = {i: {'label': '{}'.format(i * segment_size)} for i in range(num_segments + 1)}
                 # print(marks)
 
             return False, num_segments, 1, marks, new_segment

@@ -99,8 +99,19 @@ h2 {
 }
 
 #segment-slider-container {
-    width: 95%;
+    width: 100%;
     margin: auto;
+}
+
+/* .rc-slider-mark-text:last-child {
+    transform: translateX(50%) !important ;
+    right: 0% !important;
+    left: auto !important;
+} */
+
+.rc-slider-mark-text {
+    /* word-break: break-all; */
+    display: table;
 }
 
 #arrow-buttons {
