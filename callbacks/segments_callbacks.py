@@ -144,19 +144,14 @@ def register_segments_callbacks(app):
                 # print('no update')
                 raise PreventUpdate
 
-            if 'show-annotations-only' in trigger: 
-                if not show_annotations_only:
-                    for segment in range(num_segments):
-                        if (segment * segment_size < globals.x0) and ((segment + 1) * segment_size > globals.x0):
-                            current_segment = segment
-                            break
-                else:
-                    current_segment = 0
+            new_segment = 0
+            if not show_annotations_only:
+                for segment in range(num_segments):
+                    if (segment * segment_size - 0.5 <= globals.x0) and ((segment + 1) * segment_size - 0.5 > globals.x0):
+                        new_segment = segment
+                        break
 
-            if current_segment <= num_segments:
-                new_segment = current_segment
-            else:
-                new_segment = 0
+            print(new_segment)
 
             if show_annotations_only and len(visible_annotations) > 0:
                 marks = {i: '{}'.format(i) for i in range(num_segments + 1)}
@@ -278,46 +273,46 @@ def register_segments_callbacks(app):
         else:
             raise PreventUpdate
 
-    # Update plot when segment_size is changed
-    @app.callback(
-        Output('EEG-graph', 'figure', allow_duplicate=True),
-        Input('segment-size', 'value'),
-        [
-            State('show-annotations-only', 'value'), State('use-slider', 'value'), State('reorder-channels', 'value'),
-            State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
-            State('annotation-label', 'value')
-        ],
-        prevent_initial_call=True
-    )
-    def _update_segment_size(segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
-        """Updates size of viewed segment. Triggered when new value for segment-size is given.
+    # # Update plot when segment_size is changed
+    # @app.callback(
+    #     Output('EEG-graph', 'figure', allow_duplicate=True),
+    #     Input('segment-size', 'value'),
+    #     [
+    #         State('show-annotations-only', 'value'), State('use-slider', 'value'), State('reorder-channels', 'value'),
+    #         State('skip-hoverinfo', 'value'), State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'),
+    #         State('annotation-label', 'value')
+    #     ],
+    #     prevent_initial_call=True
+    # )
+    # def _update_segment_size(segment_size, show_annotations_only, use_slider, reorder_channels, skip_hoverinfo, hide_bad_channels, highlight_model_channels, annotation_label):
+    #     """Updates size of viewed segment. Triggered when new value for segment-size is given.
 
-        Args:
-            segment_size (int): Segment size of EEG plot.
-            show_annotations_only (bool): Whether or not to only show annotations.
-            use_slider (bool): Whether or not to activate view-slider.
-            skip_hoverinfo (bool): Whether or not to activate hover-info.
-            hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
-            highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
-            annotation_label (string); Label for new annotations.
+    #     Args:
+    #         segment_size (int): Segment size of EEG plot.
+    #         show_annotations_only (bool): Whether or not to only show annotations.
+    #         use_slider (bool): Whether or not to activate view-slider.
+    #         skip_hoverinfo (bool): Whether or not to activate hover-info.
+    #         hide_bad_channels (int): Num clicks on hide-bad-channels-button button.
+    #         highlight_model_channels (int): Num clicks on highlight-model-channels-button button.
+    #         annotation_label (string); Label for new annotations.
 
-        Returns:
-            tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
-        """
-        if globals.plotting_data:
-            if segment_size:
-                globals.x1 = globals.x0 + segment_size + 1
-            else:
-                globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
+    #     Returns:
+    #         tuple(plotly.graph_objs.Figure, int): New EEG-plot segment and segment-slider value.
+    #     """
+    #     if globals.plotting_data:
+    #         if segment_size:
+    #             globals.x1 = globals.x0 + segment_size + 1
+    #         else:
+    #             globals.x1 = (globals.raw.n_times / globals.raw.info['sfreq']) + 0.5
 
-            patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
+    #         patched_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
 
-            # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
+    #         # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0))
 
-            return patched_fig
+    #         return patched_fig
 
-        else:
-            raise PreventUpdate
+    #     else:
+    #         raise PreventUpdate
 
     # @app.callback(
     #     Output('preload-data', 'children'),
