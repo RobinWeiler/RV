@@ -312,7 +312,7 @@ def register_annotation_callbacks(app):
                     'xref': 'x',
                     'yref': 'y',
                     'layer': 'below',
-                    'opacity': 0.6,
+                    'opacity': 0.5,
                     'line': {'width': 0},
                     'fillcolor': globals.annotation_label_colors[annotation[2]] if globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
                     'fillrule': 'evenodd',

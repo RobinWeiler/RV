@@ -477,7 +477,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
         dragmode='drawrect',
         newshape=dict(
             fillcolor=globals.annotation_label_colors[annotation_label] if globals.annotation_label_colors[annotation_label] != 'hide' else 'red',
-            opacity=0.6,
+            opacity=0.5,
             drawdirection='vertical',
             layer='below',
             line_width=0,
@@ -500,7 +500,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
             x1=annotation[1],
             # annotation_text=annotation[2],
             fillcolor=globals.annotation_label_colors[annotation[2]] if annotation[2] in globals.annotation_label_colors.keys() and globals.annotation_label_colors[annotation[2]] != 'hide' else 'red',
-            opacity=0.6,
+            opacity=0.5,
             layer='below',
             line_width=0,
             name=annotation[2],
