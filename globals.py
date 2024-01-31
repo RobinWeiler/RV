@@ -3,7 +3,6 @@ parameters = {}
 
 raw = None
 viewing_raw = None
-model_raw = None
 external_raw = False
 
 plotting_data = {

@@ -280,8 +280,8 @@ def register_visualization_callbacks(app):
 
             globals.raw.info['bads'] = current_selected_bad_channels
 
-            # if run_model_bool:
-            globals.model_raw = globals.raw.copy()
+            if run_model_bool:
+                model_raw = globals.raw.copy()
 
             # MNE preprocessing
             print('Pre-processing data...')
@@ -289,7 +289,7 @@ def register_visualization_callbacks(app):
             globals.raw = preprocess_EEG(globals.raw, high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation)
             
             if run_model_bool:
-                globals.model_raw.info['bads'] = globals.raw.info['bads']
+                model_raw.info['bads'] = globals.raw.info['bads']
 
             # Resampling
             globals.viewing_raw = globals.raw.copy()
@@ -330,13 +330,15 @@ def register_visualization_callbacks(app):
 
             if run_model_bool:
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw, globals.viewing_raw)
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(model_raw, globals.viewing_raw)
                 model_output.append(run_model_output)
                 model_channel_names.append(run_model_channel_names)
                 model_sample_rate.append(run_model_sample_rate)
                 model_descriptions.append(run_model_description)
                 # if run_model_description not in globals.plotting_data['annotations']['annotation_label_colors'].keys():
                 #     globals.plotting_data['annotations']['annotation_label_colors'][run_model_description] = 'red'
+
+                del model_raw
 
             if (not (model_output_files or run_model_bool)) and model_annotate:
                 print('No model selected to annotate with!')
@@ -349,7 +351,7 @@ def register_visualization_callbacks(app):
                     if model_sample_rate[model_index]:
                         model_timestep = 1 / model_sample_rate[model_index]
                     else:
-                        model_timestep = 1 / globals.model_raw.info['sfreq']
+                        model_timestep = 1 / globals.viewing_raw.info['sfreq']
                     # print(model_timestep)
                     if not model_threshold:
                         model_threshold = 0.7

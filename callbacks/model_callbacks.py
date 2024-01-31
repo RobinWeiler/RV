@@ -5,6 +5,7 @@ from dash.exceptions import PreventUpdate
 import numpy as np
 
 from helperfunctions.annotation_helperfunctions import confidence_intervals, merge_intervals, annotations_to_raw
+from helperfunctions.loading_helperfunctions import parse_data_file
 from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_list_for_displaying
 from model.run_model import run_model
 
@@ -128,11 +129,11 @@ def register_model_callbacks(app):
             State('use-slider', 'value'), State('reorder-channels', 'value'), State('skip-hoverinfo', 'value'), 
             State('annotation-label', 'value'), State('show-annotation-labels', 'value'), State('show-annotations-only', 'value'), 
             State('hide-bad-channels-button', 'n_clicks'), State('highlight-model-channels-button', 'n_clicks'), State('bad-channels-dropdown', 'value'), 
-            State('EEG-graph', 'figure'), State('username', 'value')
+            State('EEG-graph', 'figure'), State('username', 'value'), State('data-file', 'children'),
         ],
         prevent_initial_call=True
     )
-    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig, username):
+    def _update_EEG_plot_model(rerun_model_button, reset_models_button, model_annotate, model_threshold, run_model_bool, use_slider, reorder_channels, skip_hoverinfo, annotation_label, show_annotation_labels, show_annotations_only, hide_bad_channels, highlight_model_channels, current_selected_bad_channels, current_fig, username, current_file_name):
         """Updates plot when model settings are changed.
 
         Args:
@@ -159,11 +160,13 @@ def register_model_callbacks(app):
         if globals.plotting_data['EEG']:
             # If re-running model, keep current annotations and bad channels
             if 'rerun-model-button' in trigger and run_model_bool:
-
-                globals.model_raw.info['bads'] = current_selected_bad_channels
+                model_raw = parse_data_file(current_file_name)
+                model_raw.info['bads'] = current_selected_bad_channels
 
                 print('Running model...')
-                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(globals.model_raw, globals.viewing_raw)
+                run_model_output, run_model_channel_names, run_model_sample_rate, run_model_description = run_model(model_raw, globals.viewing_raw)
+
+                del model_raw
 
                 # Model annotations
                 if model_annotate:
@@ -172,7 +175,7 @@ def register_model_callbacks(app):
                     if run_model_sample_rate:
                         model_timestep = 1 / run_model_sample_rate
                     else:
-                        model_timestep = 1 / globals.model_raw.info['sfreq']
+                        model_timestep = 1 / globals.viewing_raw.info['sfreq']
                     # print(model_timestep)
 
                     if not model_threshold:
