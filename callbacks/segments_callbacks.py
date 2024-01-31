@@ -108,8 +108,8 @@ def register_segments_callbacks(app):
                 left_disabled = True
                 right_disabled = True
             else:
-                left_disabled = current_fig['layout']['xaxis']['range'][0] < globals.x0
-                right_disabled = current_fig['layout']['xaxis']['range'][1] > globals.x1
+                left_disabled = False
+                right_disabled = False
 
         return left_disabled, right_disabled
 
