@@ -1,5 +1,5 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, Patch
 from dash.exceptions import PreventUpdate
 
 import plotly.express as px
@@ -11,7 +11,7 @@ import numpy as np
 from helperfunctions.annotation_helperfunctions import merge_intervals, get_annotations, annotations_to_raw, confidence_intervals
 from helperfunctions.loading_helperfunctions import parse_data_file, parse_model_output_file, parse_annotation_file
 from helperfunctions.preprocessing_helperfunctions import preprocess_EEG
-from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, _get_scaling, _get_offset, _channel_name_sorting_key
+from helperfunctions.visualization_helperfunctions import get_EEG_figure, get_EEG_plot, _get_next_segment, _get_scaling, _get_offset, _channel_name_sorting_key, _get_y_ticks
 from model.run_model import run_model
 
 import constants as c
@@ -102,10 +102,10 @@ def register_visualization_callbacks(app):
             Input('use-slider', 'value'),
             Input('skip-hoverinfo', 'value'),
             Input('reorder-channels', 'value'),
+            Input('selected-channels-dropdown', 'value'),
         ],
         [
             State('data-file', 'children'),
-            State('selected-channels-dropdown', 'value'),
             State("high-pass", "value"), State("low-pass", "value"),
             State('reference-dropdown', 'value'),
             State('bad-channel-detection-dropdown', 'value'), State("bad-channel-interpolation", "value"),
@@ -126,8 +126,8 @@ def register_visualization_callbacks(app):
     def _update_EEG_plot(
         plot_button, confirm_plot_button,
         resample_rate, scale, channel_offset, use_slider, skip_hoverinfo,
-        reorder_channels,
-        current_file_name, selected_channels,
+        reorder_channels, selected_channels,
+        current_file_name,
         high_pass, low_pass, reference, bad_channel_detection, bad_channel_interpolation,
         segment_size, show_annotations_only,
         annotation_label, show_annotation_labels,
@@ -182,26 +182,30 @@ def register_visualization_callbacks(app):
                 if 'scale' in trigger and globals.plotting_data['EEG']['scaling_factor'] != scale:
                     new_scale = _get_scaling(scale)
                     print(new_scale)
-                    
+
                     globals.plotting_data['EEG']['scaling_factor'] = new_scale
+
+                    updated_fig = _get_next_segment(globals.viewing_raw, globals.x0, globals.x1, globals.plotting_data['EEG']['channel_names'], globals.plotting_data['EEG']['scaling_factor'], globals.plotting_data['plot']['offset_factor'], skip_hoverinfo, use_slider, show_annotations_only, reorder_channels)
                     
                 if 'channel-offset' in trigger and globals.plotting_data['plot']['offset_factor'] != channel_offset:
+                    updated_fig = Patch()
+
                     new_offset = _get_offset(channel_offset)
-                    print(new_offset)
-                    
                     globals.plotting_data['plot']['offset_factor'] = new_offset
+                    print(new_offset)
+
+                    new_y_ticks = _get_y_ticks(globals.plotting_data, reorder_channels)
                     
-                    for model_index in range(len(globals.plotting_data['model'])):
-                        globals.plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (globals.plotting_data['plot']['offset_factor'])) for i in range(len(globals.plotting_data['model'][model_index]['model_timescale']))]
+                    for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                        data = np.array(current_fig['data'][channel_index]['y'])
 
-                    y_ticks_model_output = np.arange((-len(globals.plotting_data['model']) - 1), -1)
-                    y_ticks_channels = np.arange(0, len(globals.plotting_data['EEG']['channel_names']))
-                    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-                    y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
+                        data -= globals.plotting_data['plot']['y_ticks'][channel_index]
+                        data += new_y_ticks[channel_index]
 
-                    globals.plotting_data['plot']['y_ticks'] = y_ticks
+                        updated_fig['data'][channel_index]['y'] = data
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                    globals.plotting_data['plot']['y_ticks'] = new_y_ticks
+                    updated_fig['layout']['yaxis']['tickvals'] = globals.plotting_data['plot']['y_ticks']
 
                 return updated_fig, fig_style
 
@@ -213,18 +217,44 @@ def register_visualization_callbacks(app):
                     globals.viewing_raw = globals.raw.copy()
                     globals.viewing_raw.resample(resample_rate)
                     # timestep = 1 / resample_rate
+                else:
+                    if float(resample_rate) < globals.raw.info['sfreq']:
+                        raise Exception('New sampling rate ({}) cannot be higher than the original sampling rate ({})'.format(resample_rate, globals.raw.info['sfreq']))
 
                 print(globals.viewing_raw.info)
 
-                globals.plotting_data['EEG']['recording_length'] = len(globals.viewing_raw) / globals.viewing_raw.info['sfreq']
+                updated_fig = Patch()
+                
+                index_0 = globals.viewing_raw.time_as_index(globals.x0)[0] if globals.x0 > 0 else 0
+                index_1 = globals.viewing_raw.time_as_index(globals.x1)[0]
 
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                data_subset, times_subset = globals.viewing_raw[globals.plotting_data['EEG']['channel_names'], index_0:index_1]
+                data_subset = data_subset * globals.plotting_data['EEG']['scaling_factor']
+
+                if not skip_hoverinfo:
+                    custom_data = data_subset.copy()
+
+                if len(globals.plotting_data['model']) > 0:
+                    data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)[:-len(globals.plotting_data['model'])]
+                else:
+                    data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)
+
+                for channel_index in range(len(globals.plotting_data['EEG']['channel_names'])):
+                    updated_fig['data'][channel_index]['x'] = times_subset
+                    updated_fig['data'][channel_index]['y'] = data_subset[channel_index, :]
+
+                    if not skip_hoverinfo:
+                        updated_fig['data'][channel_index]['customdata'] = custom_data[channel_index]
+
+                # updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
 
                 return updated_fig, fig_style
 
         if 'use-slider' in trigger:
             if globals.plotting_data:
-                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+                updated_fig = Patch()
+
+                updated_fig['layout']['xaxis']['rangeslider']['visible'] = True if use_slider else False
 
                 return updated_fig, fig_style
 
@@ -277,6 +307,22 @@ def register_visualization_callbacks(app):
 
                 updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
                 
+                return updated_fig, fig_style
+
+        if 'selected-channels' in trigger:
+            print(selected_channels)
+            if globals.plotting_data:
+                if len(selected_channels) == 0:
+                    selected_channels = globals.raw.ch_names
+
+                check = all(channel in globals.raw.ch_names for channel in selected_channels)
+
+                if check:
+                    globals.plotting_data['EEG']['channel_names'] = selected_channels
+                    globals.plotting_data['plot']['y_ticks'] = _get_y_ticks(globals.plotting_data, reorder_channels)
+
+                updated_fig = get_EEG_plot(globals.plotting_data, globals.x0, globals.x1, annotation_label, show_annotation_labels, use_slider, show_annotations_only, skip_hoverinfo, (hide_bad_channels % 2 != 0), (highlight_model_channels % 2 != 0), reorder_channels)
+
                 return updated_fig, fig_style
 
         if 'plot-button' in trigger:

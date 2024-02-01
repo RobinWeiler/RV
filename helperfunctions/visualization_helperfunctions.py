@@ -23,6 +23,35 @@ def _get_list_for_displaying(example_list):
     else:
         return []
 
+def _get_y_ticks(plotting_data, reorder_channels):
+    y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
+    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
+    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
+    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
+
+    if reorder_channels:
+        region_offset = np.zeros(len(plotting_data['EEG']['channel_names']), dtype=np.int64)
+
+        region_names = list(c.CHANNEL_TO_REGION_128.keys())
+        region_names.reverse()
+        counter = 1  # Cz in position 0
+
+        for index, region in enumerate(region_names):
+            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
+                if counter < len(plotting_data['EEG']['channel_names']):
+                    region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
+                    counter += 1
+
+        # region_offset = np.flip(region_offset)
+
+        if len(plotting_data['model']) > 0:
+            y_ticks[len(plotting_data['model']):] += region_offset
+        else:
+            y_ticks += region_offset
+    y_ticks = np.flip(y_ticks)
+
+    return y_ticks
+
 def _get_scaling(EEG_scale):
     """Calculates scaling factor to multiply data with for given scale.
 
@@ -165,6 +194,8 @@ def _get_plotting_data(raw, file_name, selected_channel_names, EEG_scale, channe
 
         plotting_data['model'][model_index]['offset_model_data'] = [-((2 + model_index) * (plotting_data['plot']['offset_factor'])) for i in range(len(plotting_data['model'][model_index]['model_timescale']))]
 
+    plotting_data['plot']['y_ticks'] = _get_y_ticks(plotting_data, reorder_channels)
+
     # y_tick_labels = [channel_name for channel_name in plotting_data['EEG']['channel_names']]
     # for model_id in range(len(plotting_data['model'])):
     #     y_tick_labels.append('M{}'.format(model_id))
@@ -187,37 +218,10 @@ def _get_next_segment(raw, x0, x1, channels, scaling_factor, offset_factor, skip
     if not skip_hoverinfo:
         custom_data = data_subset.copy()
 
-    # Update EEG traces
-    y_ticks_model_output = np.arange((-len(globals.plotting_data['model']) - 1), -1)
-    y_ticks_channels = np.arange(0, len(globals.plotting_data['EEG']['channel_names']))
-    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-    y_ticks = y_ticks * (globals.plotting_data['plot']['offset_factor'])
-    
-    if reorder_channels:
-        region_offset = np.zeros(len(globals.plotting_data['EEG']['channel_names']), dtype=np.int64)
-
-        region_names = list(c.CHANNEL_TO_REGION_128.keys())
-        region_names.reverse()
-        counter = 1  # Cz in position 0
-
-        for index, region in enumerate(region_names):
-            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
-                if counter < len(globals.plotting_data['EEG']['channel_names']):
-                    region_offset[counter] = index * globals.plotting_data['plot']['offset_factor'] * 2
-                    counter += 1
-
-        # region_offset = np.flip(region_offset)
-
-        if len(globals.plotting_data['model']) > 0:
-            y_ticks[len(globals.plotting_data['model']):] += region_offset
-        else:
-            y_ticks += region_offset
-    y_ticks = np.flip(y_ticks)
-
     if len(globals.plotting_data['model']) > 0:
-        data_subset += y_ticks.reshape(-1, 1)[:-len(globals.plotting_data['model'])]
+        data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)[:-len(globals.plotting_data['model'])]
     else:
-        data_subset += y_ticks.reshape(-1, 1)
+        data_subset += globals.plotting_data['plot']['y_ticks'].reshape(-1, 1)
 
     for channel_index in range(len(channels)):
         # data_subset[channel_index, :] = data_subset[channel_index, :] + (offset_factor * (len(channels) - 1 - channel_index))  # First channel goes to top of the plot
@@ -314,36 +318,10 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
     t1 = time.time()
 
-    y_ticks_model_output = np.arange((-len(plotting_data['model']) - 1), -1)
-    y_ticks_channels = np.arange(0, len(plotting_data['EEG']['channel_names']))
-    y_ticks = np.concatenate((y_ticks_model_output, y_ticks_channels))
-    y_ticks = y_ticks * (plotting_data['plot']['offset_factor'])
-    
-    if reorder_channels:
-        region_offset = np.zeros(len(globals.plotting_data['EEG']['channel_names']), dtype=np.int64)
-
-        region_names = list(c.CHANNEL_TO_REGION_128.keys())
-        region_names.reverse()
-        counter = 1  # Cz in position 0
-
-        for index, region in enumerate(region_names):
-            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
-                if counter < len(globals.plotting_data['EEG']['channel_names']):
-                    region_offset[counter] = index * globals.plotting_data['plot']['offset_factor'] * 2
-                    counter += 1
-
-        # region_offset = np.flip(region_offset)
-
-        if len(plotting_data['model']) > 0:
-            y_ticks[len(plotting_data['model']):] += region_offset
-        else:
-            y_ticks += region_offset
-    y_ticks = np.flip(y_ticks)
-
     if len(plotting_data['model']) > 0:
-        data_subset += y_ticks.reshape(-1, 1)[:-len(plotting_data['model'])]
+        data_subset += plotting_data['plot']['y_ticks'].reshape(-1, 1)[:-len(plotting_data['model'])]
     else:
-        data_subset += y_ticks.reshape(-1, 1)
+        data_subset += plotting_data['plot']['y_ticks'].reshape(-1, 1)
 
     for channel_index in range(data_subset.shape[0]):   
         channel_name = plotting_data['EEG']['channel_names'][channel_index]
@@ -539,7 +517,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
 
     fig.update_yaxes(
         tickmode='array',
-        tickvals=y_ticks,
+        tickvals=plotting_data['plot']['y_ticks'],
         ticktext=y_tick_labels,
         showgrid=False,
         zeroline=False,
