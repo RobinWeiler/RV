@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html
+from dash import dcc, html
 import dash_bootstrap_components as dbc
 # import dash_daq as daq
 
@@ -20,15 +20,15 @@ from helperfunctions.annotation_helperfunctions import _get_annotation_label_rad
 
 import constants as c
 
-def setup_app(disable_file_selection=False, disable_preprocessing=False):
+def get_layout(disable_file_selection=False, disable_preprocessing=False):
     """Sets up HTML of RV application.
 
     Args:
         disable_file_selection (bool, optional): Whether or not to disable file selection. Defaults to False.
         disable_preprocessing (bool, optional): Whether or not to disable preprocessing options. Defaults to False.
     """
-    app = Dash(__name__, assets_folder='assets')
-    app.layout = html.Div([
+    # app = Dash(__name__, assets_folder='assets')
+    layout = html.Div([
         # Hidden buttons
         html.Div([
             dbc.Button(
@@ -963,16 +963,16 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
     ])
 
     # Register callbacks
-    register_channel_selection_callbacks(app)
-    register_modal_callbacks(app)
-    register_loading_callbacks(app)
-    register_saving_callbacks(app)
-    register_annotation_callbacks(app)
-    register_bad_channel_callbacks(app)
-    register_model_callbacks(app)
-    register_preprocessing_callbacks(app)
-    register_segments_callbacks(app)
-    register_stats_callbacks(app)
-    register_visualization_callbacks(app)
+    register_channel_selection_callbacks()
+    register_modal_callbacks()
+    register_loading_callbacks()
+    register_saving_callbacks()
+    register_annotation_callbacks()
+    register_bad_channel_callbacks()
+    register_model_callbacks()
+    register_preprocessing_callbacks()
+    register_segments_callbacks()
+    register_stats_callbacks()
+    register_visualization_callbacks()
     
-    return app
+    return layout

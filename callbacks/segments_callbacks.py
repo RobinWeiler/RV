@@ -1,7 +1,7 @@
 import math
 
 import dash
-from dash import Input, Output, State, Patch
+from dash import Input, Output, State, Patch, callback, clientside_callback
 from dash.exceptions import PreventUpdate
 
 from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_next_segment
@@ -9,10 +9,10 @@ from helperfunctions.visualization_helperfunctions import get_EEG_plot, _get_nex
 import globals
 import constants as c
 
-def register_segments_callbacks(app):
+def register_segments_callbacks():
 
     # JavaScript function to switch the plotted segment when left and right arrow keys are pressed on keyboard
-    app.clientside_callback(
+    clientside_callback(
         """
             function(id) {
                 document.addEventListener("keydown", function(event) {
@@ -35,7 +35,7 @@ def register_segments_callbacks(app):
     )
 
     # Enable/disable arrow buttons at edges
-    @app.callback(
+    @callback(
         [Output('left-button', 'disabled'), Output('right-button', 'disabled')],
         Input('EEG-graph', 'figure'),
         [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('segment-slider', 'value')]
@@ -78,7 +78,7 @@ def register_segments_callbacks(app):
         return left_disabled, right_disabled
 
     # Enable/disable plus-/minus-10-seconds buttons at edges
-    @app.callback(
+    @callback(
         [Output('minus-ten-seconds-button', 'disabled'), Output('plus-ten-seconds-button', 'disabled')],
         Input('EEG-graph', 'figure'),
         [State('segment-size', 'value'), State('show-annotations-only', 'value'), State('EEG-graph', 'figure')]
@@ -114,7 +114,7 @@ def register_segments_callbacks(app):
         return left_disabled, right_disabled
 
     # Enable/disable segment-slider
-    @app.callback(
+    @callback(
         [Output('segment-slider', 'disabled'), Output('segment-slider', 'max'), Output('segment-slider', 'step'), Output('segment-slider', 'marks'), Output('segment-slider', 'value')],
         [Input('EEG-graph', 'figure'), Input('segment-size', 'value'), Input('show-annotations-only', 'value')],
         [State('segment-slider', 'disabled'), State('segment-slider', 'max'), State('segment-slider', 'value')]
@@ -169,7 +169,7 @@ def register_segments_callbacks(app):
             return True, 1, 1, {0: '0', 1: '1'}, 0
 
     # Switch plotted segment via segment-slider or arrow buttons
-    @app.callback(
+    @callback(
         [Output('EEG-graph', 'figure', allow_duplicate=True), Output('segment-slider', 'value', allow_duplicate=True)],
         [Input('segment-slider', 'value'), Input('left-button', 'n_clicks'), Input('right-button', 'n_clicks')],
         [
@@ -233,7 +233,7 @@ def register_segments_callbacks(app):
             raise PreventUpdate
 
     # Move view by 10 seconds left or right
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input('minus-ten-seconds-button', 'n_clicks'), Input('plus-ten-seconds-button', 'n_clicks')],
         prevent_initial_call=True
@@ -265,7 +265,7 @@ def register_segments_callbacks(app):
             raise PreventUpdate
 
     # Update plot when segment_size is changed
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('segment-size', 'value'),
         [

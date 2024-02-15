@@ -1,11 +1,11 @@
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 import globals
 
 
-def register_preprocessing_callbacks(app):
-    @app.callback(
+def register_preprocessing_callbacks():
+    @callback(
         Output("hidden-bandpass-changed", "n_clicks"),
         [Input("high-pass", "value"), Input("low-pass", "value")],
         State('plot-button', 'n_clicks')
@@ -22,7 +22,7 @@ def register_preprocessing_callbacks(app):
         # print('Bandpass changed')
         return 1
 
-    @app.callback(
+    @callback(
         Output("hidden-bandpass-changed", "n_clicks", allow_duplicate=True),
         Input("confirm-plot-button", "n_clicks"),
         prevent_initial_call=True
@@ -33,7 +33,7 @@ def register_preprocessing_callbacks(app):
         # print('Reset bool')
         return 0
 
-    @app.callback(
+    @callback(
         Output("plot-button", "n_clicks"),
         Input('upload-file', 'filename'),
         prevent_initial_call=True

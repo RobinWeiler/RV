@@ -1,6 +1,6 @@
 from flask import request
 
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback, clientside_callback
 
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.saving_helperfunctions import save_to, overwrite_save, quick_save, save_annotations, save_bad_channels
@@ -16,10 +16,10 @@ def _shutdown():
     func()
 
 
-def register_saving_callbacks(app):
+def register_saving_callbacks():
     
     # Toggle save-file modal
-    @app.callback(
+    @callback(
         Output("modal-save", "is_open"),
         [Input("open-save", "n_clicks"), Input("close-save", "n_clicks"), Input('save-button', 'n_clicks'), Input('open-overwrite-button', 'n_clicks')],
         [State("modal-save", "is_open")],
@@ -41,7 +41,7 @@ def register_saving_callbacks(app):
         return _toggle_modal([open_save, close_save, save_button, open_overwrite_button], is_open)
 
     # Toggle overwrite-file modal
-    @app.callback(
+    @callback(
         Output("modal-overwrite", "is_open"),
         [Input("open-overwrite-button", "n_clicks"), Input('cancel-overwrite-button', 'n_clicks'), Input('overwrite-button', 'n_clicks')],
         [State("modal-overwrite", "is_open")],
@@ -62,7 +62,7 @@ def register_saving_callbacks(app):
         return _toggle_modal([open_overwrite_button, cancel_overwrite_button, overwrite_button], is_open)
 
     # Save button callback
-    @app.callback(
+    @callback(
         Output('save-file', 'children'),
         Input('save-button', 'n_clicks'),
         [State("save-file-name", "value"), State('extension-selection-dropdown', 'value')],
@@ -86,7 +86,7 @@ def register_saving_callbacks(app):
         new_file_name = save_to(save_file_name, extension, globals.raw)
 
     # Overwrite save-file button callback
-    @app.callback(
+    @callback(
         Output('overwrite-file', 'children'),
         Input('overwrite-button', 'n_clicks'),
         State('data-file', 'children'),
@@ -105,7 +105,7 @@ def register_saving_callbacks(app):
             overwrite_save(current_file_name, globals.raw)
 
     # Save-annotations button callback
-    @app.callback(
+    @callback(
         Output('save-annotations', 'children'),
         Input('save-annotations-button', 'n_clicks'),
         State("save-file-name", "value"),
@@ -125,7 +125,7 @@ def register_saving_callbacks(app):
         save_annotations(save_file_name, globals.raw)
 
     # Save-bad-channels button callback
-    @app.callback(
+    @callback(
         Output('save-bad-channels', 'children'),
         Input('save-bad-channels-button', 'n_clicks'),
         State("save-file-name", "value"),
@@ -145,7 +145,7 @@ def register_saving_callbacks(app):
         save_bad_channels(save_file_name, globals.raw)
 
     # Quit button callback
-    @app.callback(
+    @callback(
         Output('quit-viewer', 'children'),
         Input('final-quit-button', 'n_clicks'),
         State('data-file', 'children'),
@@ -167,7 +167,7 @@ def register_saving_callbacks(app):
 
         _shutdown()
 
-    app.clientside_callback(
+    clientside_callback(
         '''
             function close(n){
                         // sleep time expects milliseconds

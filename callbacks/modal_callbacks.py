@@ -1,13 +1,13 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 from helperfunctions.modal_helperfunctions import _toggle_modal
 
 
-def register_modal_callbacks(app):
+def register_modal_callbacks():
     # Toggle preprocessing modal
-    @app.callback(
+    @callback(
         Output("modal-file", "is_open"),
         [Input("open-file", "n_clicks"), Input("close-file", "n_clicks"), Input('plot-button', 'n_clicks'), Input('cancel-plot-button', 'n_clicks')],
         [State("modal-file", "is_open")],
@@ -32,7 +32,7 @@ def register_modal_callbacks(app):
         return _toggle_modal([open_file, close_file, plot_button, cancel_plot_button], is_open)
 
     # Toggle stats modal
-    @app.callback(
+    @callback(
         Output("modal-stats", "is_open"),
         [Input("open-stats", "n_clicks"), Input("open-stats-2", "n_clicks"), Input("close-stats", "n_clicks")],
         [State("modal-stats", "is_open")],
@@ -53,7 +53,7 @@ def register_modal_callbacks(app):
         return _toggle_modal([open_stats, close_stats, open_stats_2], is_open)
 
     # Toggle help modal
-    @app.callback(
+    @callback(
         Output("modal-help", "is_open"),
         [Input("open-help", "n_clicks"), Input("close-help", "n_clicks")],
         [State("modal-help", "is_open")],
@@ -73,7 +73,7 @@ def register_modal_callbacks(app):
         return _toggle_modal([open_help, close_help], is_open)
 
     # Toggle quit modal
-    @app.callback(
+    @callback(
         Output("modal-quit", "is_open"),
         [Input("quit-button", "n_clicks"), Input('cancel-quit-button', 'n_clicks')],
         [State("modal-quit", "is_open")],
@@ -93,7 +93,7 @@ def register_modal_callbacks(app):
         return _toggle_modal([quit_button, cancel_quit_button], is_open)
 
     # Toggle confirm-replot modal
-    @app.callback(
+    @callback(
         Output("modal-confirm-replot", "is_open"),
         [Input("confirm-plot-button", "n_clicks"), Input('cancel-plot-button', 'n_clicks'), Input('plot-button', 'n_clicks')],
         [State("modal-confirm-replot", "is_open"), State("hidden-bandpass-changed", "n_clicks")],

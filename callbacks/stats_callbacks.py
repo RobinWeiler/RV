@@ -1,7 +1,7 @@
 import collections
 
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 from plotly.graph_objs import Figure
@@ -14,11 +14,12 @@ from helperfunctions.stats_helperfunctions import _get_amount_annotated_clean_da
 from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
 
 import globals
+import constants as c
 
-def register_stats_callbacks(app):
+def register_stats_callbacks():
 
     # Toggle stats modal
-    @app.callback(
+    @callback(
         Output('stats-body', 'children'),
         Input("modal-stats", "is_open"),
         [State('data-file', 'children'), State('bad-channels-dropdown', 'value'), State('annotation-label', 'options')],
@@ -185,7 +186,7 @@ def register_stats_callbacks(app):
             raise PreventUpdate
 
     # Toggle power-spectrum modal
-    @app.callback(
+    @callback(
         Output("modal-power-spectrum", "is_open"),
         [Input("open-power-spectrum", "n_clicks"), Input("close-power-spectrum", "n_clicks"), Input('EEG-graph', 'selectedData')],
         [State("modal-power-spectrum", "is_open")],
@@ -206,7 +207,7 @@ def register_stats_callbacks(app):
         return _toggle_modal([open_power_spectrum, close_power_spectrum, selected_data], is_open)
 
     # Data selection returns power-spectrum
-    @app.callback(
+    @callback(
         [Output('power-selected-interval', 'children'), Output('power-selected-channels', 'children'), Output('power-spectrum', 'figure')],  # Output('power-prominent-frequency', 'children')
         Input('EEG-graph', 'selectedData'),
         State('EEG-graph', 'figure')
@@ -268,6 +269,14 @@ def register_stats_callbacks(app):
             for counter, trace in enumerate(selected_datapoints):
                 # print(counter)
                 f, Pxx_den = calc_power_spectrum(sample_rate, trace)
+
+                # Log scaling
+                Pxx_den /= globals.plotting_data['EEG']['scaling_factor']
+                Pxx_den *= (c.CONVERSION_VALUE_VOLTS_TO_MICROVOLTS**2)
+                np.log10(np.maximum(Pxx_den, np.finfo(float).tiny), out=Pxx_den)
+                Pxx_den *= 10
+                Pxx_den = np.round(Pxx_den, 2)
+
                 all_Pxx_den.append(Pxx_den)
 
             mean_Pxx_den = np.mean(all_Pxx_den, axis=0)

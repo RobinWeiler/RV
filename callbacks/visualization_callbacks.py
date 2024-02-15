@@ -1,5 +1,5 @@
 import dash
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback, clientside_callback
 from dash.exceptions import PreventUpdate
 
 import plotly.express as px
@@ -18,10 +18,10 @@ import constants as c
 import globals
 
 
-def register_visualization_callbacks(app):
+def register_visualization_callbacks():
 
     # Switch taskbar button with keyboard
-    app.clientside_callback(
+    clientside_callback(
         """
             function(id) {
                 document.addEventListener("keydown", function(event) {
@@ -48,7 +48,7 @@ def register_visualization_callbacks(app):
     )
 
     # Change channel offset when up and down arrow keys are pressed on keyboard
-    app.clientside_callback(
+    clientside_callback(
         """
             function(id) {
                 document.addEventListener("keydown", function(event) {
@@ -70,7 +70,7 @@ def register_visualization_callbacks(app):
         Input("channel-offset", "id")
     )
 
-    @app.callback(
+    @callback(
         Output('channel-offset', 'value', allow_duplicate=True),
         [Input('hidden-decrease-offset-button', 'n_clicks'), Input('hidden-increase-offset-button', 'n_clicks'),],
         State('channel-offset', 'value'),
@@ -91,7 +91,7 @@ def register_visualization_callbacks(app):
             return 0
 
     # plot callback
-    @app.callback(
+    @callback(
         [Output('EEG-graph', 'figure'), Output('EEG-graph', 'style'), Output('bad-channels-dropdown', 'value'),],
         [
             Input('plot-button', 'n_clicks'),

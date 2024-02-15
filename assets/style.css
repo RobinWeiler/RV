@@ -124,7 +124,7 @@ hr {
     border-bottom-left-radius: calc(0.3rem - 1px); */
 }
 
-/* Dropdown */
+/* Dropdown hover */
 .VirtualizedSelectOption:hover {
     background-color: var(--main-light-blue);
     color: var(--main-text-color);

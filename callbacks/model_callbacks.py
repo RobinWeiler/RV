@@ -1,5 +1,5 @@
 import dash
-from dash import Input, Output, State, Patch
+from dash import Input, Output, State, Patch, callback
 from dash.exceptions import PreventUpdate
 
 import numpy as np
@@ -13,10 +13,10 @@ import globals
 import constants as c
 
 
-def register_model_callbacks(app):
+def register_model_callbacks():
 
     # Select model output
-    @app.callback(
+    @callback(
         [Output('model-output-files', 'children'), Output('upload-model-output', 'filename')],
         [Input('upload-model-output', 'filename'), Input('reset-models', 'n_clicks')],
         prevent_initial_call=True
@@ -41,7 +41,7 @@ def register_model_callbacks(app):
             return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
     # Disable rerun-model button - comment this out for models that are not deterministic
-    @app.callback(
+    @callback(
         Output('rerun-model-button', 'disabled'),
         [Input('EEG-graph', 'clickData'), Input('rerun-model-button', 'n_clicks')], 
         [State("run-model", "value"), State('model-output-files', 'children')],
@@ -56,7 +56,7 @@ def register_model_callbacks(app):
         return True
 
     # Disable model threshold
-    @app.callback(
+    @callback(
         Output('model-threshold', 'disabled'),
         Input('annotate-model', 'value'),
         # prevent_initial_call=True
@@ -65,7 +65,7 @@ def register_model_callbacks(app):
         return not model_annotate
 
     # Enable/disable Highlight model channels button
-    @app.callback(
+    @callback(
         Output('highlight-model-channels-button', 'disabled'),
         Input('EEG-graph', 'figure'),
         # prevent_initial_call=True
@@ -85,7 +85,7 @@ def register_model_callbacks(app):
             return True
 
     # Highlight model channels
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('highlight-model-channels-button', 'n_clicks'),
         prevent_initial_call=True
@@ -121,7 +121,7 @@ def register_model_callbacks(app):
             raise PreventUpdate
 
     # Update plot when model settings are changed
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input('rerun-model-button', 'n_clicks'), Input('reset-models', 'n_clicks'), Input("annotate-model", "value"), Input("model-threshold", "value")],
         [

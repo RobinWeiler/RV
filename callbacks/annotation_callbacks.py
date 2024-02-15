@@ -2,7 +2,7 @@ import json
 import re
 
 import dash
-from dash import dcc, html, Input, Output, State, Patch, ALL
+from dash import dcc, html, Input, Output, State, Patch, ALL, callback
 from dash.exceptions import PreventUpdate
 
 import numpy as np
@@ -16,10 +16,10 @@ import globals
 import constants as c
 
 
-def register_annotation_callbacks(app):
+def register_annotation_callbacks():
 
     # Toggle annotation-settings modal
-    @app.callback(
+    @callback(
         Output("modal-annotation-settings", "is_open"),
         [Input("open-annotation-settings", "n_clicks"), Input("close-annotation-settings", "n_clicks")],
         [State("modal-annotation-settings", "is_open")],
@@ -39,7 +39,7 @@ def register_annotation_callbacks(app):
         return _toggle_modal([open_annotation_settings, close_annotation_settings], is_open)
 
     # Annotation through dragging mouse across intervals callback
-    @app.callback(
+    @callback(
         Output('hidden-annotation-output', 'n_clicks', allow_duplicate=True),
         Input('EEG-graph', 'relayoutData'),
         [State('show-annotations-only', 'value'), State('EEG-graph', 'figure'), State('username', 'value')],
@@ -98,7 +98,7 @@ def register_annotation_callbacks(app):
         raise PreventUpdate
 
     # Update segment-slider when marked annotations changed and view-annotations-only mode is used
-    @app.callback(
+    @callback(
         [
             # Output('EEG-graph', 'figure', allow_duplicate=True),
             Output('segment-slider', 'max', allow_duplicate=True), Output('segment-slider', 'step', allow_duplicate=True),
@@ -129,7 +129,7 @@ def register_annotation_callbacks(app):
             raise PreventUpdate
 
     # Add/remove/rename annotation label
-    @app.callback(
+    @callback(
         [Output('annotation-label', 'options'), Output('new-annotation-label', 'value'), Output('annotation-label', 'value')],
         [Input('data-file', 'children'), Input('upload-model-output', 'filename'), Input('new-annotation-label', 'value'), Input('remove-annotation-label', 'n_clicks'), Input('rename-annotation-label', 'n_clicks'), Input("annotate-model", "value")],
         [State('annotation-label', 'options'), State('annotation-label', 'value'), State('renamed-annotation-label', 'value'), State('username', 'value')],
@@ -211,7 +211,7 @@ def register_annotation_callbacks(app):
         return annotation_labels, '', current_annotation_label
 
     # Change username
-    @app.callback(
+    @callback(
         Output('username-dummy', 'children', allow_duplicate=True),
         Input('username', 'value'),
         prevent_initial_call=True
@@ -225,7 +225,7 @@ def register_annotation_callbacks(app):
             quick_save(globals.raw)
 
     # Annotation-label color has changed
-    @app.callback(
+    @callback(
         Output('hidden-annotation-output', 'n_clicks'),
         [Input({'type': 'color-dropdown', 'label': ALL}, 'value'), Input('annotation-label', 'options')],
     )
@@ -239,7 +239,7 @@ def register_annotation_callbacks(app):
         return 1
 
     # Update plot when selected annotation-label is changed
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('annotation-label', 'value'),
         State('show-annotation-labels', 'value'),
@@ -274,7 +274,7 @@ def register_annotation_callbacks(app):
         raise PreventUpdate
 
     # Update plot when annotation-label or annotation-label-color is changed
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         [Input('hidden-annotation-output', 'n_clicks'), Input('show-annotation-labels', 'value')],
         [State('EEG-graph', 'figure'), State('annotation-label', 'value')],
@@ -338,7 +338,7 @@ def register_annotation_callbacks(app):
         raise PreventUpdate
 
     # Toggle rename-annotation-labels modal
-    @app.callback(
+    @callback(
         Output("modal-rename-annotation-label", "is_open"),
         [Input("rename-annotation-label-modal-button", "n_clicks"), Input("cancel-rename-annotation-label-button", "n_clicks"), Input('rename-annotation-label', 'n_clicks')],
         [State("modal-rename-annotation-label", "is_open")],
@@ -359,7 +359,7 @@ def register_annotation_callbacks(app):
         return _toggle_modal([open_rename_annotation_label, close_rename_annotation_label, rename_annotation_label], is_open)
 
     # Toggle remove-annotation-labels modal
-    @app.callback(
+    @callback(
         Output("modal-remove-annotation-label", "is_open"),
         [Input("remove-annotation-label-modal-button", "n_clicks"), Input("cancel-remove-annotation-label-button", "n_clicks"), Input('remove-annotation-label', 'n_clicks')],
         [State("modal-remove-annotation-label", "is_open")],

@@ -1,4 +1,6 @@
-from layout import setup_app
+from dash import Dash
+
+from layout import get_layout
 import globals
 
 # app = setup_app()
@@ -28,7 +30,8 @@ def run_viewer(eeg_data=None, save_file_path=None, parameters_to_load=None):
     else:
         globals.parameters = {}
 
-    app = setup_app(disable_file_selection, disable_preprocessing_parameters)
+    app = Dash(__name__, assets_folder='assets')
+    app.layout = get_layout(disable_file_selection, disable_preprocessing_parameters)
 
     app.run_server(debug=True, jupyter_mode='tab', port=8050)
     

@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 from plotly.graph_objs import Figure
@@ -10,10 +10,10 @@ from helperfunctions.visualization_helperfunctions import get_EEG_plot
 import globals
 
 
-def register_channel_selection_callbacks(app):
+def register_channel_selection_callbacks():
 
     # Toggle channel-selection modal
-    @app.callback(
+    @callback(
         Output("modal-channel-select", "is_open"),
         [Input("open-channel-select", "n_clicks"), Input("close-channel-select", "n_clicks")],
         State("modal-channel-select", "is_open"),
@@ -33,7 +33,7 @@ def register_channel_selection_callbacks(app):
         return _toggle_modal([open_channel_select, close_channel_select], is_open)
 
     # Generate channel-selection plot
-    @app.callback(
+    @callback(
         Output("channel-topography", "figure"),
         Input("modal-channel-select", "is_open"),
     )
@@ -57,7 +57,7 @@ def register_channel_selection_callbacks(app):
             raise PreventUpdate
     
     # Selecting channels to plot
-    @app.callback(
+    @callback(
         Output('selected-channels-dropdown', 'value'),
         Input('channel-topography', 'selectedData'),
         prevent_initial_call=True
@@ -84,7 +84,7 @@ def register_channel_selection_callbacks(app):
         return selected_channels
 
     # # Update plot when channels to plot are selected
-    # @app.callback(
+    # @callback(
     #     Output('EEG-graph', 'figure', allow_duplicate=True),
     #     Input('selected-channels-dropdown', 'value'),
     #     [State('show-annotations-only', 'value'), State('use-slider', 'value'), State('annotation-label', 'value'), State('EEG-graph', 'figure')],

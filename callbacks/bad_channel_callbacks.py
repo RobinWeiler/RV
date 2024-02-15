@@ -1,5 +1,5 @@
 import dash
-from dash import Input, Output, State, Patch
+from dash import Input, Output, State, Patch, callback
 from dash.exceptions import PreventUpdate
 
 from helperfunctions.loading_helperfunctions import parse_bad_channels_file
@@ -9,10 +9,10 @@ import constants as c
 import globals
 
 
-def register_bad_channel_callbacks(app):
+def register_bad_channel_callbacks():
 
     # Loading bad channels and all channel names into dropdown menu callback
-    @app.callback(
+    @callback(
         [Output('bad-channels-dropdown', 'value', allow_duplicate=True), Output('bad-channels-dropdown', 'options'), Output('selected-channels-dropdown', 'options'), Output('bad-channel-files', 'children', allow_duplicate=True)],
         Input('data-file', 'children'),
         prevent_initial_call=True
@@ -54,7 +54,7 @@ def register_bad_channel_callbacks(app):
             return [], [], [], []
 
     # Select bad-channel files callback
-    @app.callback(
+    @callback(
         [Output('bad-channel-files', 'children'), Output('upload-bad-channels', 'filename')],
         [Input('upload-bad-channels', 'filename'), Input('reset-bad-channels', 'n_clicks')],
         prevent_initial_call=True
@@ -79,7 +79,7 @@ def register_bad_channel_callbacks(app):
             return _get_list_for_displaying(list_selected_file_names), list_selected_file_names
 
     # Add loaded bad channels to dropdown menu callback
-    @app.callback(
+    @callback(
         Output('bad-channels-dropdown', 'value', allow_duplicate=True),
         Input('upload-bad-channels', 'filename'),
         State('bad-channels-dropdown', 'value'),
@@ -101,7 +101,7 @@ def register_bad_channel_callbacks(app):
             return current_selected_bad_channels
 
     # Register channel click
-    @app.callback(
+    @callback(
         Output('bad-channels-dropdown', 'value', allow_duplicate=True),
         Input('EEG-graph', 'clickData'),
         [State('bad-channels-dropdown', 'value'), State('data-file', 'children'),],
@@ -140,7 +140,7 @@ def register_bad_channel_callbacks(app):
         raise PreventUpdate
 
     # Update plot when bad channels changed
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('bad-channels-dropdown', 'value'),
         [State('EEG-graph', 'figure'), State('hide-bad-channels-button', 'n_clicks'),],
@@ -193,7 +193,7 @@ def register_bad_channel_callbacks(app):
             raise PreventUpdate
 
     # Update disagreed bad channels callback
-    @app.callback(
+    @callback(
         Output('hidden-bad-channel-output', 'children'),
         Input('bad-channels-dropdown', 'value')
     )
@@ -218,7 +218,7 @@ def register_bad_channel_callbacks(app):
             print(globals.plotting_data['plot']['disagreed_bad_channels'])
 
     # Enable/disable Hide/show bad channels button
-    @app.callback(
+    @callback(
         Output('hide-bad-channels-button', 'disabled'),
         [Input('bad-channels-dropdown', 'value'), Input('selected-channels-dropdown', 'value')]
         # prevent_initial_call=True
@@ -243,7 +243,7 @@ def register_bad_channel_callbacks(app):
         return True
 
     # Hide/show bad channels
-    @app.callback(
+    @callback(
         Output('EEG-graph', 'figure', allow_duplicate=True),
         Input('hide-bad-channels-button', 'n_clicks'),
         State('bad-channels-dropdown', 'value'),

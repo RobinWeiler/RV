@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback
 import dash
 
 from helperfunctions.loading_helperfunctions import parse_data_file
@@ -7,9 +7,9 @@ import globals
 import constants as c
 
 
-def register_loading_callbacks(app):
+def register_loading_callbacks():
     # Data-file selection callback
-    @app.callback(
+    @callback(
         [
             Output('data-file', 'children'),
             Output('username', 'value'),
