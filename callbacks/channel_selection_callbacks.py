@@ -3,7 +3,7 @@ from dash.exceptions import PreventUpdate
 
 from plotly.graph_objs import Figure
 
-from helperfunctions.channel_selection_helperfunctions import get_channel_locations_plot
+from helperfunctions.channel_selection_helperfunctions import get_channel_locations_plot, _get_10_20_channels
 from helperfunctions.modal_helperfunctions import _toggle_modal
 from helperfunctions.visualization_helperfunctions import _get_y_ticks
 
@@ -52,6 +52,17 @@ def register_channel_selection_callbacks(app):
             topography_plot = Figure()
 
         return topography_plot
+
+    @app.callback(
+        Output('selected-channels-dropdown', 'value', allow_duplicate=True),
+        Input('10-20-button', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def _select_10_20_channels(ten_twenty_button):
+        if ten_twenty_button and globals.raw:
+            return _get_10_20_channels(globals.raw.ch_names)
+
+        raise PreventUpdate
     
     # Selecting channels to plot
     @app.callback(

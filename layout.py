@@ -573,6 +573,7 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                         placeholder='Click here to select channels to plot or select them in the plot below...',
                     )
                 ]),
+                dbc.Button("Select 10-20 channels", id="10-20-button", className=['button']),
                 html.Div([
                     dcc.Graph(
                         id='channel-topography',

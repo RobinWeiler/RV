@@ -6,6 +6,25 @@ from mne.io.pick import _pick_data_channels, pick_info
 from mne.viz.topomap import _make_head_outlines, _find_topomap_coords
 from mne.utils.check import _check_sphere
 
+import constants as c
+
+def _get_10_20_channels(channel_names):
+    if all(channel in channel_names for channel in c.STANDARD_10_20):
+        selected_channels = c.STANDARD_10_20
+    elif all(channel in channel_names for channel in c.BIOSEMI64_10_20):
+        selected_channels = c.BIOSEMI64_10_20
+    elif all(channel in channel_names for channel in c.TUAR_CHANNELS):
+        selected_channels = c.TUAR_CHANNELS
+    elif all(channel in channel_names for channel in c.EGI128_10_20):
+        selected_channels = c.EGI128_10_20
+    elif all(channel in channel_names for channel in c.EGI128_2_10_20):
+        selected_channels = c.EGI128_2_10_20
+    elif all(channel in channel_names for channel in c.EGI129_10_20):
+        selected_channels = c.EGI129_10_20
+    else:
+        selected_channels = c.ADJACENT_10_20
+
+    return selected_channels
 
 def get_channel_locations_plot(raw):
     """Generates channel-topography plot of given raw object.

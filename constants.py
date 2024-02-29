@@ -40,6 +40,30 @@ CHANNEL_TO_REGION_128 = {
     'Occipital': [69, 70, 71, 73, 74, 75, 76, 81, 82, 83, 88, 89],
 }
 
+# Standard 10-20 alphabetic channel names
+STANDARD_10_20 = ['Fp1', 'F7', 'T3', 'T5', 'F3', 'C3', 'P3', 'O1', 'Fp2', 'F8', 'T4', 'T6', 'F4', 'C4',
+                 'P4', 'O2', 'Fz', 'Cz', 'Pz']
+
+# Biosemi64 standard 10-20 channel names
+BIOSEMI64_10_20 = ['Fp1', 'F7', 'T7', 'P7', 'F3', 'C3', 'P3', 'O1', 'Fp2', 'F8', 'T8', 'P8', 'F4', 'C4',
+                 'P4', 'O2', 'Fz', 'Cz', 'Pz']
+
+# TUAR 10-20 channel names
+TUAR_CHANNELS = ['EEG FP1-REF', 'EEG F7-REF', 'EEG T3-REF', 'EEG T5-REF', 'EEG F3-REF', 'EEG C3-REF', 'EEG P3-REF',
+                 'EEG O1-REF', 'EEG FP2-REF', 'EEG F8-REF', 'EEG T4-REF', 'EEG T6-REF', 'EEG F4-REF',
+                 'EEG C4-REF', 'EEG P4-REF', 'EEG O2-REF', 'EEG FZ-REF', 'EEG CZ-REF', 'EEG PZ-REF']
+
+EGI128_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
+                'E104', 'E92', 'E83', 'E11', 'Cz', 'E62']
+
+EGI129_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
+                'E104', 'E92', 'E83', 'E11', 'E129', 'E62']
+
+EGI128_2_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 'E122', 'E108', 'E96', 'E124',
+                'E104', 'E92', 'E83', 'E11', 'E55', 'E62']
+
+ADJACENT_10_20 = ['E18','E27','E46','E59','E27','E30','E51','E71','E15','E123','E100','E91','E4','E103','E86','E84','E16','E55','E68']
+
 HELP_MENU = html.Div([
                 html.Div([
                     html.H1('Relevant Links'),
