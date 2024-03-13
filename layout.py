@@ -41,6 +41,19 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
             ),
         ], style={'display': 'none'}),
 
+        html.Div([
+            dbc.Button(
+                "Increase scale",
+                id="hidden-increase-scale-button",
+                className='button'
+            ),
+            dbc.Button(
+                "Decrease scale",
+                id="hidden-decrease-scale-button",
+                className='button'
+            ),
+        ], style={'display': 'none'}),
+
         # Top-bar buttons
         html.Div([
             html.Div([

@@ -70,13 +70,35 @@ def register_visualization_callbacks(app):
         Input("channel-offset", "id")
     )
 
+    app.clientside_callback(
+        """
+            function(id) {
+                document.addEventListener("keydown", function(event) {
+                    if (event.target.nodeName != 'INPUT') {
+                        if (event.key == '+' || event.key == '=') {
+                            document.getElementById('hidden-increase-scale-button').click()
+                            event.stopPropogation()
+                        }
+                        if (event.key == '-' || event.key == '_') {
+                            document.getElementById('hidden-decrease-scale-button').click()
+                            event.stopPropogation()
+                        }
+                    }
+                });
+                return window.dash_clientside.no_update       
+            }
+        """,
+        Output("scale", "id"),
+        Input("scale", "id")
+    )
+
     @app.callback(
         Output('channel-offset', 'value', allow_duplicate=True),
         [Input('hidden-decrease-offset-button', 'n_clicks'), Input('hidden-increase-offset-button', 'n_clicks'),],
         State('channel-offset', 'value'),
         prevent_initial_call=True
     )
-    def _increase_offset(decrease_offset_button, increase_offset_button, current_offset):
+    def _increase_decrease_offset(decrease_offset_button, increase_offset_button, current_offset):
         trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
         # print(trigger)
         # print(current_offset)
@@ -89,6 +111,26 @@ def register_visualization_callbacks(app):
             return current_offset - 10
         else:
             return 0
+
+    @app.callback(
+        Output('scale', 'value', allow_duplicate=True),
+        [Input('hidden-decrease-scale-button', 'n_clicks'), Input('hidden-increase-scale-button', 'n_clicks'),],
+        State('scale', 'value'),
+        prevent_initial_call=True
+    )
+    def _increase_decrease_scale(decrease_scale_button, increase_scale_button, current_scale):
+        trigger = [p['prop_id'] for p in dash.callback_context.triggered][0]
+        # print(trigger)
+        # print(current_scale)
+        if not current_scale and current_scale != 0:
+            current_scale = 1
+
+        if 'increase' in trigger:
+            return current_scale + 1
+        elif 'decrease' in trigger and current_scale > 1:
+            return current_scale - 1
+
+        raise PreventUpdate
 
     # plot callback
     @app.callback(
