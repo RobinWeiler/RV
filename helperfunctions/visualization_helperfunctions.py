@@ -352,7 +352,7 @@ def get_EEG_plot(plotting_data, x0, x1, annotation_label, show_annotation_labels
                 x=times_subset,  # plotting_data['EEG']['timescale'][index_0:index_1],
                 y=data_subset[channel_index, :],  # plotting_data['EEG']['offset_EEG_data'][index_0:index_1, channel_index],
                 marker=dict(color=channel_color, size=0.1),
-                line=dict(width=0.5),
+                line=dict(width=0.8),
                 name=channel_name if not region_name else channel_name + ' ' + region_name,
                 customdata=custom_data[channel_index] if not skip_hoverinfo else None,  # plotting_data['EEG']['EEG_data'][index_0:index_1, channel_index] * plotting_data['EEG']['scaling_factor'] if not skip_hoverinfo else None,  # y-data without offset
                 hoverinfo='none' if skip_hoverinfo else 'all',
