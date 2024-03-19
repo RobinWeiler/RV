@@ -37,10 +37,15 @@ def _get_y_ticks(plotting_data, reorder_channels):
         counter = 1  # Cz in position 0
 
         for index, region in enumerate(region_names):
-            for _ in range(len(c.CHANNEL_TO_REGION_128[region])):
-                if counter < len(plotting_data['EEG']['channel_names']):
-                    region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
-                    counter += 1
+            # print(region)
+            for channel_index in c.CHANNEL_TO_REGION_128[region]:
+                channel_name = 'E{}'.format(channel_index)
+                if channel_name not in plotting_data['EEG']['channel_names']:
+                    # print(channel_name)
+                    continue
+                # if counter < len(plotting_data['EEG']['channel_names']):
+                region_offset[counter] = index * plotting_data['plot']['offset_factor'] * 2
+                counter += 1
 
         # region_offset = np.flip(region_offset)
 
