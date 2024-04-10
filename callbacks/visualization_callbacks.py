@@ -126,9 +126,9 @@ def register_visualization_callbacks(app):
             current_scale = 1
 
         if 'increase' in trigger:
-            return current_scale + 1
+            return current_scale + 0.5
         elif 'decrease' in trigger and current_scale > 1:
-            return current_scale - 1
+            return current_scale - 0.5
 
         raise PreventUpdate
 

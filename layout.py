@@ -388,7 +388,8 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                                     id="scale",
                                     type='number',
                                     placeholder="default: 1 μV",
-                                    min=0,
+                                    min=1,
+                                    step=0.5,
                                     debounce=True,
                                     className='medium-input'
                                 ),
