@@ -1,5 +1,4 @@
 import re
-from scipy.signal import welch
 
 from plotly.graph_objs import Figure, Histogram, Scattergl
 
@@ -250,34 +249,3 @@ def get_power_spectrum_plot(f, all_Pxx_den, channel_names, mean_Pxx_den=[]):
     )
 
     return fig
-
-def calc_power_spectrum(sample_rate, selected_data):
-    """Calculate power spectrum of selected data using SciPy's welch method.
-
-    Args:
-        sample_rate (float): Sample rate of selected data.
-        selected_data (array): Selected data to calculate power spectrum of.
-
-    Returns:
-        tuple(array, array): Tuple of sample frequencies and corresponding power densities.
-    """
-    f, Pxx_den = welch(selected_data, sample_rate, scaling='density')
-
-    return f, Pxx_den
-
-def get_most_prominent_freq(f, Pxx_den):
-    """Calculate most prominent frequency of selected data.
-
-    Args:
-        f (array): Sample frequencies.
-        Pxx_den (array): Power densities.
-
-    Returns:
-        float: Frequency with highest density.
-    """
-    temp_list = Pxx_den.tolist()
-    maximum_peak = temp_list.index(Pxx_den.max())
-    maximum_peak_value = f[maximum_peak]
-    # print(maximum_peak_value)
-
-    return maximum_peak_value

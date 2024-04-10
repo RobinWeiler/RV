@@ -10,7 +10,7 @@ import numpy as np
 
 from helperfunctions.annotation_helperfunctions import get_annotations
 from helperfunctions.modal_helperfunctions import _toggle_modal
-from helperfunctions.stats_helperfunctions import _get_amount_annotated_clean_data, _get_clean_intervals, _get_annotated_overlap, calc_power_spectrum, get_clean_intervals_graph, get_most_prominent_freq, get_power_spectrum_plot, _natural_keys
+from helperfunctions.stats_helperfunctions import _get_amount_annotated_clean_data, _get_clean_intervals, _get_annotated_overlap, get_clean_intervals_graph, get_power_spectrum_plot, _natural_keys
 from helperfunctions.visualization_helperfunctions import _get_list_for_displaying
 
 import globals
@@ -219,11 +219,11 @@ def register_stats_callbacks(app):
 
     # Data selection returns power-spectrum
     @app.callback(
-        [Output('power-selected-interval', 'children'), Output('power-selected-channels', 'children'), Output('power-spectrum', 'figure')],  # Output('power-prominent-frequency', 'children')
+        [Output('power-selected-interval', 'children'), Output('power-selected-channels', 'children'), Output('flat-selected-channels', 'children'), Output('power-spectrum', 'figure')],  # Output('power-prominent-frequency', 'children')
         Input('EEG-graph', 'selectedData'),
-        State('EEG-graph', 'figure')
+        State("low-pass", "value"),
     )
-    def _get_selected_power_spectrum(selected_data, current_fig):
+    def _get_selected_power_spectrum(selected_data, low_pass):
         """Calculates frequency with highest power density and power-spectrum plot of selected data.
 
         Args:
@@ -233,9 +233,9 @@ def register_stats_callbacks(app):
             tuple(string, plotly.graph_objs.Figure): String of frequency with highest power density, power-spectrum plot of selected_data.
         """
         if not selected_data or (not selected_data['points']):
-            selected_range = '-'
+            selected_range_text = '-'
             selected_channels = '-'
-            # most_prominent_freq = '-'
+            flat_channel_names = '-'
             fig = Figure()
         else:
             # print(selected_data)
@@ -243,51 +243,57 @@ def register_stats_callbacks(app):
             # first_trace_number = selected_data['points'][0]['curveNumber']
             # print('First trace: {}'.format(first_trace_number))
 
-            selected_range = selected_data['range']['x']
-            selected_range = (round(selected_range[0], 1), round(selected_range[1], 1))
-            selected_range = '{} - {} seconds'.format(selected_range[0], selected_range[1])
-            # print('Range: {}'.format(selected_range))
+            selected_range_x = selected_data['range']['x']
+            if selected_range_x[0] < 0:
+                selected_range_x[0] = 0
+            selected_range_y = selected_data['range']['y']
 
-            split_dict = collections.defaultdict(list)
+            selected_channel_indices = [index for index, value in enumerate(globals.plotting_data['plot']['y_ticks']) if selected_range_y[0] <= value <= selected_range_y[1] and value >= 0]
+            selected_channels = [globals.plotting_data['EEG']['channel_names'][index] for index in selected_channel_indices]
+            print('Selected channels: {}'.format(selected_channels))
 
-            for datapoint in selected_data['points']:
-                split_dict[datapoint['curveNumber']].append(datapoint['customdata'])
+            index_0 = globals.viewing_raw.time_as_index(selected_range_x[0])[0]
+            index_1 = globals.viewing_raw.time_as_index(selected_range_x[1])[0]
 
-            split_dict = dict(split_dict)
+            data_subset, _ = globals.viewing_raw[selected_channels, index_0:index_1]
+            print(data_subset.shape)
 
-            max_length_selection = len(max(split_dict.values(), key=len))
+            # Ignore flat channels for psd and list separately
+            std = np.std(data_subset, 1)
+            flat_channel_indices = np.where(std == 0)[0]
+            flat_channel_names = []
+            for i in flat_channel_indices:
+                flat_channel_names.append(selected_channels.pop(i))
+            if len(flat_channel_names) < 1:
+                flat_channel_names = '-'
+            print('Flat channels: {}'.format(flat_channel_names))
 
-            filtered_dict = split_dict.copy()
+            num_points = int(index_1 - index_0)
+            print(num_points)
+            if num_points < 256:
+                n_fft = num_points
+            else:
+                n_fft = 256
 
-            for trace_number, datapoints in split_dict.items():
-                if len(datapoints) < max_length_selection:
-                    print('Not considering trace {}'.format(trace_number))
-                    del filtered_dict[trace_number]
+            # fs = globals.viewing_raw.info['sfreq']
+            # n_fft_seconds = 10
+            # n_fft = int(fs*n_fft_seconds)
+            # n_overlap = int(n_fft/2)
 
-            selected_datapoints = list(filtered_dict.values())
-            selected_traces = list(filtered_dict.keys())
-            del filtered_dict
+            spectrum = globals.viewing_raw.compute_psd('welch', picks=selected_channels, fmax=(low_pass + (low_pass * 0.2)), tmin=selected_range_x[0], tmax=selected_range_x[1], n_fft=n_fft)  # , n_fft=n_fft, n_overlap=n_overlap, n_per_seg=n_fft)
+            freqs = spectrum.freqs[:]
+            freqs = np.round(freqs, 2)
+            Pxx_den = spectrum[:]
+            Pxx_den *= (1e6**2)
+            np.log10(np.maximum(Pxx_den, np.finfo(float).tiny), out=Pxx_den)
+            Pxx_den *= 10
+            Pxx_den = np.round(Pxx_den, 2)
 
-            selected_channels = []
-            for trace in selected_traces:
-                selected_channels.append(current_fig['data'][trace]['name'])
-            print('Selected channels {}'.format(selected_channels))
+            mean_Pxx_den = np.mean(Pxx_den, axis=0)
 
-            sample_rate = globals.viewing_raw.info['sfreq']
+            fig = get_power_spectrum_plot(freqs, Pxx_den, selected_channels, mean_Pxx_den)
 
-            all_Pxx_den = []
+            selected_range_text = '{} - {} seconds'.format(round(selected_range_x[0], 1), round(selected_range_x[1], 1))
+            print(selected_range_text)
 
-            for counter, trace in enumerate(selected_datapoints):
-                # print(counter)
-                f, Pxx_den = calc_power_spectrum(sample_rate, trace)
-                all_Pxx_den.append(Pxx_den)
-
-            mean_Pxx_den = np.mean(all_Pxx_den, axis=0)
-
-            # most_prominent_freq = get_most_prominent_freq(f, mean_Pxx_den)
-            # most_prominent_freq = round(most_prominent_freq)
-
-            # print('Generating power spectra')
-            fig = get_power_spectrum_plot(f, all_Pxx_den, selected_channels, mean_Pxx_den)
-
-        return selected_range, _get_list_for_displaying(selected_channels), fig  # '{} Hz'.format(most_prominent_freq)
+        return selected_range_text, _get_list_for_displaying(selected_channels), _get_list_for_displaying(flat_channel_names), fig
