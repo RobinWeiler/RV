@@ -843,10 +843,10 @@ def setup_app(disable_file_selection=False, disable_preprocessing=False):
                     html.H2('Selected channels:'),
                     html.Font(id='power-selected-channels'),
                 ]),
-                # html.Div([
-                #     html.H2('Most prominent frequency:'),
-                #     html.Font(id='power-prominent-frequency'),
-                # ]),
+                html.Div([
+                    html.H2('Flat channels:'),
+                    html.Font(id='flat-selected-channels'),
+                ]),
                 html.Div([
                     html.H2('Welch power spectrum:'),
                     dcc.Graph(
