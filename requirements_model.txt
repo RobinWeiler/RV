@@ -1,0 +1,4 @@
+gpuparallel==0.2.2
+joblib==1.4.0
+torch==2.3.0
+torchvision==0.18.0
