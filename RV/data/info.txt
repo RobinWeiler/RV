@@ -1,0 +1,1 @@
+This is where EEG recordings are loaded from by default. To change this, specify a load_file_path when running run_RV.py .

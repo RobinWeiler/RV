@@ -1,0 +1,304 @@
+:root {
+    --button-bg-color: #fafafa;
+    --button-hover-color: #e8e8e8;
+    --button-border-color: #c7c7c7;
+    --horizontal-line-color: #bebebe;
+    --primary-blue: #2bb1d6;
+    --secondary-blue: #259dbe;
+    --primary-red: #eb4757;
+    --secondary-red: #df3e3e;
+    --text-color: #464646;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+body {
+    background-color: #dfdfdf;
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+img {
+    margin: 0.5rem;
+}
+
+hr {
+    border: 1px solid var(--horizontal-line-color);
+    border-radius: 2px;
+}
+
+
+/* Text styles */
+
+h1 {
+    color: var(--primary-blue);
+    font-size: large;
+}
+
+h2 {
+    font-size: medium;
+}
+
+span:not(.rc-slider-dot, .rc-slider-mark-text), input {
+    margin-right: 0.5rem;
+}
+
+
+/* Input styles */
+
+.small-input {
+    width: 3rem;
+}
+
+.medium-input {
+    width: 6rem;
+}
+
+.large-input {
+    width: 10rem;
+}
+
+.dash-dropdown * {
+    margin-bottom: 0px !important;
+}
+
+.small-dropdown {
+    width: 8rem;
+    /* position: absolute; */
+}
+
+#RV-save-file-name {
+    width: 80%;
+}
+
+
+/* Button styles */
+
+button {
+    background-color: var(--button-bg-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    color: var(--text-color);
+    margin-right: 1px;
+}
+
+button:hover {
+    background-image: linear-gradient(var(--button-hover-color) 0 0);
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: var(--button-border-color);
+    background-image: linear-gradient(rgba(3, 3, 3, 0.3) 0 0);
+    cursor: not-allowed;
+}
+
+.active-button {
+    outline: 2px solid var(--primary-blue);
+}
+
+.arrow-button {
+    height: 100%;
+}
+
+.blue-button {
+    background-color: var(--primary-blue);
+}
+
+.blue-button:hover {
+    background-image: linear-gradient(var(--secondary-blue) 0 0);
+}
+
+.red-button {
+    background-color: var(--primary-red);
+}
+
+.red-button:hover {
+    background-image: linear-gradient(var(--secondary-red) 0 0);
+}
+
+#RV-right-arrow-button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#RV-left-arrow-button {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#RV-menu-bar button, #RV-segment-bar button {
+    border: 1px solid #6b6b6b;
+    padding: 5px 10px;
+}
+
+
+/* Container styles */
+
+.aligned {
+    display: flex;
+    flex-direction: row;
+    vertical-align: middle;
+}
+
+#RV-main-GUI {
+    display: flex;
+    flex-direction: column;
+    height: 98vh;  /* to avoid scrollbar */
+}
+
+#RV-menu-bar {
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+#RV-main-graph-container {
+    flex-grow: 1;
+    height: 100%;
+}
+
+#RV-main-graph-loading {
+    height: 100%;
+}
+
+#RV-main-graph {
+    height: 100%;
+
+    /* Allows graph to persist during loading animation */
+    visibility: visible !important;
+}
+
+#RV-main-graph .modebar {
+    display: none;
+}
+
+#RV-segment-bar {
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+#RV-annotation-overview-graph-container {
+    height: 100%;
+    margin: auto;
+    width: 100%;
+}
+
+#RV-annotation-overview-graph {
+    height: 100%;
+}
+
+#RV-left-visualization-settings-container {
+    padding-right: 2rem;
+}
+
+#RV-right-visualization-settings-container {
+    border-left: 2px solid var(--horizontal-line-color);
+    border-radius: 2px;
+    padding-left: 2rem;
+}
+
+
+/* Modal styles */
+
+.modal {
+    height: 100%;
+    left: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1050;
+}
+
+.modal-dialog-centered {
+    align-items: center;
+    display: flex;
+    min-height: 99vh;
+}
+
+.modal-content {
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    outline: 0;
+    position: relative;
+    width: 100%;
+}
+
+.modal-backdrop {
+    background-color: #000;
+    height: 100vh;
+    left: 0;
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    z-index: 1040;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--horizontal-line-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    vertical-align: bottom;
+}
+
+.modal-title {
+    font-size: x-large;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.modal-body {
+    padding: 1rem;
+    padding-top: 0;
+}
+
+.modal-body div {
+    margin-bottom: 0.5rem; 
+}
+
+.modal-footer {
+    align-items: center;
+    border-top: 1px solid var(--horizontal-line-color);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding: 0.75rem;
+}
+
+.modal-footer > * {
+    margin: 0.25rem;
+}
+
+/* Modal footers with 2 buttons */
+.binary-modal-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+@media (min-width: 1000px) {
+    .modal-dialog {
+        max-width: 70vw;
+        margin: 1.75rem auto;
+    }
+}
+
+@media (min-width: 1900px) {
+    .modal-dialog {
+        max-width: 60vw;
+        margin: 1.75rem auto;
+    }
+}

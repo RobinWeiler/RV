@@ -1,7 +1,3 @@
 *__pycache__
 .ipynb_checkpoints
 *.DS_Store
-
-*.fif
-*.raw
-*.sfp

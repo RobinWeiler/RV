@@ -1,0 +1,1 @@
+This is where annotated EEG recordings are saved to by default. To change this, specify a save_file_path when running run_RV.py .
