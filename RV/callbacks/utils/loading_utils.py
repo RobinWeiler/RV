@@ -24,6 +24,9 @@ def get_file_selection_options(file_paths: dict, allowed_extensions=[]):
             files = os.listdir(path)
 
             for file in files:
+                if file == 'info.txt':
+                    continue
+
                 base_name, extension = os.path.splitext(file)
 
                 if (extension in allowed_extensions) or (len(allowed_extensions) == 0):
