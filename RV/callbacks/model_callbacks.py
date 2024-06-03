@@ -122,11 +122,6 @@ def register_model_callbacks():
         Also adds new annotation-label option for model annotations.
         Triggered when RV-annotate-model is activated or RV-model-threshold-input changes.
         """
-        if resampler is None:
-            raise PreventUpdate
-
-        patched_fig = Patch()
-
         if model_annotate and model_threshold:
             current_annotation_labels = [annotation_label['value'] for annotation_label in annotation_label_options]
 
@@ -136,67 +131,73 @@ def register_model_callbacks():
                     annotation_option, annotation_color = get_annotation_label_radioitem(model['annotation_description'])
                     annotation_label_options.append(annotation_option)
 
-                if 'predictions' in model.keys():
-                    model_prediction_times = np.linspace(0, plotting_data['recording_length'], len(model['predictions']))
-                    predictions_greater_equal_threshold = np.greater_equal(model['predictions'], model_threshold)
+                if resampler != None:
+                    if 'predictions' in model.keys():
+                        model_prediction_times = np.linspace(0, plotting_data['recording_length'], len(model['predictions']))
+                        predictions_greater_equal_threshold = np.greater_equal(model['predictions'], model_threshold)
 
-                    model_annotations = []
-                    model_annotation_onset = None
-                    for prediction_index, prediction in enumerate(predictions_greater_equal_threshold):
-                        if prediction:  # if prediction >= model_threshold
-                            if model_annotation_onset is None:  # if new annotation starts, record onset (else next prediction)
+                        model_annotations = []
+                        model_annotation_onset = None
+                        for prediction_index, prediction in enumerate(predictions_greater_equal_threshold):
+                            if prediction:  # if prediction >= model_threshold
+                                if model_annotation_onset is None:  # if new annotation starts, record onset (else next prediction)
+                                    prediction_time = model_prediction_times[prediction_index]
+                                    model_annotation_onset = prediction_time
+                            elif model_annotation_onset != None:  # if prediction < model_threshold and previous prediction >= model_threshold, create annotation
                                 prediction_time = model_prediction_times[prediction_index]
-                                model_annotation_onset = prediction_time
-                        elif model_annotation_onset != None:  # if prediction < model_threshold and previous prediction >= model_threshold, create annotation
-                            prediction_time = model_prediction_times[prediction_index]
-                            model_annotations.append((model_annotation_onset, prediction_time - model_annotation_onset, model['annotation_description']))
-                            model_annotation_onset = None
-                        else:
-                            continue
+                                model_annotations.append((model_annotation_onset, prediction_time - model_annotation_onset, model['annotation_description']))
+                                model_annotation_onset = None
+                            else:
+                                continue
 
-                    # if last model annotation goes until end of recording
-                    if model_annotation_onset is not None:
-                        model_annotations.append((model_annotation_onset, model_prediction_times[-1] - model_annotation_onset, model['annotation_description']))
+                        # if last model annotation goes until end of recording
+                        if model_annotation_onset is not None:
+                            model_annotations.append((model_annotation_onset, model_prediction_times[-1] - model_annotation_onset, model['annotation_description']))
 
-                    all_model_annotations += model_annotations
+                        all_model_annotations += model_annotations
 
-            loaded_annotations = []
-            for annotation_index in range(len(raw.annotations)):
-                # Skip annotations with label model['annotation_description'] to replace those
-                if raw.annotations.description[annotation_index] != model['annotation_description']:
-                    loaded_annotations.append((raw.annotations.onset[annotation_index], raw.annotations.duration[annotation_index], raw.annotations.description[annotation_index]))
+            if resampler != None:
+                patched_fig = Patch()
 
-            merged_annotations, _ = merge_annotations(loaded_annotations + all_model_annotations)
-            # print(f'Current annotations: {merged_annotations}')
+                loaded_annotations = []
+                for annotation_index in range(len(raw.annotations)):
+                    # Skip annotations with label model['annotation_description'] to replace those
+                    if raw.annotations.description[annotation_index] != model['annotation_description']:
+                        loaded_annotations.append((raw.annotations.onset[annotation_index], raw.annotations.duration[annotation_index], raw.annotations.description[annotation_index]))
 
-            raw = annotations_to_raw(merged_annotations, raw)
+                merged_annotations, _ = merge_annotations(loaded_annotations + all_model_annotations)
+                # print(f'Current annotations: {merged_annotations}')
 
-            patched_fig['layout']['shapes'] = []
-            for annotation_index in range(len(raw.annotations)):
-                for i, dropdown in enumerate(annotation_colors_ids):
-                    if dropdown['label'] == raw.annotations.description[annotation_index]:
-                        annotation_color = annotation_colors[i]
-                        break
+                raw = annotations_to_raw(merged_annotations, raw)
 
-                patched_fig['layout']['shapes'].append({
-                    'editable': True,
-                    'fillcolor': annotation_color if annotation_color != 'hide' else 'red',
-                    'label': {'text': raw.annotations.description[annotation_index], 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}} if show_annotation_labels else {},
-                    'layer': 'below',
-                    'line': {'width': 0},
-                    'name': raw.annotations.description[annotation_index],
-                    'opacity': 0.5,
-                    'type': 'rect',
-                    'visible': True if annotation_color != 'hide' else False,
-                    'x0': raw.annotations.onset[annotation_index],
-                    'x1': raw.annotations.onset[annotation_index] + raw.annotations.duration[annotation_index],
-                    'xref': 'x',
-                    'y0': resampler['layout']['yaxis']['range'][0],
-                    'y1': resampler['layout']['yaxis']['range'][1],
-                    'yref': 'y'
-                })
+                patched_fig['layout']['shapes'] = []
+                for annotation_index in range(len(raw.annotations)):
+                    for i, dropdown in enumerate(annotation_colors_ids):
+                        if dropdown['label'] == raw.annotations.description[annotation_index]:
+                            annotation_color = annotation_colors[i]
+                            break
 
-            if annotations_only_mode:
+                    patched_fig['layout']['shapes'].append({
+                        'editable': True,
+                        'fillcolor': annotation_color if annotation_color != 'hide' else 'red',
+                        'label': {'text': raw.annotations.description[annotation_index], 'textposition': 'top center', 'font': {'size': 18, 'color': 'black'}} if show_annotation_labels else {},
+                        'layer': 'below',
+                        'line': {'width': 0},
+                        'name': raw.annotations.description[annotation_index],
+                        'opacity': 0.5,
+                        'type': 'rect',
+                        'visible': True if annotation_color != 'hide' else False,
+                        'x0': raw.annotations.onset[annotation_index],
+                        'x1': raw.annotations.onset[annotation_index] + raw.annotations.duration[annotation_index],
+                        'xref': 'x',
+                        'y0': resampler['layout']['yaxis']['range'][0],
+                        'y1': resampler['layout']['yaxis']['range'][1],
+                        'yref': 'y'
+                    })
+            else:
+                patched_fig = no_update
+
+            if annotations_only_mode and resampler != None:
                 refresh_needed = 1
             else:
                 refresh_needed = no_update
