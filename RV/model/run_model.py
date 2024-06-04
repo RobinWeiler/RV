@@ -6,8 +6,8 @@ from RV.model.model import load_model, model_predict
 from RV.model.utils.preprocess import preprocess_data
 
 
-# DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 DEVICE = torch.device('cpu')
+# DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def run_model(raw: mne.io.Raw):

@@ -22,7 +22,7 @@ from RV.callbacks.visualization_callbacks import register_visualization_callback
 
 
 def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
-           disable_file_selection=False, disable_manual_saving=False, disable_preprocessing=False, disable_model=False,
+           disable_file_selection=False, disable_manual_saving=False, disable_preprocessing=False, disable_model=True,
            auto_save=False, port=8060,
            external_raw=None):
     """Run Robin's Viewer. Will open RV in browser at "http://localhost:8060" by default.
@@ -34,7 +34,7 @@ def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
         disable_file_selection (bool, optional): Whether or not to disable file selection and hide respective UI elements. Defaults to False.
         disable_manual_saving (bool, optional): Whether or not to disable manual saving and hide respective UI elements. Defaults to False.
         disable_preprocessing (bool, optional): Whether or not to disable in-app preprocessing and hide respective UI elements. Defaults to False.
-        disable_model (bool, optional): Whether or not to disable integration of model predictions and hide respective UI elements. Defaults to False.
+        disable_model (bool, optional): Whether or not to disable integration of model predictions and hide respective UI elements. Defaults to True.
         auto_save (bool, optional): Whether or not to activate automatic saving. If True, saves loaded file to save_file_path after every change. Defaults to False.
         port (int, optional): Port at which to run RV (http://localhost:port). Defaults to 8060.
         external_raw (mne.io.Raw, optional): mne.io.Raw object to load in RV. If provided, disable_file_selection and disable_preprocessing become True. Defaults to None.
