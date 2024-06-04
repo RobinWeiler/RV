@@ -76,11 +76,14 @@ def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
 
     # Clear Serverside cache
     for filename in os.listdir(serverside_cache):
-        file_path = os.path.join(serverside_cache, filename)
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.remove(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
+        if filename == 'info.txt':
+            continue
+        else:
+            file_path = os.path.join(serverside_cache, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.remove(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
     app = DashProxy(__name__,
                     assets_folder=os.path.join(RV_path, 'assets'),

@@ -60,11 +60,14 @@ def register_loading_callbacks(auto_save=True, external_data=False):
             serverside_cache = file_paths['serverside_cache']
             if os.path.exists(serverside_cache):
                 for filename in os.listdir(serverside_cache):
-                    file_path = os.path.join(serverside_cache, filename)
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.remove(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
+                    if filename == 'info.txt':
+                        continue
+                    else:
+                        file_path = os.path.join(serverside_cache, filename)
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                            os.remove(file_path)
+                        elif os.path.isdir(file_path):
+                            shutil.rmtree(file_path)
 
             if auto_save and not external_data:
                 save_file_name = os.path.basename(selected_file)
