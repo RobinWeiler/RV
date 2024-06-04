@@ -100,6 +100,7 @@ def get_topomap(
     fig = go.Figure()
 
     channel_coords = _find_topomap_coords(info, None)
+
     channel_names = info['ch_names']
 
     if 'Cz' in info.ch_names:
@@ -112,7 +113,7 @@ def get_topomap(
 
     # Set radius to max distance of channels to center
     radius = np.max(distances)
-    radius += (radius / 10)  # put a bit of space between border and outer channels
+    radius += (radius / 20)  # put a bit of space between border and outer channels
 
     sphere = np.array([0, 0, 0, radius])
 
