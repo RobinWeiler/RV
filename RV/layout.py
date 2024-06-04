@@ -11,7 +11,7 @@ from RV.callbacks.utils.loading_utils import get_file_selection_options
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_RV_layout(load_file_path, save_file_path, serverside_cache,
+def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_path=os.path.join(CURRENT_PATH, 'save_files'), serverside_cache=os.path.join(CURRENT_PATH, 'file_system_backend'),
                   temp_save_file_path=os.path.join(CURRENT_PATH, 'temp_raw.fif'),
                   disable_file_selection=False, disable_manual_saving=False, disable_model=False, disable_preprocessing=False,
                   auto_save=True
