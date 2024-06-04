@@ -174,7 +174,7 @@ def get_interval_durations_histogram(intervals: list, recording_length: float):
     )
 
     histogram.update_yaxes(
-         title=dict(text='Amount of intervals')
+        title=dict(text='Amount of intervals')
     )
 
     return histogram

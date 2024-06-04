@@ -9,7 +9,7 @@ from RV.callbacks.utils.channel_selection_utils import get_channel_topography_pl
 from RV.callbacks.utils.loading_utils import load_raw
 
 
-def register_loading_callbacks(auto_save=True, external_data=False):
+def register_loading_callbacks(auto_save=False, external_data=False):
     # Get width of RV-main-graph in pixels to use as default resample-points
     clientside_callback(
         """

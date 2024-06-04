@@ -974,7 +974,7 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                     ),
                     dbc.ModalBody([
                         html.Div([
-                            html.Span('Are you sure you want to quit?' + (f'Data will be saved to {temp_save_file_path}.' if auto_save else 'Make sure you have saved all relevant data.'))
+                            html.Span('Are you sure you want to quit? ' + (f'Data will be saved to {temp_save_file_path}.' if auto_save else 'Make sure you have saved all relevant data.'))
                         ])
                     ]),
                     dbc.ModalFooter(class_name='binary-modal-footer',
