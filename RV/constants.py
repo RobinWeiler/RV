@@ -77,8 +77,8 @@ MANUAL_SUMMARY = html.Div(id='RV-manual-summary-container',
                 html.Label([
                     'Documentation: ',
                     html.A(
-                        'https://robinweiler.github.io/RV/RV.html',
-                        href='https://robinweiler.github.io/RV/RV.html',
+                        'https://robinweiler.github.io/RV',
+                        href='https://robinweiler.github.io/RV',
                         target='_blank'
                     )
                 ])
