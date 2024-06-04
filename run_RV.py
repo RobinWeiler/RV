@@ -25,12 +25,12 @@ def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
            disable_file_selection=False, disable_manual_saving=False, disable_preprocessing=False, disable_model=True,
            auto_save=False, port=8060,
            external_raw=None):
-    """Run Robin's Viewer. Will open RV in browser at "http://localhost:8060" by default.
+    """Run Robin's Viewer. Will open RV in browser at 'http://localhost:8060' by default.
 
     Args:
-        load_file_path (str, optional): Path to directory from which to load files. Defaults to None.
-        save_file_path (str, optional): Path to directory to which to save files. Defaults to None.
-        serverside_cache (str, optional): Path to directory to which to save Serverside cache. Defaults to None.
+        load_file_path (str, optional): Path to directory from which to load files. Defaults to None ('data' directory in RV).
+        save_file_path (str, optional): Path to directory to which to save files. Defaults to None ("save_files" directory in RV).
+        serverside_cache (str, optional): Path to directory to which to save Serverside cache. Defaults to None ("file_system_backend" directory in RV).
         disable_file_selection (bool, optional): Whether or not to disable file selection and hide respective UI elements. Defaults to False.
         disable_manual_saving (bool, optional): Whether or not to disable manual saving and hide respective UI elements. Defaults to False.
         disable_preprocessing (bool, optional): Whether or not to disable in-app preprocessing and hide respective UI elements. Defaults to False.
