@@ -1,4 +1,4 @@
-![alt text](https://github.com/RobinWeiler/RV/blob/55ca35355978ad2bdbc9223a43fd470ecfc05ba2/assets/RV_logo.png)
+![alt text](https://github.com/RobinWeiler/RV/blob/77ffeb669c2fd5eb0caaec49128fee72f0150642/RV/assets/RV_title_image.png)
 
 # Welcome to Robin's Viewer (RV)
 
