@@ -35,7 +35,7 @@ run_RV(external_raw=YOUR_RAW, save_file_path=YOUR_SAVE_FILE_PATH)
   <li>external_raw (mne.io.Raw, optional): mne.io.Raw object to load in RV. If provided, disable_file_selection and disable_preprocessing become True. Defaults to None.</li>
 </ul>
 
-A demo EEG recording, in a file called "RV_demo_signal_preprocessed.fif", can be found at https://surfdrive.surf.nl/files/index.php/s/F8LZv1qm9Gd4PPb . This file was preprocessed with a 1-45 Hz bandpass filter, 50 Hz notch filter, and already has several marked bad channels.
+A demo EEG recording, in a file called "RV_demo_signal.fif", can be found at https://surfdrive.surf.nl/files/index.php/s/F8LZv1qm9Gd4PPb . This file was preprocessed with a 1-45 Hz bandpass filter and a 50 Hz notch filter.
 
 ### Implemented deep-learning model
 
