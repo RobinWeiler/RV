@@ -74,13 +74,13 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                                         'Annotate segment',
                                         id='RV-mark-annotations-button',
                                         className='active-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 'a'"
                                     ),
                                     html.Button(
                                         'Delete annotation',
                                         id='RV-delete-annotation-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 'backspace'"
                                     ),
                                 ],
@@ -91,7 +91,7 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                                         'Mark bad channels',
                                         id='RV-mark-bad-channels-button',
                                         className='inactive-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 'b'"
                                     ),
                                     html.Button(
@@ -109,7 +109,7 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                                         'Select segment',
                                         id='RV-select-segment-button',
                                         className='inactive-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 's'"
                                     ),
                                     html.Button(
@@ -124,14 +124,14 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                                         'Pan',  # (drag & drop)
                                         id='RV-pan-button',
                                         className='inactive-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 'p'"
                                     ),
                                     html.Button(
                                         'Zoom',  # (drag & drop)
                                         id='RV-zoom-button',
                                         className='inactive-button',
-                                        n_clicks=0,
+                                        # n_clicks=0,
                                         title="Shortcut: 'z'"
                                     ),
                                     html.Button(
@@ -227,7 +227,7 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                         ]
                     ),
 
-                    ##### Segment bar #####
+                    ##### Segment bar and annotation overview #####
                     html.Div(id='RV-segment-bar', className='aligned',
                         children=[
                             html.Div([
