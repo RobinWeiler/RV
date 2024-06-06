@@ -10,15 +10,15 @@ To use RV, clone this repository. Then, install the libraries listed in the "req
 
 You can run RV directly by running ```python run_RV.py``` in your terminal. RV will then start in your web-browser under http://localhost:8060 .
 
-Alternatively, you can call the ```run_RV()``` function from the "run_RV.py" file from within your own Python script. To do this, place the "RV" directory into your project folder. Then, use the following lines of code after preprocessing and loading your EEG data into an mne.io.Raw object:
+Alternatively, you can call the ```run_RV()``` function from the "run_RV.py" file from within your own Python script. To do this, copy the following lines of code (and insert relevant variables) into your script after preprocessing and loading your EEG data into an mne.io.Raw object:
 
 ```
 import sys
-sys.path.insert(0, './RV')
+sys.path.insert(0, 'PATH_TO_RV_DIRECTORY')
 
-from RV.run_RV import run_RV
+from run_RV import run_RV
 
-run_RV(external_raw=YOUR_RAW, save_file_path=YOUR_SAVE_FILE_PATH)
+run_RV(external_raw=YOUR_RAW, save_file_path=PATH_TO_SAVE_FILE_DIRECTORY)
 ```
 
 ```run_RV()``` allows to pass the following optional arguments:
