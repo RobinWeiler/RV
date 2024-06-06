@@ -1,4 +1,5 @@
 import os
+from PIL import Image
 
 from dash import dcc, html, Input, Output, State, callback, MATCH
 import dash_bootstrap_components as dbc
@@ -9,7 +10,7 @@ from RV.callbacks.utils.loading_utils import get_file_selection_options
 
 
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
-
+logo_image = Image.open(os.path.join(CURRENT_PATH, 'assets/RV_logo.png'))
 
 def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_path=os.path.join(CURRENT_PATH, 'save_files'), serverside_cache=os.path.join(CURRENT_PATH, 'file_system_backend'),
                   temp_save_file_path=os.path.join(CURRENT_PATH, 'temp_raw.fif'),
@@ -276,7 +277,7 @@ def get_RV_layout(load_file_path=os.path.join(CURRENT_PATH, 'data'), save_file_p
                             ]),
                             html.Div([
                                 html.Img(
-                                    src='assets/RV_logo.png',
+                                    src=logo_image,
                                     alt='RV logo',
                                     style={'width': '30px'}
                                 )

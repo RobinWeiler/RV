@@ -87,7 +87,7 @@ def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
 
     app = DashProxy(__name__,
                     assets_folder=os.path.join(RV_path, 'assets'),
-                    transforms=[ServersideOutputTransform([FileSystemBackend(serverside_cache)]), NoOutputTransform()]
+                    transforms=[ServersideOutputTransform([FileSystemBackend(serverside_cache)])]
     )
 
     app.title = 'RV'

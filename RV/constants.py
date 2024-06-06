@@ -1,3 +1,5 @@
+import os
+from PIL import Image
 from collections import OrderedDict
 
 from dash import dcc, html
@@ -43,6 +45,9 @@ EGI128_2_10_20 = ['E22', 'E33', 'E45', 'E58', 'E24', 'E36', 'E52', 'E70', 'E9', 
 ADJACENT_10_20 = ['E18','E27','E46','E59','E27','E30','E51','E71','E15','E123','E100','E91','E4','E103','E86','E84','E16','E55','E68']
 
 ##### User manual plotted in help modal #####
+CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
+GUI_image = Image.open(os.path.join(CURRENT_PATH, 'assets/RV_GUI_figure.png'))
+
 MANUAL_SUMMARY = html.Div(id='RV-manual-summary-container',
     children=[
         html.Div([
@@ -102,7 +107,7 @@ MANUAL_SUMMARY = html.Div(id='RV-manual-summary-container',
 
             html.H1('User Interface Overview'),
             html.Div([
-                html.Img(src='assets/RV_GUI_figure.png', alt='Annotated GUI', style={'max-width': '100%'})
+                html.Img(src=GUI_image, alt='Annotated GUI', style={'max-width': '100%'})
             ]),
             dcc.Markdown('''
                 The main graphical user interface (GUI) of Robin's Viewer (RV) has four subsections (highlighted in image).

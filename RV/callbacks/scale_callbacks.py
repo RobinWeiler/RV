@@ -26,6 +26,7 @@ def register_scale_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-scale-input', 'id'),
         Input('RV-scale-input', 'id')
     )
 

@@ -21,6 +21,7 @@ def register_annotation_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-mark-annotations-button', 'n_clicks'),
         Input('RV-mark-annotations-button', 'n_clicks'),
         prevent_initial_call=True
     )
@@ -33,6 +34,7 @@ def register_annotation_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-delete-annotation-button', 'n_clicks'),
         Input('RV-delete-annotation-button', 'n_clicks'),
         prevent_initial_call=True
     )

@@ -27,7 +27,8 @@ def register_offset_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
-        Input('RV-offset-input', 'id')
+        Output('RV-offset-input', 'id'),
+        Input('RV-offset-input', 'id'),
     )
 
     @callback(

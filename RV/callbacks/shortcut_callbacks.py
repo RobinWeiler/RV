@@ -38,6 +38,7 @@ def register_shortcut_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-main-graph', 'id'),
         Input('RV-main-graph', 'id')
     )
 

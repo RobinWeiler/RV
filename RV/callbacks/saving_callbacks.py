@@ -19,6 +19,7 @@ def register_saving_callbacks():
         return not overwrite_is_open
 
     @callback(
+        Output('RV-raw', 'data'),
         Input('RV-raw', 'data'),
         State('RV-file-paths', 'data'),
         prevent_initial_call=True
@@ -30,6 +31,8 @@ def register_saving_callbacks():
             raise PreventUpdate
 
         raw.save(file_paths['temp_save_file_path'], overwrite=True)
+
+        raise PreventUpdate
 
     @callback(
         [

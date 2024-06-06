@@ -1,3 +1,4 @@
+import os
 import math
 from PIL import Image
 
@@ -32,6 +33,7 @@ def register_visualization_callbacks(disable_preprocessing=False):
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-pan-button', 'n_clicks'),
         Input('RV-pan-button', 'n_clicks'),
         prevent_initial_call=True
     )
@@ -44,6 +46,7 @@ def register_visualization_callbacks(disable_preprocessing=False):
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-zoom-button', 'n_clicks'),
         Input('RV-zoom-button', 'n_clicks'),
         prevent_initial_call=True
     )
@@ -71,7 +74,9 @@ def register_visualization_callbacks(disable_preprocessing=False):
         if clear_main_graph:
             print('Loading title image...')
 
-            title_image = Image.open('RV/assets/RV_title_image.png')
+            current_path = os.path.dirname(os.path.abspath(__file__))
+            parent_dir = os.path.dirname(current_path)
+            title_image = Image.open(os.path.join(parent_dir, 'assets/RV_title_image.png'))
 
             fig = px.imshow(title_image)
 

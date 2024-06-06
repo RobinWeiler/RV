@@ -25,6 +25,7 @@ def register_segment_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-segment-slider', 'id'),
         Input('RV-segment-slider', 'id')
     )
 

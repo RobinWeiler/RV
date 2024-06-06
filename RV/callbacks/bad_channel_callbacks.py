@@ -15,6 +15,7 @@ def register_bad_channel_callbacks():
                 return window.dash_clientside.no_update       
             }
         """,
+        Output('RV-mark-bad-channels-button', 'n_clicks'),
         [
             Input('RV-mark-bad-channels-button', 'n_clicks'),
             Input('RV-select-segment-button', 'n_clicks'),
