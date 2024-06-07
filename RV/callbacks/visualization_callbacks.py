@@ -56,6 +56,7 @@ def register_visualization_callbacks(disable_preprocessing=False):
             Output('RV-main-graph', 'figure'),
             Output('RV-main-graph-resampler', 'data'),
             Output('RV-annotation-overview-graph', 'figure'),
+            Output('RV-hide-bad-channels-button', 'n_clicks')
         ],
         Input('RV-clear-main-graph-button', 'n_clicks'),
         [
@@ -161,7 +162,7 @@ def register_visualization_callbacks(disable_preprocessing=False):
                 zeroline=False
             )
 
-            return fig, None, annotation_fig
+            return fig, None, annotation_fig, 0
 
         raise PreventUpdate
 

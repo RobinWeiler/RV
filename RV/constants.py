@@ -152,7 +152,7 @@ MANUAL_SUMMARY = html.Div(id='RV-manual-summary-container',
                 ## View-slider
 
                 The view-slider is located at the bottom of the screen.
-                It can be used to switch between plotted segments (if applicable) by clicking on the blue dots or the numbers indicating the beginning of the respective segment (in seconds).
+                It can be used to switch between plotted segments (if applicable) by clicking on the numbers indicating the beginning of the respective segment (in seconds).
                 The segment size, by default initialized to 10 seconds, can be adjusted in the "Visualization settings" of the "Settings" pop-up window.
                 The **←** and **→** buttons plot the previous and following segments, respectively.
                 The view-slider also provides an overview over the annotations made.

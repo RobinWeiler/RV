@@ -217,7 +217,9 @@ def register_bad_channel_callbacks():
 
     @callback(
         [
-            Output('RV-main-graph', 'figure', allow_duplicate=True), Output('RV-main-graph-resampler', 'data', allow_duplicate=True)
+            Output('RV-main-graph', 'figure', allow_duplicate=True),
+            Output('RV-main-graph-resampler', 'data', allow_duplicate=True),
+            Output('RV-hide-bad-channels-button', 'children'),
         ],
         Input('RV-hide-bad-channels-button', 'n_clicks'),
         [ 
@@ -230,6 +232,12 @@ def register_bad_channel_callbacks():
     def  hide_bad_channels_button_callback(hide_bad_channels, plotting_data, resampler, selected_bad_channels):
         """Hides bad channels when 'RV-hide-bad-channels-button' is pressed. Shows all channels when pressed again.
         """
+        if resampler is None:
+            if hide_bad_channels == 0:
+                return no_update, no_update, 'Hide bad channels'
+            else:
+                raise PreventUpdate
+
         patched_fig = Patch()
 
         for channel_name in selected_bad_channels:
@@ -240,4 +248,4 @@ def register_bad_channel_callbacks():
                 patched_fig['data'][channel_index]['visible'] = (hide_bad_channels % 2 == 0)
                 resampler['data'][channel_index]['visible'] = (hide_bad_channels % 2 == 0)
 
-        return patched_fig, Serverside(resampler)
+        return patched_fig, Serverside(resampler), 'Hide bad channels' if hide_bad_channels % 2 == 0 else 'Show bad channels'
