@@ -69,6 +69,9 @@ def get_percentage_annotation_overlap(annotations, other_annotations):
     annotated_timepoints = get_annotated_100_milliseconds(annotations)
     other_annotated_timepoints = get_annotated_100_milliseconds(other_annotations)
 
+    if len(annotated_timepoints) == 0 or len(other_annotated_timepoints) == 0:
+        return None
+
     common_timepoints = set(annotated_timepoints) & set(other_annotated_timepoints)
     unique_timepoints = set(annotated_timepoints) ^ set(other_annotated_timepoints)
 
@@ -244,7 +247,7 @@ def get_annotation_stats(raw: mne.io.Raw, recording_length: float, annotation_la
             annotated_data_stats.children.append(
                 html.Div([
                     html.H2(f"Amount of overlap between annotations labeled '{annotations_per_label[annotation_index][0][2]}' and '{annotations_per_label[other_annotation_index][0][2]:}':"),
-                    html.Span(str(round(percentage_annotation_overlap)) + '%')
+                    html.Span(str(round(percentage_annotation_overlap) if percentage_annotation_overlap != None else 0) + '%')
                 ]),
             )
 
