@@ -2,7 +2,7 @@ import os
 import shutil
 import webbrowser
 
-from dash_extensions.enrich import DashProxy, ServersideOutputTransform, NoOutputTransform, FileSystemBackend
+from dash_extensions.enrich import DashProxy, ServersideOutputTransform, FileSystemBackend
 
 from RV.layout import get_RV_layout
 from RV.callbacks.annotation_callbacks import register_annotation_callbacks
@@ -117,9 +117,9 @@ def run_RV(load_file_path=None, save_file_path=None, serverside_cache=None,
         from RV.callbacks.model_callbacks import register_model_callbacks
         register_model_callbacks()
 
-    # webbrowser.open(f'http://localhost:{port}')
+    webbrowser.open(f'http://localhost:{port}')
 
-    app.run_server(debug=True, dev_tools_ui=True, jupyter_mode='tab', port=port)
+    app.run_server(debug=True, dev_tools_ui=False, jupyter_mode='tab', port=port)
 
 
 if __name__ == '__main__':
